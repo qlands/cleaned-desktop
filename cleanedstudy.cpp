@@ -31,8 +31,10 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
     ui->seasonsView->setModel(m_seasons);
     m_livestock = new livestockModel(this);
     ui->livestockView->setModel(m_livestock);
+
     m_feeds = new feedsModel(this);
     ui->feedsView->setModel(m_feeds);
+
     m_cropInputs = new cropInputsModel(this);
     ui->cropsView->setModel(m_cropInputs);
     m_fertilizer = new fertilizerModel(this);
@@ -83,9 +85,18 @@ void CleanedStudy::newFile()
     curFile = tr("document%1.json").arg(sequenceNumber++);
     setWindowTitle(curFile + "[*]");
     ui->seasonsView->resizeColumnsToContents();
-    ui->livestockView->resizeColumnsToContents();
-    ui->feedsView->resizeColumnsToContents();
-    ui->cropsView->resizeColumnsToContents();
+    //ui->livestockView->resizeColumnsToContents();
+    ui->livestockView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
+    ui->livestockView->horizontalHeader()->setMinimumHeight(150);
+
+    //ui->feedsView->resizeColumnsToContents();
+    ui->feedsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
+    ui->feedsView->horizontalHeader()->setMinimumHeight(120);
+
+    //ui->cropsView->resizeColumnsToContents();
+    ui->cropsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
+    ui->cropsView->horizontalHeader()->setMinimumHeight(120);
+
     //TODO: Notify that is a new file
 //    connect(document(), &QTextDocument::contentsChanged,
 //            this, &MdiChild::documentWasModified);
@@ -136,28 +147,35 @@ void CleanedStudy::load_models()
     if (ui->cbm_region->count() > 0)
         ui->cbm_region->setCurrentIndex(0);
 
-    // Load manure Combo Boxes
-    bool manureData = false;
-    if (query.exec("SELECT manureman_code,manureman_desc FROM lkp_manureman"))
+    // Load the climate Combo Box
+    if (query.exec("select climate_code from lkp_climate"))
     {
         while(query.next())
         {
-            ui->cbm_stable_manure->addItem(query.value(1).toString(), QVariant(query.value(0).toString()));
-            ui->cbm_yard_manure->addItem(query.value(1).toString(), QVariant(query.value(0).toString()));
-            ui->cbm_pasture_manure->addItem(query.value(1).toString(), QVariant(query.value(0).toString()));
-            manureData = true;
+            ui->cbm_climate->addItem(query.value(0).toString(), QVariant(query.value(0).toString()));
         }
     }
     else
-        emit report_error("Unable to query regions");
-    if (manureData)
+        emit report_error("Unable to query climate");
+    if (ui->cbm_climate->count() > 0)
     {
-        ui->cbm_stable_manure->setCurrentIndex(0);
-        ui->cbm_yard_manure->setCurrentIndex(0);
-        ui->cbm_pasture_manure->setCurrentIndex(0);
+        ui->cbm_climate->setCurrentIndex(0);
+        // Load subclimate
+        ui->cbm_subclimate->clear();
+        if (query.exec("select climate2_code from lkp_climate2 WHERE climate_code = '" + ui->cbm_climate->currentText() + "'"))
+        {
+            while(query.next())
+            {
+                ui->cbm_subclimate->addItem(query.value(0).toString(), QVariant(query.value(0).toString()));
+            }
+        }
+        else
+            emit report_error("Unable to query sub-climate");
+        if (ui->cbm_subclimate->count() > 0)
+            ui->cbm_subclimate->setCurrentIndex(0);
     }
-    ui->txt_manure_onfarm_fraction->setValidator(new QDoubleValidator(0, 100, 2, this));
-    ui->txt_manure_sales_fraction->setValidator(new QDoubleValidator(0, 100, 2, this));
+
+
     ui->txt_purchased_bedding->setValidator(new QDoubleValidator(0, 100, 2, this));
     ui->txt_purchased_compost->setValidator(new QDoubleValidator(0, 100, 2, this));
     ui->txt_purchased_manure->setValidator(new QDoubleValidator(0, 100, 2, this));
@@ -281,6 +299,35 @@ void CleanedStudy::load_models()
 
     //Livestock
     m_livestock->setDatabase(db);
+    connect(m_livestock,SIGNAL(delegateChanged(int)),this,SLOT(livestock_delegate_changed(int)));
+
+    QBrush manureManagementBackground(QColor(169,209,142));
+    comboDelegate *manureStableDelegate = new comboDelegate(this);
+    manureStableDelegate->setBrush(manureManagementBackground);
+
+    comboDelegate *manureEnclosureDelegate = new comboDelegate(this);
+    manureEnclosureDelegate->setBrush(manureManagementBackground);
+
+    comboDelegate *manureOnFarmGrazingDelegate = new comboDelegate(this);
+    manureOnFarmGrazingDelegate->setBrush(manureManagementBackground);
+
+    comboDelegate *manureOffFarmGrazingDelegate = new comboDelegate(this);
+    manureOffFarmGrazingDelegate->setBrush(manureManagementBackground);
+
+    if (query.exec("select manureman_desc from lkp_manureman"))
+    {
+        while (query.next())
+        {
+            manureStableDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
+            manureEnclosureDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
+            manureOnFarmGrazingDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
+            manureOffFarmGrazingDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
+        }
+    }
+    ui->livestockView->setItemDelegateForColumn(7,manureStableDelegate);
+    ui->livestockView->setItemDelegateForColumn(10,manureEnclosureDelegate);
+    ui->livestockView->setItemDelegateForColumn(13,manureOnFarmGrazingDelegate);
+    ui->livestockView->setItemDelegateForColumn(15,manureOffFarmGrazingDelegate);
 
     //Feeds
     m_feeds->setDatabase(db);
@@ -296,7 +343,7 @@ void CleanedStudy::load_models()
     }
     QBrush Background(QColor(169,209,142)); //We can change this to a nice color
     landCoverDelegate->setBrush(Background);
-    ui->feedsView->setItemDelegateForColumn(5,landCoverDelegate);
+    ui->feedsView->setItemDelegateForColumn(6,landCoverDelegate);
 
     comboDelegate *slopeDelegate = new comboDelegate(this);
     if (query.exec("SELECT slope_code,slope_desc FROM lkp_slope"))
@@ -307,7 +354,7 @@ void CleanedStudy::load_models()
         }
     }
     slopeDelegate->setBrush(Background);
-    ui->feedsView->setItemDelegateForColumn(7,slopeDelegate);
+    ui->feedsView->setItemDelegateForColumn(8,slopeDelegate);
 
     comboDelegate *grassDelegate = new comboDelegate(this);
     if (query.exec("SELECT management_code,management_desc FROM lkp_grasslandman"))
@@ -318,7 +365,14 @@ void CleanedStudy::load_models()
         }
     }
     grassDelegate->setBrush(Background);
-    ui->feedsView->setItemDelegateForColumn(10,grassDelegate);
+    ui->feedsView->setItemDelegateForColumn(11,grassDelegate);
+
+    comboDelegate *sourceTypeDelegate = new comboDelegate(this);
+    sourceTypeDelegate->insertItem("Main","Main");
+    sourceTypeDelegate->insertItem("Residue","Residue");
+    sourceTypeDelegate->setBrush(Background);
+    ui->feedsView->setItemDelegateForColumn(2,sourceTypeDelegate);
+
 
     //Crops
     m_cropInputs->setDatabase(db);
@@ -333,19 +387,16 @@ void CleanedStudy::load_models()
 void CleanedStudy::saveStudyObject()
 {
     this->study_object["farm_code"] = ui->txt_farmcode->text();
-    this->study_object["farm_name"] = ui->txt_farmname->text();
+    this->study_object["farm_name"] = ui->txt_farmname->text();    
     this->study_object["region"] =  ui->cbm_region->currentData().toString();
+    this->study_object["climate_zone"] =  ui->cbm_climate->currentData().toString();
+    this->study_object["climate_zone_2"] =  ui->cbm_subclimate->currentData().toString();
     // Save seasons
     study_object["seasons"] = m_seasons->getSeasonArray();
-    // Save manure section
-    this->study_object["manureman_stable"] = ui->cbm_stable_manure->currentText();
-    this->study_object["manureman_yard"] = ui->cbm_yard_manure->currentText();
-    this->study_object["manureman_pasture"] = ui->cbm_pasture_manure->currentText();
+    // Save manure section    
     this->study_object["purchased_manure"] = ui->txt_purchased_manure->text().toDouble();
     this->study_object["purchased_compost"] = ui->txt_purchased_compost->text().toDouble();
-    this->study_object["purchased_organic_n"] = ui->txt_purchased_other->text().toDouble();
-    this->study_object["manure_onfarm_fraction"] = ui->txt_manure_onfarm_fraction->text().toDouble();
-    this->study_object["manure_sales_fraction"] = ui->txt_manure_sales_fraction->text().toDouble();
+    this->study_object["purchased_organic_n"] = ui->txt_purchased_other->text().toDouble();    
     this->study_object["purchased_bedding"] = ui->txt_purchased_bedding->text().toDouble();
     // Save waste management
     this->study_object["waste_production_milk"] = ui->txt_waste_prod_milk->text().toDouble();
@@ -357,22 +408,23 @@ void CleanedStudy::saveStudyObject()
     this->study_object["waste_consume_milk"] = ui->txt_waste_cons_milk->text().toDouble();
     this->study_object["waste_consume_milk"] = ui->txt_waste_cons_meat->text().toDouble();
     // Save land
-    this->study_object["txt_annual_prec"] = ui->txt_annual_prec->text().toDouble();
-    this->study_object["txt_rain_length"] = ui->txt_rain_length->text().toDouble();
-    this->study_object["txt_soil_k_value"] = ui->txt_soil_k_value->text().toDouble();
-    this->study_object["txt_soil_n"] = ui->txt_soil_n->text().toDouble();
-    this->study_object["txt_soil_c"] = ui->txt_soil_c->text().toDouble();
-    this->study_object["txt_soil_clay"] = ui->txt_soil_clay->text().toDouble();
-    this->study_object["txt_soil_bulk"] = ui->txt_soil_bulk->text().toDouble();
-    this->study_object["txt_soil_depth"] = ui->txt_soil_depth->text().toDouble();
-    this->study_object["txt_et"] = ui->txt_et->text().toDouble();
-    this->study_object["txt_cropland_system_ipcc"] = ui->txt_cropland_system_ipcc->text().toDouble();
-    this->study_object["txt_cropland_tillage_ipcc"] = ui->txt_cropland_tillage_ipcc->text().toDouble();
-    this->study_object["txt_cropland_orgmatter_ipcc"] = ui->txt_cropland_orgmatter_ipcc->text().toDouble();
-    this->study_object["txt_grassland_management_ipcc"] = ui->txt_grassland_management_ipcc->text().toDouble();
-    this->study_object["txt_grassland_implevel_ipcc"] = ui->txt_grassland_implevel_ipcc->text().toDouble();
-    this->study_object["txt_grassland_toarable"] = ui->txt_grassland_toarable->text().toDouble();
-    this->study_object["txt_arable_tograssland"] = ui->txt_arable_tograssland->text().toDouble();
+    this->study_object["annual_prec"] = ui->txt_annual_prec->text().toDouble();
+    this->study_object["rain_length"] = ui->txt_rain_length->text().toDouble();
+    this->study_object["soil_description"] = ui->cbm_soiltype->currentText();
+    this->study_object["soil_k_value"] = ui->txt_soil_k_value->text().toDouble();
+    this->study_object["soil_n"] = ui->txt_soil_n->text().toDouble();
+    this->study_object["soil_c"] = ui->txt_soil_c->text().toDouble();
+    this->study_object["soil_clay"] = ui->txt_soil_clay->text().toDouble();
+    this->study_object["soil_bulk"] = ui->txt_soil_bulk->text().toDouble();
+    this->study_object["soil_depth"] = ui->txt_soil_depth->text().toDouble();
+    this->study_object["et"] = ui->txt_et->text().toDouble();
+    this->study_object["cropland_system_ipcc"] = ui->txt_cropland_system_ipcc->text().toDouble();
+    this->study_object["cropland_tillage_ipcc"] = ui->txt_cropland_tillage_ipcc->text().toDouble();
+    this->study_object["cropland_orgmatter_ipcc"] = ui->txt_cropland_orgmatter_ipcc->text().toDouble();
+    this->study_object["grassland_management_ipcc"] = ui->txt_grassland_management_ipcc->text().toDouble();
+    this->study_object["grassland_implevel_ipcc"] = ui->txt_grassland_implevel_ipcc->text().toDouble();
+    this->study_object["grassland_toarable"] = ui->txt_grassland_toarable->text().toDouble();
+    this->study_object["arable_tograssland"] = ui->txt_arable_tograssland->text().toDouble();
     this->study_object["cropland_system"] = ui->cbm_cropland_system->currentText();
     this->study_object["cropland_tillage"] = ui->cbm_cropland_tillage->currentText();
     this->study_object["cropland_orgmatter"] = ui->cbm_cropland_orgmatter->currentText();
@@ -401,6 +453,7 @@ void CleanedStudy::saveStudyObject()
                     QJsonObject obj = feeds_array[b].toObject();
 
                     obj["fraction_as_fertilizer"] = crops_array[i].toObject()["fraction_as_fertilizer"];
+                    obj["fraction_as_manure"] = crops_array[i].toObject()["fraction_as_manure"];
                     obj["urea"] = crops_array[i].toObject()["urea"];
                     obj["npk"] = crops_array[i].toObject()["npk"];
                     obj["dap"] = crops_array[i].toObject()["dap"];
@@ -417,7 +470,7 @@ void CleanedStudy::saveStudyObject()
 
     study_object["feed_items"] = feeds_array;
     // Fertilizer
-    study_object["ferlitizer"] = m_fertilizer->getFertilizerArray();
+    study_object["fertilizer"] = m_fertilizer->getFertilizerArray();
 
     // FeedBasket
     if (study_object["seasons"].toArray().count() > 0 && study_object["livestock"].toArray().count() > 0 && study_object["feed_items"].toArray().count() > 0)
@@ -431,6 +484,28 @@ void CleanedStudy::loadStudyObject()
     int region_index = ui->cbm_region->findData(this->study_object["region"].toVariant());
     if (region_index >= 0)
         ui->cbm_region->setCurrentIndex(region_index);
+
+    //Load climate
+    int climate_index = ui->cbm_climate->findData(this->study_object["climate_zone"].toVariant());
+    if (climate_index >= 0)
+    {
+        ui->cbm_climate->setCurrentIndex(climate_index);
+        ui->cbm_subclimate->clear();
+        QSqlQuery query(this->db);
+        if (query.exec("select climate2_code from lkp_climate2 WHERE climate_code = '" + ui->cbm_climate->currentText() + "'"))
+        {
+            while(query.next())
+            {
+                ui->cbm_subclimate->addItem(query.value(0).toString(), QVariant(query.value(0).toString()));
+            }
+        }
+        climate_index = ui->cbm_subclimate->findData(this->study_object["climate_zone_2"].toVariant());
+        if (climate_index >= 0)
+            ui->cbm_subclimate->setCurrentIndex(climate_index);
+    }
+
+
+
     // Load seasons
     if (study_object.contains("seasons") && study_object["seasons"].isArray())
     {
@@ -439,36 +514,13 @@ void CleanedStudy::loadStudyObject()
         m_seasons->setDataArray(seasonsArray);
     }
     ui->seasonsView->resizeColumnsToContents();
-    //Load manure section
-    int manure_index;
-    if (study_object.contains("manureman_stable"))
-    {
-        manure_index = ui->cbm_stable_manure->findText(study_object["manureman_stable"].toString());
-        if (manure_index >= 0)
-            ui->cbm_stable_manure->setCurrentIndex(manure_index);
-    }
-    if (study_object.contains("manureman_yard"))
-    {
-        manure_index = ui->cbm_yard_manure->findText(study_object["manureman_yard"].toString());
-        if (manure_index >= 0)
-            ui->cbm_yard_manure->setCurrentIndex(manure_index);
-    }
-    if (study_object.contains("manureman_pasture"))
-    {
-        manure_index = ui->cbm_pasture_manure->findText(study_object["manureman_pasture"].toString());
-        if (manure_index >= 0)
-            ui->cbm_pasture_manure->setCurrentIndex(manure_index);
-    }
+
     if (study_object.contains("purchased_manure"))
         ui->txt_purchased_manure->setText(QString::number(study_object["purchased_manure"].toDouble()));
     if (study_object.contains("purchased_compost"))
         ui->txt_purchased_compost->setText(QString::number(study_object["purchased_compost"].toDouble()));
     if (study_object.contains("purchased_organic_n"))
         ui->txt_purchased_other->setText(QString::number(study_object["purchased_organic_n"].toDouble()));
-    if (study_object.contains("manure_onfarm_fraction"))
-        ui->txt_manure_onfarm_fraction->setText(QString::number(study_object["manure_onfarm_fraction"].toDouble()));
-    if (study_object.contains("manure_sales_fraction"))
-        ui->txt_manure_sales_fraction->setText(QString::number(study_object["manure_sales_fraction"].toDouble()));
     if (study_object.contains("purchased_bedding"))
         ui->txt_purchased_bedding->setText(QString::number(study_object["purchased_bedding"].toDouble()));
 
@@ -521,68 +573,78 @@ void CleanedStudy::loadStudyObject()
         if (combo_index >= 0)
             ui->cbm_grassland_implevel->setCurrentIndex(combo_index);
     }
-    if (study_object.contains("txt_annual_prec"))
-        ui->txt_annual_prec->setText(QString::number(study_object["txt_annual_prec"].toDouble()));
-    if (study_object.contains("txt_rain_length"))
-        ui->txt_rain_length->setText(QString::number(study_object["txt_rain_length"].toDouble()));
-    if (study_object.contains("txt_soil_k_value"))
-        ui->txt_soil_k_value->setText(QString::number(study_object["txt_soil_k_value"].toDouble()));
+    if (study_object.contains("annual_prec"))
+        ui->txt_annual_prec->setText(QString::number(study_object["annual_prec"].toDouble()));
+    if (study_object.contains("rain_length"))
+        ui->txt_rain_length->setText(QString::number(study_object["rain_length"].toDouble()));
+
+    if (study_object.contains("soil_description"))
+    {
+        int soil_index = ui->cbm_soiltype->findText(study_object["soil_description"].toString());
+        if (soil_index >= 0)
+            ui->cbm_soiltype->setCurrentIndex(soil_index);
+    }
+    else
+         ui->cbm_soiltype->setCurrentIndex(0);
+
+    if (study_object.contains("soil_k_value"))
+        ui->txt_soil_k_value->setText(QString::number(study_object["soil_k_value"].toDouble()));
     else
     {
         if (ui->cbm_soiltype->currentData().isValid())
             ui->txt_soil_k_value->setText(QString::number(ui->cbm_soiltype->currentData().toDouble()));
     }
-    if (study_object.contains("txt_soil_n"))
-        ui->txt_soil_n->setText(QString::number(study_object["txt_soil_n"].toDouble()));
-    if (study_object.contains("txt_soil_c"))
-        ui->txt_soil_c->setText(QString::number(study_object["txt_soil_c"].toDouble()));
-    if (study_object.contains("txt_soil_clay"))
-        ui->txt_soil_clay->setText(QString::number(study_object["txt_soil_clay"].toDouble()));
-    if (study_object.contains("txt_soil_bulk"))
-        ui->txt_soil_bulk->setText(QString::number(study_object["txt_soil_bulk"].toDouble()));
-    if (study_object.contains("txt_soil_depth"))
-        ui->txt_soil_depth->setText(QString::number(study_object["txt_soil_depth"].toDouble()));
-    if (study_object.contains("txt_et"))
-        ui->txt_et->setText(QString::number(study_object["txt_et"].toDouble()));
-    if (study_object.contains("txt_cropland_system_ipcc"))
-        ui->txt_cropland_system_ipcc->setText(QString::number(study_object["txt_cropland_system_ipcc"].toDouble()));
+    if (study_object.contains("soil_n"))
+        ui->txt_soil_n->setText(QString::number(study_object["soil_n"].toDouble()));
+    if (study_object.contains("soil_c"))
+        ui->txt_soil_c->setText(QString::number(study_object["soil_c"].toDouble()));
+    if (study_object.contains("soil_clay"))
+        ui->txt_soil_clay->setText(QString::number(study_object["soil_clay"].toDouble()));
+    if (study_object.contains("soil_bulk"))
+        ui->txt_soil_bulk->setText(QString::number(study_object["soil_bulk"].toDouble()));
+    if (study_object.contains("soil_depth"))
+        ui->txt_soil_depth->setText(QString::number(study_object["soil_depth"].toDouble()));
+    if (study_object.contains("et"))
+        ui->txt_et->setText(QString::number(study_object["et"].toDouble()));
+    if (study_object.contains("cropland_system_ipcc"))
+        ui->txt_cropland_system_ipcc->setText(QString::number(study_object["cropland_system_ipcc"].toDouble()));
     else
     {
         if (ui->cbm_cropland_system->currentData().isValid())
             ui->txt_cropland_system_ipcc->setText(QString::number(ui->cbm_cropland_system->currentData().toDouble()));
     }
-    if (study_object.contains("txt_cropland_tillage_ipcc"))
-        ui->txt_cropland_tillage_ipcc->setText(QString::number(study_object["txt_cropland_tillage_ipcc"].toDouble()));
+    if (study_object.contains("cropland_tillage_ipcc"))
+        ui->txt_cropland_tillage_ipcc->setText(QString::number(study_object["cropland_tillage_ipcc"].toDouble()));
     else
     {
         if (ui->cbm_cropland_tillage->currentData().isValid())
             ui->txt_cropland_tillage_ipcc->setText(QString::number(ui->cbm_cropland_tillage->currentData().toDouble()));
     }
-    if (study_object.contains("txt_cropland_orgmatter_ipcc"))
-        ui->txt_cropland_orgmatter_ipcc->setText(QString::number(study_object["txt_cropland_orgmatter_ipcc"].toDouble()));
+    if (study_object.contains("cropland_orgmatter_ipcc"))
+        ui->txt_cropland_orgmatter_ipcc->setText(QString::number(study_object["cropland_orgmatter_ipcc"].toDouble()));
     else
     {
         if (ui->cbm_cropland_orgmatter->currentData().isValid())
             ui->txt_cropland_orgmatter_ipcc->setText(QString::number(ui->cbm_cropland_orgmatter->currentData().toDouble()));
     }
-    if (study_object.contains("txt_grassland_management_ipcc"))
-        ui->txt_grassland_management_ipcc->setText(QString::number(study_object["txt_grassland_management_ipcc"].toDouble()));
+    if (study_object.contains("grassland_management_ipcc"))
+        ui->txt_grassland_management_ipcc->setText(QString::number(study_object["grassland_management_ipcc"].toDouble()));
     else
     {
         if (ui->cbm_grassland_management->currentData().isValid())
             ui->txt_grassland_management_ipcc->setText(QString::number(ui->cbm_grassland_management->currentData().toDouble()));
     }
-    if (study_object.contains("txt_grassland_implevel_ipcc"))
-        ui->txt_grassland_implevel_ipcc->setText(QString::number(study_object["txt_grassland_implevel_ipcc"].toDouble()));
+    if (study_object.contains("grassland_implevel_ipcc"))
+        ui->txt_grassland_implevel_ipcc->setText(QString::number(study_object["grassland_implevel_ipcc"].toDouble()));
     else
     {
         if (ui->cbm_grassland_implevel->currentData().isValid())
             ui->txt_grassland_implevel_ipcc->setText(QString::number(ui->cbm_grassland_implevel->currentData().toDouble()));
     }
-    if (study_object.contains("txt_grassland_toarable"))
-        ui->txt_grassland_toarable->setText(QString::number(study_object["txt_grassland_toarable"].toDouble()));
-    if (study_object.contains("txt_arable_tograssland"))
-        ui->txt_arable_tograssland->setText(QString::number(study_object["txt_arable_tograssland"].toDouble()));
+    if (study_object.contains("grassland_toarable"))
+        ui->txt_grassland_toarable->setText(QString::number(study_object["grassland_toarable"].toDouble()));
+    if (study_object.contains("arable_tograssland"))
+        ui->txt_arable_tograssland->setText(QString::number(study_object["arable_tograssland"].toDouble()));
     // Load economic parameters
     if (study_object.contains("land_oppcost"))
         ui->txt_land_oppcost->setText(QString::number(study_object["land_oppcost"].toDouble()));
@@ -591,6 +653,7 @@ void CleanedStudy::loadStudyObject()
     if (study_object.contains("cba_years"))
         ui->txt_cba_years->setText(QString::number(study_object["cba_years"].toDouble()));
 
+
     // Load livestock
     if (study_object.contains("livestock") && study_object["livestock"].isArray())
     {
@@ -598,7 +661,10 @@ void CleanedStudy::loadStudyObject()
         livestockArray = study_object["livestock"].toArray();
         m_livestock->setDataArray(livestockArray);
     }
-    ui->livestockView->resizeColumnsToContents();
+    //ui->livestockView->resizeColumnsToContents();
+    ui->livestockView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
+    ui->livestockView->horizontalHeader()->setMinimumHeight(150);
+
     // Load feeds
     if (study_object.contains("feed_items") && study_object["feed_items"].isArray())
     {
@@ -607,13 +673,22 @@ void CleanedStudy::loadStudyObject()
         m_feeds->setDataArray(feedsArray);
         m_cropInputs->setDataArray(feedsArray);
     }
-    ui->feedsView->resizeColumnsToContents();
-    ui->cropsView->resizeColumnsToContents();
+
+    //ui->feedsView->resizeColumnsToContents();
+    ui->feedsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
+    ui->feedsView->horizontalHeader()->setMinimumHeight(120);
+
+
+    //ui->cropsView->resizeColumnsToContents();
+    ui->cropsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
+    ui->cropsView->horizontalHeader()->setMinimumHeight(120);
+
+
     // Load fertilizer
-    if (study_object.contains("ferlitizer") && study_object["ferlitizer"].isArray())
+    if (study_object.contains("fertilizer") && study_object["fertilizer"].isArray())
     {
         QJsonArray fertilizerArray;
-        fertilizerArray = study_object["ferlitizer"].toArray();
+        fertilizerArray = study_object["fertilizer"].toArray();
         m_fertilizer->setDataArray(fertilizerArray);
     }
     ui->fertilizerView->resizeColumnsToContents();
@@ -910,7 +985,9 @@ void CleanedStudy::on_cmd_add_live_clicked()
             if (!m_livestock->livestockExists(addNewLivestock.getLivestockCode()))
             {
                 m_livestock->addNewLivestock(addNewLivestock.getLivestockCode(), ui->cbm_region->currentData().toString());
-                ui->livestockView->resizeColumnsToContents();
+                //ui->livestockView->resizeColumnsToContents();
+                ui->livestockView->resizeColumnToContents(0);
+
                 m_basktet->addNewLivestock(addNewLivestock.getLivestockCode());
                 ui->basketView->resizeColumnsToContents();
                 studyModified = true;
@@ -935,9 +1012,22 @@ void CleanedStudy::on_cmd_add_feed_clicked()
             if (!m_feeds->feedExists(crop, feed))
             {
                 m_feeds->addNewFeed(crop, feed);
-                ui->feedsView->resizeColumnsToContents();
+
+                ui->feedsView->resizeColumnToContents(0);
+                ui->feedsView->resizeColumnToContents(1);
+                ui->feedsView->resizeColumnToContents(2);
+                ui->feedsView->resizeColumnToContents(6);
+                ui->feedsView->resizeColumnToContents(8);
+                ui->feedsView->resizeColumnToContents(11);
+
+
                 m_cropInputs->addNewFeed(crop, feed);
-                ui->cropsView->resizeColumnsToContents();
+
+                //ui->cropsView->resizeColumnsToContents();
+                ui->cropsView->resizeColumnToContents(0);
+                ui->cropsView->resizeColumnToContents(1);
+
+
                 m_basktet->addNewFeed(crop, feed);
                 ui->basketView->resizeColumnsToContents();
                 studyModified = true;
@@ -950,6 +1040,11 @@ void CleanedStudy::on_cmd_add_feed_clicked()
 void CleanedStudy::feeds_delegate_changed(int column)
 {
     ui->feedsView->resizeColumnToContents(column);
+}
+
+void CleanedStudy::livestock_delegate_changed(int column)
+{
+    ui->livestockView->resizeColumnToContents(column);
 }
 
 void CleanedStudy::on_cmd_add_fert_clicked()
@@ -1108,4 +1203,21 @@ void CleanedStudy::BrowseChildren(QWidget * parent)
         QWidget * pChild = (QWidget *)(*it++);
         BrowseChildren( pChild );
     }
+}
+
+void CleanedStudy::on_cbm_climate_currentIndexChanged(const QString &arg1)
+{
+    ui->cbm_subclimate->clear();
+    QSqlQuery query(this->db);
+    if (query.exec("select climate2_code from lkp_climate2 WHERE climate_code = '" + arg1 + "'"))
+    {
+        while(query.next())
+        {
+            ui->cbm_subclimate->addItem(query.value(0).toString(), QVariant(query.value(0).toString()));
+        }
+    }
+    else
+        emit report_error("Unable to query sub-climate");
+    if (ui->cbm_subclimate->count() > 0)
+        ui->cbm_subclimate->setCurrentIndex(0);
 }

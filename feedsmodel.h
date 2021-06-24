@@ -10,6 +10,7 @@ struct feedType
     QString feed_type_name;
     QString feed_item_code;
     QString feed_item_name;
+    QString source_type;
     int intercrop;
     double intercrop_fraction;
     double cut_carry_fraction;
@@ -39,14 +40,9 @@ struct feedType
     double emission_factor;
     double fresh_yield;
     double dm_fraction;
-    double dry_yield;
-    double harvest_index;
-    double residue_fresh_yield;
-    double residue_dm_content;
-    double residue_dry_yield;
+    double harvest_index;    
     double residue_n;
-    double main_n;
-    double residue_n_dm;
+    double main_n;    
     double c_factor;
     double n_fixation;
     double energy;
@@ -62,6 +58,17 @@ struct feedType
     double trees_dhb;
     double trees_growth;
     double trees_removal;
+
+    double trees_ha_dbh25;
+    double average_dbh25;
+    double increase_dbh25;
+    double trees_ha_dbh2550;
+    double average_dbh2550;
+    double increase_dbh2550;
+    double trees_ha_dbh50;
+    double average_dbh50;
+    double increase_dbh50;
+    double time_horizon;
 };
 typedef feedType Tfeed;
 

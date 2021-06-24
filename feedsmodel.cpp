@@ -22,6 +22,7 @@ void feedsModel::setDataArray(QJsonArray data)
          aFeed.feed_type_name = feedObject["feed_type_name"].toString();
          aFeed.feed_item_code = feedObject["feed_item_code"].toString();
          aFeed.feed_item_name = feedObject["feed_item_name"].toString();
+         aFeed.source_type = feedObject["source_type"].toString();
          aFeed.intercrop = feedObject["intercrop"].toInt(0);
          aFeed.intercrop_fraction = feedObject["intercrop_fraction"].toDouble(0);
          aFeed.cut_carry_fraction = feedObject["cut_carry_fraction"].toDouble(0);
@@ -50,15 +51,10 @@ void feedsModel::setDataArray(QJsonArray data)
          aFeed.wfp_grey = feedObject["wfp_grey"].toDouble(0);
          aFeed.emission_factor = feedObject["emission_factor"].toDouble(0);
          aFeed.fresh_yield = feedObject["fresh_yield"].toDouble(0);
-         aFeed.dm_content = feedObject["dm_content"].toDouble(0);
-         aFeed.dry_yield = feedObject["dry_yield"].toDouble(0);
+         aFeed.dm_content = feedObject["dm_content"].toDouble(0);         
          aFeed.harvest_index = feedObject["harvest_index"].toDouble(0);
-         aFeed.residue_fresh_yield = feedObject["residue_fresh_yield"].toDouble(0);
-         aFeed.residue_dm_content = feedObject["residue_dm_content"].toDouble(0);
-         aFeed.residue_dry_yield = feedObject["residue_dry_yield"].toDouble(0);
          aFeed.residue_n = feedObject["residue_n"].toDouble(0);
-         aFeed.main_n = feedObject["main_n"].toDouble(0);
-         aFeed.residue_n_dm = feedObject["residue_n_dm"].toDouble(0);
+         aFeed.main_n = feedObject["main_n"].toDouble(0);         
          aFeed.c_factor = feedObject["c_factor"].toDouble(0);
          aFeed.n_fixation = feedObject["n_fixation"].toDouble(0);
          aFeed.energy = feedObject["energy"].toDouble(0);
@@ -74,6 +70,18 @@ void feedsModel::setDataArray(QJsonArray data)
          aFeed.trees_dhb = feedObject["trees_dhb"].toDouble(0);
          aFeed.trees_growth = feedObject["trees_growth"].toDouble(0);
          aFeed.trees_removal = feedObject["trees_removal"].toDouble(0);
+
+         aFeed.trees_ha_dbh25 = feedObject["trees_ha_dbh25"].toDouble(0);
+         aFeed.average_dbh25 = feedObject["average_dbh25"].toDouble(0);
+         aFeed.increase_dbh25 = feedObject["increase_dbh25"].toDouble(0);
+         aFeed.trees_ha_dbh2550 = feedObject["trees_ha_dbh2550"].toDouble(0);
+         aFeed.average_dbh2550 = feedObject["average_dbh2550"].toDouble(0);
+         aFeed.increase_dbh2550 = feedObject["increase_dbh2550"].toDouble(0);
+         aFeed.trees_ha_dbh50 = feedObject["trees_ha_dbh50"].toDouble(0);
+         aFeed.average_dbh50 = feedObject["average_dbh50"].toDouble(0);
+         aFeed.increase_dbh50 = feedObject["increase_dbh50"].toDouble(0);
+         aFeed.time_horizon = feedObject["time_horizon"].toDouble(0);
+
          items.append(aFeed);
     }
     this->endResetModel();
@@ -86,7 +94,7 @@ void feedsModel::setDatabase(QSqlDatabase cleaned_db)
 
 int feedsModel::columnCount(const QModelIndex &) const
 {
-    return 52;
+    return 60;
 }
 
 int feedsModel::rowCount(const QModelIndex &) const
@@ -110,9 +118,9 @@ Qt::ItemFlags feedsModel::flags(const QModelIndex &index) const
 {
     if (index.column() > 1)
     {
-        if (index.column() != 3)
+        if (index.column() != 4)
         {
-            if (index.column() != 2)
+            if (index.column() != 3)
                 return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
             else
                 return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
@@ -139,6 +147,7 @@ QJsonArray feedsModel::getFeedsArray()
         feedObject["feed_type_name"] = items[i].feed_type_name;
         feedObject["feed_item_code"] = items[i].feed_item_code;
         feedObject["feed_item_name"] = items[i].feed_item_name;
+        feedObject["source_type"] = items[i].source_type;
         feedObject["intercrop"] = items[i].intercrop;
         feedObject["intercrop_fraction"] = items[i].intercrop_fraction;
         feedObject["cut_carry_fraction"] = items[i].cut_carry_fraction;
@@ -167,15 +176,10 @@ QJsonArray feedsModel::getFeedsArray()
         feedObject["wfp_grey"] = items[i].wfp_grey;
         feedObject["emission_factor"] = items[i].emission_factor;
         feedObject["fresh_yield"] = items[i].fresh_yield;
-        feedObject["dm_content"] = items[i].dm_content;
-        feedObject["dry_yield"] = items[i].dry_yield;
-        feedObject["harvest_index"] = items[i].harvest_index;
-        feedObject["residue_fresh_yield"] = items[i].residue_fresh_yield;
-        feedObject["residue_dm_content"] = items[i].residue_dm_content;
-        feedObject["residue_dry_yield"] = items[i].residue_dry_yield;
+        feedObject["dm_content"] = items[i].dm_content;        
+        feedObject["harvest_index"] = items[i].harvest_index;        
         feedObject["residue_n"] = items[i].residue_n;
-        feedObject["main_n"] = items[i].main_n;
-        feedObject["residue_n_dm"] = items[i].residue_n_dm;
+        feedObject["main_n"] = items[i].main_n;        
         feedObject["c_factor"] = items[i].c_factor;
         feedObject["n_fixation"] = items[i].n_fixation;
         feedObject["energy"] = items[i].energy;
@@ -191,6 +195,19 @@ QJsonArray feedsModel::getFeedsArray()
         feedObject["trees_dhb"] = items[i].trees_dhb;
         feedObject["trees_growth"] = items[i].trees_growth;
         feedObject["trees_removal"] = items[i].trees_removal;
+
+        feedObject["trees_ha_dbh25"] = items[i].trees_ha_dbh25;
+        feedObject["average_dbh25"] = items[i].average_dbh25;
+        feedObject["increase_dbh25"] = items[i].increase_dbh25;
+        feedObject["trees_ha_dbh2550"] = items[i].trees_ha_dbh2550;
+        feedObject["average_dbh2550"] = items[i].average_dbh2550;
+        feedObject["increase_dbh2550"] = items[i].increase_dbh2550;
+        feedObject["trees_ha_dbh50"] = items[i].trees_ha_dbh50;
+        feedObject["average_dbh50"] = items[i].average_dbh50;
+        feedObject["increase_dbh50"] = items[i].increase_dbh50;
+        feedObject["time_horizon"] = items[i].time_horizon;
+
+
         feedsArray.append(feedObject);
     }
     return feedsArray;
@@ -204,6 +221,7 @@ void feedsModel::addNewFeed(QString crop, QString feed)
     Tfeed aFeed;
     aFeed.feed_type_code = crop;
     aFeed.feed_item_code = feed;
+    aFeed.source_type = "Main";
     aFeed.intercrop = 0;
     aFeed.intercrop_fraction = 0;
     aFeed.cut_carry_fraction = 0;
@@ -265,15 +283,10 @@ void feedsModel::addNewFeed(QString crop, QString feed)
         {
             aFeed.feed_type_name = query.value("feed_type_name").toString();
             aFeed.fresh_yield = query.value("fresh_yield").toDouble(0);
-            aFeed.dm_fraction = query.value("dm_fraction").toDouble(0);
-            aFeed.dry_yield = query.value("dry_yield").toDouble(0);
-            aFeed.harvest_index = query.value("harvest_index").toDouble(0);
-            aFeed.residue_fresh_yield = query.value("residue_fresh_yield").toDouble(0);
-            aFeed.residue_dm_content = query.value("residue_dm_content").toDouble(0);
-            aFeed.residue_dry_yield = query.value("residue_dry_yield").toDouble(0);
+            aFeed.dm_fraction = query.value("dm_fraction").toDouble(0);            
+            aFeed.harvest_index = query.value("harvest_index").toDouble(0);            
             aFeed.residue_n = query.value("residue_n").toDouble(0);
-            aFeed.main_n = query.value("main_n").toDouble(0);
-            aFeed.residue_n_dm = query.value("residue_n_dm").toDouble(0);
+            aFeed.main_n = query.value("main_n").toDouble(0);            
             aFeed.c_factor = query.value("c_factor").toDouble(0);
             aFeed.n_fixation = query.value("n_fixation").toDouble(0);
             aFeed.energy = query.value("energy").toDouble(0);
@@ -289,6 +302,17 @@ void feedsModel::addNewFeed(QString crop, QString feed)
             aFeed.trees_dhb = query.value("trees_dhb").toDouble(0);
             aFeed.trees_growth = query.value("trees_growth").toDouble(0);
             aFeed.trees_removal = query.value("trees_removal").toDouble(0);
+
+            aFeed.trees_ha_dbh25 = query.value("trees_ha_dbh25").toDouble(0);
+            aFeed.average_dbh25 = query.value("average_dbh25").toDouble(0);
+            aFeed.increase_dbh25 = query.value("increase_dbh25").toDouble(0);
+            aFeed.trees_ha_dbh2550 = query.value("trees_ha_dbh2550").toDouble(0);
+            aFeed.average_dbh2550 = query.value("average_dbh2550").toDouble(0);
+            aFeed.increase_dbh2550 = query.value("increase_dbh2550").toDouble(0);
+            aFeed.trees_ha_dbh50 = query.value("trees_ha_dbh50").toDouble(0);
+            aFeed.average_dbh50 = query.value("average_dbh50").toDouble(0);
+            aFeed.increase_dbh50 = query.value("increase_dbh50").toDouble(0);
+            aFeed.time_horizon = query.value("time_horizon").toDouble(0);
         }
 
     }
@@ -309,58 +333,64 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
         {
             if (section == 0) return "Crop";
             if (section == 1) return "Feed";
-            if (section == 2) return "Intercropping (yes / no)";
-            if (section == 3) return "IF intercropping, fraction of field occupied by this crop";
-            if (section == 4) return "Cut-and-carry (fraction)";
-            if (section == 5) return "Land cover";
-            if (section == 6) return "Land cover C Factor";
-            if (section == 7) return "Slope";
-            if (section == 8) return "Slope P Factor";
-            if (section == 9) return "Length of slope (m)";
-            if (section == 10) return "Management grassland";
-            if (section == 11) return "Grassland change factor";
-            if (section == 12) return "Main product removal (fraction)";
-            if (section == 13) return "Crop residue removal from field (fraction)";
-            if (section == 14) return "Crop residue burnt (fraction)";
-            if (section == 15) return "DM content (%)";
-            if (section == 16) return "ME content (MJ/kg DM)";
-            if (section == 17) return "ME (MJ/kg fresh)";
-            if (section == 18) return "CP content (% DM)";
-            if (section == 19) return "CP content (% fresh)";
-            if (section == 20) return "DE (fraction)";
-            if (section == 21) return "Establishment cost (USD/ha)";
-            if (section == 22) return "Operational costs (USD/yr/ha)";
-            if (section == 23) return "Establishment labour (days/ha)";
-            if (section == 24) return "Operational labour (days/yr/ha)";
-            if (section == 25) return "WFP green (m3/kg MS)";
-            if (section == 26) return "WFP blue (m3/kg MS)";
-            if (section == 27) return "WFP grey (m3/kg MS)";
-            if (section == 28) return "Emission factor (kg CO2e/kg)";
-            if (section == 29) return "Main product Fresh Yield (t FW/ha)";
-            if (section == 30) return "Main product DM content fraction";
-            if (section == 31) return "Main Product Dry Yield (t DM/ha)";
+            if (section == 2) return "Source type";
+            if (section == 3) return "Intercropping (yes / no)";
+            if (section == 4) return "IF intercropping, fraction of field occupied by this crop";
+            if (section == 5) return "Cut-and-carry (fraction)";
+            if (section == 6) return "Land cover";
+            if (section == 7) return "Land cover C Factor";
+            if (section == 8) return "Slope";
+            if (section == 9) return "Slope P Factor";
+            if (section == 10) return "Length of slope (m)";
+            if (section == 11) return "Management grassland";
+            if (section == 12) return "Grassland change factor";
+            if (section == 13) return "Main product removal (fraction)";
+            if (section == 14) return "Crop residue removal from field (fraction)";
+            if (section == 15) return "Crop residue burnt (fraction)";
+            if (section == 16) return "DM content (%)";
+            if (section == 17) return "ME content (MJ/kg DM)";
+            if (section == 18) return "ME (MJ/kg fresh)";
+            if (section == 19) return "CP content (% DM)";
+            if (section == 20) return "CP content (% fresh)";
+            if (section == 21) return "DE (fraction)";
+            if (section == 22) return "Establishment cost (USD/ha)";
+            if (section == 23) return "Operational costs (USD/yr/ha)";
+            if (section == 24) return "Establishment labour (days/ha)";
+            if (section == 25) return "Operational labour (days/yr/ha)";
+            if (section == 26) return "WFP green (m3/kg MS)";
+            if (section == 27) return "WFP blue (m3/kg MS)";
+            if (section == 28) return "WFP grey (m3/kg MS)";
+            if (section == 29) return "Emission factor (kg CO2e/kg)";
+            if (section == 30) return "Main product Fresh Yield (t FW/ha)";
+            if (section == 31) return "Main product DM content fraction";
             if (section == 32) return "Average Harvest index";
-            if (section == 33) return "Crop residue  Fresh yield (t FW/ha)";
-            if (section == 34) return "Crop residue DM content fraction";
-            if (section == 35) return "Crop residue  Dry Yield(t DM/ha)";
-            if (section == 36) return "Crop residue N content per area (kg N/ ha)";
-            if (section == 37) return "Main product N conten (kg N/kg DM)";
-            if (section == 38) return "Crop residue N content (kg N/kg DM)";
-            if (section == 39) return "C (crop cover) factor";
-            if (section == 40) return "N fixation by crop (kg N/ha/yr)";
-            if (section == 41) return "Energy  (kcal per FW 100g )";
-            if (section == 42) return "Water content (g per 100 g)";
-            if (section == 43) return "Energy (kcal per 100 g DM)";
-            if (section == 44) return "USDA nutrition data base entry #";
-            if (section == 45) return "Kc: Initial";
-            if (section == 46) return "Kc: MidSeason";
-            if (section == 47) return "Kc: Late";
-            if (section == 48) return "Crop coefficient (Kc) avg";
-            if (section == 49) return "Category";
-            if (section == 50) return "Trees/ha";
-            if (section == 51) return "Trees DBH";
-            if (section == 52) return "Trees annual growth (kg)";
-            if (section == 53) return "Trees annual removal (kg)";
+            if (section == 33) return "Crop residue N content per area (kg N/ ha)";
+            if (section == 34) return "Main product N conten (kg N/kg DM)";
+            if (section == 35) return "C (crop cover) factor";
+            if (section == 36) return "N fixation by crop (kg N/ha/yr)";
+            if (section == 37) return "Energy  (kcal per FW 100g )";
+            if (section == 38) return "Water content (g per 100 g)";
+            if (section == 39) return "Energy (kcal per 100 g DM)";
+            if (section == 40) return "USDA nutrition data base entry #";
+            if (section == 41) return "Kc: Initial";
+            if (section == 42) return "Kc: MidSeason";
+            if (section == 43) return "Kc: Late";
+            if (section == 44) return "Crop coefficient (Kc) avg";
+            if (section == 45) return "Category";
+            if (section == 46) return "Trees/ha";
+            if (section == 47) return "Trees DBH";
+            if (section == 48) return "Trees annual growth (kg)";
+            if (section == 49) return "Trees annual removal (kg)";
+            if (section == 50) return "Number of trees per hectare with a diameter at breast height of less than 25cm";
+            if (section == 51) return "Average diameter at breast height of trees with a DBH of less than 25cm";
+            if (section == 52) return "Diameter at breast height increase in trees with a DBH of less than 25cm (cm/year)";
+            if (section == 53) return "Number of trees per hectare with a diameter at breast height of 25-50cm";
+            if (section == 54) return "Average diameter at breast height of trees with a DBH of 25-50cm";
+            if (section == 55) return "Diameter at breast height increase in trees with a DBH of 25-50cm (cm/year)";
+            if (section == 56) return "Number of trees per hectare with a diameter at breast height more than 50cm";
+            if (section == 57) return "Average diameter at breast height of trees with a DBH more than 50cm";
+            if (section == 58) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
+            if (section == 59) return "Time it takes for tree to mature (years)";
         }
     }
     return QVariant();
@@ -375,14 +405,15 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
     }
     if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
     {
-        if (index.column() == 2)
+        if (index.column() == 2) return items[index.row()].source_type;
+        if (index.column() == 3)
         {
             if (items[index.row()].intercrop == 1)
                 return "True";
             else
                 return "False";
         }
-        if (index.column() == 3)
+        if (index.column() == 4)
         {
             if (role == Qt::DisplayRole)
                 return items[index.row()].intercrop_fraction;
@@ -392,70 +423,76 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
                     return items[index.row()].intercrop_fraction;
             }
         }
-        if (index.column() == 4) return items[index.row()].cut_carry_fraction;
-        if (index.column() == 5) return items[index.row()].land_cover;
-        if (index.column() == 6) return items[index.row()].landcover_c_factor;
-        if (index.column() == 7) return items[index.row()].slope;
-        if (index.column() == 8) return items[index.row()].slope_p_factor;
-        if (index.column() == 9) return items[index.row()].slope_length;
-        if (index.column() == 10) return items[index.row()].grassman;
-        if (index.column() == 11) return items[index.row()].grassman_change_factor;
-        if (index.column() == 12) return items[index.row()].main_product_removal;
-        if (index.column() == 13) return items[index.row()].residue_removal;
-        if (index.column() == 14) return items[index.row()].residue_burnt;
-        if (index.column() == 15) return items[index.row()].dm_content;
-        if (index.column() == 16) return items[index.row()].me_content;
-        if (index.column() == 17) return items[index.row()].me_fresh;
-        if (index.column() == 18) return items[index.row()].cp_content;
-        if (index.column() == 19) return items[index.row()].cp_fresh;
-        if (index.column() == 20) return items[index.row()].de;
-        if (index.column() == 21) return items[index.row()].establishment_cost;
-        if (index.column() == 22) return items[index.row()].operational_cost;
-        if (index.column() == 23) return items[index.row()].establishment_labour;
-        if (index.column() == 24) return items[index.row()].operational_labour;
-        if (index.column() == 25) return items[index.row()].wfp_green;
-        if (index.column() == 26) return items[index.row()].wfp_blue;
-        if (index.column() == 27) return items[index.row()].wfp_grey;
-        if (index.column() == 28) return items[index.row()].emission_factor;
-        if (index.column() == 29) return items[index.row()].fresh_yield;
-        if (index.column() == 30) return items[index.row()].dm_content;
-        if (index.column() == 31) return items[index.row()].dry_yield;
+        if (index.column() == 5) return items[index.row()].cut_carry_fraction;
+        if (index.column() == 6) return items[index.row()].land_cover;
+        if (index.column() == 7) return items[index.row()].landcover_c_factor;
+        if (index.column() == 8) return items[index.row()].slope;
+        if (index.column() == 9) return items[index.row()].slope_p_factor;
+        if (index.column() == 10) return items[index.row()].slope_length;
+        if (index.column() == 11) return items[index.row()].grassman;
+        if (index.column() == 12) return items[index.row()].grassman_change_factor;
+        if (index.column() == 13) return items[index.row()].main_product_removal;
+        if (index.column() == 14) return items[index.row()].residue_removal;
+        if (index.column() == 15) return items[index.row()].residue_burnt;
+        if (index.column() == 16) return items[index.row()].dm_content;
+        if (index.column() == 17) return items[index.row()].me_content;
+        if (index.column() == 18) return items[index.row()].me_fresh;
+        if (index.column() == 19) return items[index.row()].cp_content;
+        if (index.column() == 20) return items[index.row()].cp_fresh;
+        if (index.column() == 21) return items[index.row()].de;
+        if (index.column() == 22) return items[index.row()].establishment_cost;
+        if (index.column() == 23) return items[index.row()].operational_cost;
+        if (index.column() == 24) return items[index.row()].establishment_labour;
+        if (index.column() == 25) return items[index.row()].operational_labour;
+        if (index.column() == 26) return items[index.row()].wfp_green;
+        if (index.column() == 27) return items[index.row()].wfp_blue;
+        if (index.column() == 28) return items[index.row()].wfp_grey;
+        if (index.column() == 29) return items[index.row()].emission_factor;
+        if (index.column() == 30) return items[index.row()].fresh_yield;
+        if (index.column() == 31) return items[index.row()].dm_content;
         if (index.column() == 32) return items[index.row()].harvest_index;
-        if (index.column() == 33) return items[index.row()].residue_fresh_yield;
-        if (index.column() == 34) return items[index.row()].residue_dm_content;
-        if (index.column() == 35) return items[index.row()].residue_dry_yield;
-        if (index.column() == 36) return items[index.row()].residue_n;
-        if (index.column() == 37) return items[index.row()].main_n;
-        if (index.column() == 38) return items[index.row()].residue_n_dm;
-        if (index.column() == 39) return items[index.row()].c_factor;
-        if (index.column() == 40) return items[index.row()].n_fixation;
-        if (index.column() == 41) return items[index.row()].energy;
-        if (index.column() == 42) return items[index.row()].water_content;
-        if (index.column() == 43) return items[index.row()].energy_dm;
-        if (index.column() == 44) return items[index.row()].usda_value;
-        if (index.column() == 45) return items[index.row()].kc_initial;
-        if (index.column() == 46) return items[index.row()].kc_midseason;
-        if (index.column() == 47) return items[index.row()].kc_late;
-        if (index.column() == 48) return items[index.row()].crop_coefficient;
-        if (index.column() == 49) return items[index.row()].category;
-        if (index.column() == 50) return items[index.row()].trees_ha;
-        if (index.column() == 51) return items[index.row()].trees_dhb;
-        if (index.column() == 52) return items[index.row()].trees_growth;
-        if (index.column() == 53) return items[index.row()].trees_removal;
+        if (index.column() == 33) return items[index.row()].residue_n;
+        if (index.column() == 34) return items[index.row()].main_n;
+        if (index.column() == 35) return items[index.row()].c_factor;
+        if (index.column() == 36) return items[index.row()].n_fixation;
+        if (index.column() == 37) return items[index.row()].energy;
+        if (index.column() == 38) return items[index.row()].water_content;
+        if (index.column() == 39) return items[index.row()].energy_dm;
+        if (index.column() == 40) return items[index.row()].usda_value;
+        if (index.column() == 41) return items[index.row()].kc_initial;
+        if (index.column() == 42) return items[index.row()].kc_midseason;
+        if (index.column() == 43) return items[index.row()].kc_late;
+        if (index.column() == 44) return items[index.row()].crop_coefficient;
+        if (index.column() == 45) return items[index.row()].category;
+        if (index.column() == 46) return items[index.row()].trees_ha;
+        if (index.column() == 47) return items[index.row()].trees_dhb;
+        if (index.column() == 48) return items[index.row()].trees_growth;
+        if (index.column() == 49) return items[index.row()].trees_removal;
+
+        if (index.column() == 50) return items[index.row()].trees_ha_dbh25;
+        if (index.column() == 51) return items[index.row()].average_dbh25;
+        if (index.column() == 52) return items[index.row()].increase_dbh25;
+        if (index.column() == 53) return items[index.row()].trees_ha_dbh2550;
+        if (index.column() == 54) return items[index.row()].average_dbh2550;
+        if (index.column() == 55) return items[index.row()].increase_dbh2550;
+        if (index.column() == 56) return items[index.row()].trees_ha_dbh50;
+        if (index.column() == 57) return items[index.row()].average_dbh50;
+        if (index.column() == 58) return items[index.row()].increase_dbh50;
+        if (index.column() == 59) return items[index.row()].time_horizon;
     }
     if (role == Qt::BackgroundRole)
     {
-        if ((index.column() >= 2) && (index.column() <= 14))
+        if ((index.column() >= 2) && (index.column() <= 15))
         {
             QBrush Background(QColor(169,209,142)); //We can change this to a nice color
             return Background;
         }
-        if ((index.column() >= 15) && (index.column() <= 28))
+        if ((index.column() >= 16) && (index.column() <= 29))
         {
             QBrush Background(QColor(244,177,131)); //We can change this to a nice color
             return Background;
         }
-        if (index.column() >= 29)
+        if (index.column() >= 30)
         {
             QBrush Background(QColor(143,170,220)); //We can change this to a nice color
             return Background;
@@ -472,7 +509,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
     }
     if (role == Qt::CheckStateRole)
     {
-        if (index.column() == 2)
+        if (index.column() == 3)
         {
             if (items[index.row()].intercrop == 1)
                 return Qt::Checked;
@@ -490,70 +527,81 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
     {
         if (index.column() > 0)
         {
-            if (index.column() != 2 && index.column() != 5 && index.column() != 7 && index.column() != 10 && index.column() != 49)
+            if (index.column() != 2 && index.column() != 3 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 45)
             {
                 bool ok;
                 double newValue = value.toDouble(&ok);
                 if (ok)
                 {
-                    if (index.column() == 3)
+                    if (index.column() == 4)
                     {
                         if (items[index.row()].intercrop == 1)
                             items[index.row()].intercrop_fraction = newValue;
                     }
-                    if (index.column() == 4) items[index.row()].cut_carry_fraction = newValue;
-                    if (index.column() == 6) items[index.row()].landcover_c_factor = newValue;
-                    if (index.column() == 8) items[index.row()].slope_p_factor = newValue;
-                    if (index.column() == 9) items[index.row()].slope_length = newValue;
-                    if (index.column() == 11) items[index.row()].grassman_change_factor = newValue;
-                    if (index.column() == 12) items[index.row()].main_product_removal = newValue;
-                    if (index.column() == 13) items[index.row()].residue_removal = newValue;
-                    if (index.column() == 14) items[index.row()].residue_burnt = newValue;
-                    if (index.column() == 15) items[index.row()].dm_content = newValue;
-                    if (index.column() == 16) items[index.row()].me_content = newValue;
-                    if (index.column() == 17) items[index.row()].me_fresh = newValue;
-                    if (index.column() == 18) items[index.row()].cp_content = newValue;
-                    if (index.column() == 19) items[index.row()].cp_fresh = newValue;
-                    if (index.column() == 20) items[index.row()].de = newValue;
-                    if (index.column() == 21) items[index.row()].establishment_cost = newValue;
-                    if (index.column() == 22) items[index.row()].operational_cost = newValue;
-                    if (index.column() == 23) items[index.row()].establishment_labour = newValue;
-                    if (index.column() == 24) items[index.row()].operational_labour = newValue;
-                    if (index.column() == 25) items[index.row()].wfp_green = newValue;
-                    if (index.column() == 26) items[index.row()].wfp_blue = newValue;
-                    if (index.column() == 27) items[index.row()].wfp_grey = newValue;
-                    if (index.column() == 28) items[index.row()].emission_factor = newValue;
-                    if (index.column() == 29) items[index.row()].fresh_yield = newValue;
-                    if (index.column() == 30) items[index.row()].dm_content = newValue;
-                    if (index.column() == 31) items[index.row()].dry_yield = newValue;
+                    if (index.column() == 5) items[index.row()].cut_carry_fraction = newValue;
+                    if (index.column() == 7) items[index.row()].landcover_c_factor = newValue;
+                    if (index.column() == 9) items[index.row()].slope_p_factor = newValue;
+                    if (index.column() == 10) items[index.row()].slope_length = newValue;
+                    if (index.column() == 12) items[index.row()].grassman_change_factor = newValue;
+                    if (index.column() == 13) items[index.row()].main_product_removal = newValue;
+                    if (index.column() == 14) items[index.row()].residue_removal = newValue;
+                    if (index.column() == 15) items[index.row()].residue_burnt = newValue;
+                    if (index.column() == 16) items[index.row()].dm_content = newValue;
+                    if (index.column() == 17) items[index.row()].me_content = newValue;
+                    if (index.column() == 18) items[index.row()].me_fresh = newValue;
+                    if (index.column() == 19) items[index.row()].cp_content = newValue;
+                    if (index.column() == 20) items[index.row()].cp_fresh = newValue;
+                    if (index.column() == 21) items[index.row()].de = newValue;
+                    if (index.column() == 22) items[index.row()].establishment_cost = newValue;
+                    if (index.column() == 23) items[index.row()].operational_cost = newValue;
+                    if (index.column() == 24) items[index.row()].establishment_labour = newValue;
+                    if (index.column() == 25) items[index.row()].operational_labour = newValue;
+                    if (index.column() == 26) items[index.row()].wfp_green = newValue;
+                    if (index.column() == 27) items[index.row()].wfp_blue = newValue;
+                    if (index.column() == 28) items[index.row()].wfp_grey = newValue;
+                    if (index.column() == 29) items[index.row()].emission_factor = newValue;
+                    if (index.column() == 30) items[index.row()].fresh_yield = newValue;
+                    if (index.column() == 31) items[index.row()].dm_content = newValue;
                     if (index.column() == 32) items[index.row()].harvest_index = newValue;
-                    if (index.column() == 33) items[index.row()].residue_fresh_yield = newValue;
-                    if (index.column() == 34) items[index.row()].residue_dm_content = newValue;
-                    if (index.column() == 35) items[index.row()].residue_dry_yield = newValue;
-                    if (index.column() == 36) items[index.row()].residue_n = newValue;
-                    if (index.column() == 37) items[index.row()].main_n = newValue;
-                    if (index.column() == 38) items[index.row()].residue_n_dm = newValue;
-                    if (index.column() == 39) items[index.row()].c_factor = newValue;
-                    if (index.column() == 40) items[index.row()].n_fixation = newValue;
-                    if (index.column() == 41) items[index.row()].energy = newValue;
-                    if (index.column() == 42) items[index.row()].water_content = newValue;
-                    if (index.column() == 43) items[index.row()].energy_dm = newValue;
-                    if (index.column() == 44) items[index.row()].usda_value = newValue;
-                    if (index.column() == 45) items[index.row()].kc_initial = newValue;
-                    if (index.column() == 46) items[index.row()].kc_midseason = newValue;
-                    if (index.column() == 47) items[index.row()].kc_late = newValue;
-                    if (index.column() == 48) items[index.row()].crop_coefficient = newValue;
-                    if (index.column() == 50) items[index.row()].trees_ha = newValue;
-                    if (index.column() == 51) items[index.row()].trees_dhb = newValue;
-                    if (index.column() == 52) items[index.row()].trees_growth = newValue;
-                    if (index.column() == 53) items[index.row()].trees_removal = newValue;
+                    if (index.column() == 33) items[index.row()].residue_n = newValue;
+                    if (index.column() == 34) items[index.row()].main_n = newValue;
+                    if (index.column() == 35) items[index.row()].c_factor = newValue;
+                    if (index.column() == 36) items[index.row()].n_fixation = newValue;
+                    if (index.column() == 37) items[index.row()].energy = newValue;
+                    if (index.column() == 38) items[index.row()].water_content = newValue;
+                    if (index.column() == 39) items[index.row()].energy_dm = newValue;
+                    if (index.column() == 40) items[index.row()].usda_value = newValue;
+                    if (index.column() == 41) items[index.row()].kc_initial = newValue;
+                    if (index.column() == 42) items[index.row()].kc_midseason = newValue;
+                    if (index.column() == 43) items[index.row()].kc_late = newValue;
+                    if (index.column() == 44) items[index.row()].crop_coefficient = newValue;
+                    if (index.column() == 46) items[index.row()].trees_ha = newValue;
+                    if (index.column() == 47) items[index.row()].trees_dhb = newValue;
+                    if (index.column() == 48) items[index.row()].trees_growth = newValue;
+                    if (index.column() == 49) items[index.row()].trees_removal = newValue;
+                    if (index.column() == 50) items[index.row()].trees_ha_dbh25 = newValue;
+                    if (index.column() == 51) items[index.row()].average_dbh25 = newValue;
+                    if (index.column() == 52) items[index.row()].increase_dbh25 = newValue;
+                    if (index.column() == 53) items[index.row()].trees_ha_dbh2550 = newValue;
+                    if (index.column() == 54) items[index.row()].average_dbh2550 = newValue;
+                    if (index.column() == 55) items[index.row()].increase_dbh2550 = newValue;
+                    if (index.column() == 56) items[index.row()].trees_ha_dbh50 = newValue;
+                    if (index.column() == 57) items[index.row()].average_dbh50 = newValue;
+                    if (index.column() == 58) items[index.row()].increase_dbh50 = newValue;
+                    if (index.column() == 59) items[index.row()].time_horizon = newValue;
+
                     emit modelChanged();
                     return true;
                 }
             }
             else
             {                
-                if (index.column() == 5)
+                if (index.column() == 2)
+                {
+                    items[index.row()].source_type = value.toString();
+                    emit delegateChanged(index.column());
+                }
+                if (index.column() == 6)
                 {
                     items[index.row()].land_cover = value.toString();
                     QSqlQuery query(db);
@@ -566,7 +614,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     }
                     emit delegateChanged(index.column());
                 }
-                if (index.column() == 7)
+                if (index.column() == 8)
                 {
                     items[index.row()].slope = value.toString();
                     QSqlQuery query(db);
@@ -579,7 +627,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     }
                     emit delegateChanged(index.column());
                 }
-                if (index.column() == 10)
+                if (index.column() == 11)
                 {
                     items[index.row()].grassman = value.toString();
                     QSqlQuery query(db);
@@ -591,8 +639,8 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                         }
                     }
                     emit delegateChanged(index.column());
-                }
-                if (index.column() == 49)
+                }                
+                if (index.column() == 45)
                     items[index.row()].category = value.toString();
                 emit modelChanged();
                 return true;
@@ -601,7 +649,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
     }
     if (role == Qt::CheckStateRole)
     {
-        if (index.column() == 2)
+        if (index.column() == 3)
         {
             if (value.toInt() == Qt::Checked)
                 items[index.row()].intercrop = 1;

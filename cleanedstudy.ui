@@ -73,15 +73,15 @@
                  <item row="0" column="1">
                   <widget class="QComboBox" name="cbm_region"/>
                  </item>
-                 <item row="1" column="1">
-                  <widget class="QLineEdit" name="txt_farmcode"/>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_2">
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="label_3">
                    <property name="text">
-                    <string>Farm Code:</string>
+                    <string>Farm name:</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="cbm_climate"/>
                  </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="label">
@@ -90,15 +90,35 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="label_3">
+                 <item row="4" column="1">
+                  <widget class="QLineEdit" name="txt_farmname"/>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_4">
                    <property name="text">
-                    <string>Farm name:</string>
+                    <string>Climate</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Farm Code:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QLineEdit" name="txt_farmcode"/>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_5">
+                   <property name="text">
+                    <string>Sub-climate:</string>
                    </property>
                   </widget>
                  </item>
                  <item row="2" column="1">
-                  <widget class="QLineEdit" name="txt_farmname"/>
+                  <widget class="QComboBox" name="cbm_subclimate"/>
                  </item>
                 </layout>
                </item>
@@ -233,115 +253,57 @@
               <layout class="QVBoxLayout" name="verticalLayout_5">
                <item>
                 <layout class="QGridLayout" name="gridLayout_2">
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_5">
+                 <item row="3" column="1">
+                  <widget class="QLineEdit" name="txt_purchased_bedding">
                    <property name="text">
-                    <string>Yard:</string>
+                    <string>0</string>
                    </property>
                   </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="label_6">
-                   <property name="text">
-                    <string>Pasture / Fields:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_4">
-                   <property name="text">
-                    <string>Stable:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="0">
-                  <widget class="QLabel" name="label_10">
-                   <property name="text">
-                    <string>Annual purchase of compost (kg N):</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QComboBox" name="cbm_stable_manure"/>
                  </item>
                  <item row="3" column="0">
-                  <widget class="QLabel" name="label_7">
-                   <property name="text">
-                    <string>Manure use on-farm (fraction):</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QLineEdit" name="txt_purchased_other">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QLineEdit" name="txt_manure_sales_fraction">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QComboBox" name="cbm_pasture_manure"/>
-                 </item>
-                 <item row="5" column="1">
-                  <widget class="QLineEdit" name="txt_purchased_manure">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="0">
-                  <widget class="QLabel" name="label_11">
-                   <property name="text">
-                    <string>Annual purchase of other organic N additions (kg N):</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QComboBox" name="cbm_yard_manure"/>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QLabel" name="label_8">
-                   <property name="text">
-                    <string>Manure sales (fraction):</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="1">
-                  <widget class="QLineEdit" name="txt_purchased_compost">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="1">
-                  <widget class="QLineEdit" name="txt_manure_onfarm_fraction">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
-                  <widget class="QLabel" name="label_9">
-                   <property name="text">
-                    <string>Annual purchase of manure (kg N):</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="8" column="0">
                   <widget class="QLabel" name="label_12">
                    <property name="text">
                     <string>Annual purchase of bedding materials (kg N):</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="8" column="1">
-                  <widget class="QLineEdit" name="txt_purchased_bedding">
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_11">
+                   <property name="text">
+                    <string>Annual purchase of other organic N additions (kg N):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="txt_purchased_manure">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_9">
+                   <property name="text">
+                    <string>Annual purchase of manure (kg N):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="txt_purchased_compost">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_10">
+                   <property name="text">
+                    <string>Annual purchase of compost (kg N):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="txt_purchased_other">
                    <property name="text">
                     <string>0</string>
                    </property>

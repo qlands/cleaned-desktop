@@ -11,6 +11,7 @@ struct cropInputsType
     QString feed_item_code;
     QString feed_item_name;
     double fraction_as_fertilizer;
+    double fraction_as_manure;
     double urea;
     double npk;
     double dap;

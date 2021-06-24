@@ -10,7 +10,8 @@ struct livestockType
     QString livetype_desc;
     double herd_composition;
     double annual_milk;
-    double annual_growth;
+    double annual_wool;
+    double annual_growth;    
     double time_in_stable;
     double time_in_non_roofed_enclosure;
     double time_in_onfarm_grazing;
@@ -25,12 +26,6 @@ struct livestockType
     double proportion_growth;
     double lw_gain;
     double grazing_displacement;
-    double er_maintenance;
-    double er_grazing;
-    double er_pregnancy;
-    double er_lactation;
-    double er_lactmilk;
-    double er_growth;
     double cp_maintenance;
     double cp_grazing;
     double cp_pregnancy;
@@ -59,6 +54,19 @@ struct livestockType
     double ipcc_meth_ef_t2;
     double ipcc_meth_man;
     double ipcc_meth_exc;
+
+    QString manureman_non_roofed_enclosure;
+    QString manureman_offfarm_grazing;
+    QString manureman_onfarm_grazing;
+    QString manureman_stable;
+    double manure_onfarm_fraction;
+    double manure_sales_fraction;
+    double body_weight_weaning;
+    double body_weight_year_one;
+    double adult_weight;
+    double work_hour;
+    double piglets_relying_on_milk;
+
 };
 typedef livestockType Tlivestock;
 
@@ -82,6 +90,7 @@ public:
     QString getLivestockDesc(int row);
     void deleteLivestock(int row);
 signals:
+    void delegateChanged(int column);
     void modelChanged();
 private:
     QList <Tlivestock> items;

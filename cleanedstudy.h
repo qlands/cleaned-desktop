@@ -60,6 +60,7 @@ private slots:
     void on_cmd_add_feed_clicked();
 
     void feeds_delegate_changed(int column);
+    void livestock_delegate_changed(int column);
 
     void on_cmd_add_fert_clicked();
 
@@ -73,6 +74,8 @@ private slots:
 
     void modelChanged();
     void textEdited(QString text);
+
+    void on_cbm_climate_currentIndexChanged(const QString &arg1);
 
 signals:
     void report_error(QString error_message);
