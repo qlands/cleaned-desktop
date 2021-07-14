@@ -64,10 +64,19 @@ void livestockModel::setDataArray(QJsonArray data)
          aLivestock.operational_labour = seasonObject["operational_labour"].toDouble(0);
          aLivestock.meat_price = seasonObject["meat_price"].toDouble(0);
          aLivestock.milk_price = seasonObject["milk_price"].toDouble(0);
-         aLivestock.ipcc_meth_ef_t1 = seasonObject["ipcc_ef_category_t1"].toDouble(0);
-         aLivestock.ipcc_meth_ef_t2 = seasonObject["ipcc_ef_category_t2"].toDouble(0);
-         aLivestock.ipcc_meth_man = seasonObject["ipcc_meth_man_category"].toDouble(0);
-         aLivestock.ipcc_meth_exc = seasonObject["ipcc_n_exc_category"].toDouble(0);
+         aLivestock.ipcc_meth_ef_t1 = seasonObject["ipcc_ef_category_t1"].toString();
+         aLivestock.ipcc_meth_ef_t2 = seasonObject["ipcc_ef_category_t2"].toString();
+         aLivestock.ipcc_meth_man = seasonObject["ipcc_meth_man_category"].toString();
+         aLivestock.ipcc_meth_exc = seasonObject["ipcc_n_exc_category"].toString();
+
+         aLivestock.me_maintenance = seasonObject["me_maintenance"].toDouble(0);
+         aLivestock.me_grazing = seasonObject["me_grazing"].toDouble(0);
+         aLivestock.me_pregnancy = seasonObject["me_pregnancy"].toDouble(0);
+         aLivestock.me_lactation = seasonObject["me_lactation"].toDouble(0);
+         aLivestock.me_lactmilk = seasonObject["me_lactmilk"].toDouble(0);
+         aLivestock.me_growth = seasonObject["me_growth"].toDouble(0);
+         aLivestock.milk_production = seasonObject["milk_production"].toDouble(0);
+         aLivestock.live_weight_gain = seasonObject["live_weight_gain"].toDouble(0);
 
          aLivestock.manureman_non_roofed_enclosure = seasonObject["manureman_non_roofed_enclosure"].toString();
          aLivestock.manureman_offfarm_grazing = seasonObject["manureman_offfarm_grazing"].toString();
@@ -93,7 +102,7 @@ void livestockModel::setDatabase(QSqlDatabase cleaned_db)
 
 int livestockModel::columnCount(const QModelIndex &) const
 {
-    return 58;
+    return 66;
 }
 
 int livestockModel::rowCount(const QModelIndex &) const
@@ -115,8 +124,13 @@ bool livestockModel::livestockExists(QString code)
 
 Qt::ItemFlags livestockModel::flags(const QModelIndex &index) const
 {
-    if (index.column() > 0)
-        return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+    if (index.column() > 0 && index.column() < 62)
+    {
+        if (index.column() != 54 && index.column() != 55)
+            return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+        else
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    }
     else
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
@@ -176,6 +190,15 @@ QJsonArray livestockModel::getLivestockArray()
         livestockObject["ipcc_ef_category_t2"] = items[i].ipcc_meth_ef_t2;
         livestockObject["ipcc_meth_man_category"] = items[i].ipcc_meth_man;
         livestockObject["ipcc_n_exc_category"] = items[i].ipcc_meth_exc;
+
+        livestockObject["me_maintenance"] = items[i].me_maintenance;
+        livestockObject["me_grazing"] = items[i].me_grazing;
+        livestockObject["me_pregnancy"] = items[i].me_pregnancy;
+        livestockObject["me_lactation"] = items[i].me_lactation;
+        livestockObject["me_lactmilk"] = items[i].me_lactmilk;
+        livestockObject["me_growth"] = items[i].me_growth;
+        livestockObject["milk_production"] = items[i].milk_production;
+        livestockObject["live_weight_gain"] = items[i].live_weight_gain;
 
         livestockObject["manureman_non_roofed_enclosure"] = items[i].manureman_non_roofed_enclosure;
         livestockObject["manureman_offfarm_grazing"] = items[i].manureman_offfarm_grazing;
@@ -249,28 +272,19 @@ void livestockModel::addNewLivestock(QString code, QString region)
             aLivestock.operational_labour = query.value("operational_labour").toDouble(0);
             aLivestock.meat_price = query.value("meat_price").toDouble(0);
             aLivestock.milk_price = query.value("milk_price").toDouble(0);
-            aLivestock.ipcc_meth_ef_t1 = 0;
-            if (region == "AFRICA")
-                aLivestock.ipcc_meth_ef_t1 = query.value("ipcc_meth_ef_t1_afri").toDouble(0);
-            if (region == "LATIN")
-                aLivestock.ipcc_meth_ef_t1 = query.value("ipcc_meth_ef_t1_lati").toDouble(0);
-            if (region == "ASIA")
-                aLivestock.ipcc_meth_ef_t1 = query.value("ipcc_meth_ef_t1_asia").toDouble(0);
-            aLivestock.ipcc_meth_ef_t2 = query.value("ipcc_ef_category_t2").toDouble(0);
-            aLivestock.ipcc_meth_man = 0;
-            if (region == "AFRICA")
-                aLivestock.ipcc_meth_man = query.value("ipcc_meth_man_afri").toDouble(0);
-            if (region == "LATIN")
-                aLivestock.ipcc_meth_man = query.value("ipcc_meth_man_lati").toDouble(0);
-            if (region == "ASIA")
-                aLivestock.ipcc_meth_man = query.value("ipcc_meth_man_asia").toDouble(0);
-            aLivestock.ipcc_meth_exc = 0;
-            if (region == "AFRICA")
-                aLivestock.ipcc_meth_exc = query.value("ipcc_meth_exc_afri").toDouble(0);
-            if (region == "LATIN")
-                aLivestock.ipcc_meth_exc = query.value("ipcc_meth_exc_lati").toDouble(0);
-            if (region == "ASIA")
-                aLivestock.ipcc_meth_exc = query.value("ipcc_meth_exc_asia").toDouble(0);
+            aLivestock.ipcc_meth_ef_t1 = query.value("ipcc_meth_ef_t1").toString();
+            aLivestock.ipcc_meth_ef_t2 = query.value("ipcc_meth_ef_t2").toString();
+            aLivestock.ipcc_meth_man = query.value("ipcc_meth_man").toString();
+            aLivestock.ipcc_meth_exc = query.value("ipcc_meth_exc").toString();
+
+            aLivestock.me_maintenance = query.value("me_maintenance").toDouble(0);
+            aLivestock.me_grazing = query.value("me_grazing").toDouble(0);
+            aLivestock.me_pregnancy = query.value("me_pregnancy").toDouble(0);
+            aLivestock.me_lactation = query.value("me_lactation").toDouble(0);
+            aLivestock.me_lactmilk = query.value("me_lactmilk").toDouble(0);
+            aLivestock.me_growth = query.value("me_growth").toDouble(0);
+            aLivestock.milk_production = query.value("milk_production").toDouble(0);
+            aLivestock.live_weight_gain = query.value("live_weight_gain").toDouble(0);
 
             aLivestock.manureman_non_roofed_enclosure = "Solid storage";
             aLivestock.manureman_offfarm_grazing = "Solid storage";
@@ -313,7 +327,7 @@ QVariant livestockModel::headerData(int section, Qt::Orientation orientation, in
             if (section == 9) return "Collection of manure in non-roofed enclosure (fraction)";
             if (section == 10) return "Manure management in non-roofed enclosure";
             if (section == 11) return "Time spent grazing  pasture/fields on-farm (fraction of day)";
-            if (section == 12) return "Collection of manure in fields/pasture on-farm (fraction)";
+            if (section == 12) return "Collection of manure in fields/pasture (fraction)";
             if (section == 13) return "Manure management during on-farm grazing";
             if (section == 14) return "Time spent grazing off-farm (fraction of day)";
             if (section == 15) return "Manure management during off-farm grazing";
@@ -337,28 +351,36 @@ QVariant livestockModel::headerData(int section, Qt::Orientation orientation, in
             if (section == 33) return "Crude Protein/ Lysine requirement lactation (kg/ lactation)";
             if (section == 34) return "Crude Protein requirement  (kg/kg milk)";
             if (section == 35) return "Crude Protein/ Lysine requirement growth (kg/kg LWG)";
-            if (section == 36) return "Parturition interval (years)";
-            if (section == 37) return "Protein content milk (%)";
-            if (section == 38) return "Fat content milk (%)";
-            if (section == 39) return "Energy content milk";
-            if (section == 40) return "Energy content meat";
-            if (section == 41) return "Protein content meat (%)";
-            if (section == 42) return "Carcass fraction";
-            if (section == 43) return "Energy content eggs";
-            if (section == 44) return "Average N content manure";
-            if (section == 45) return "water requirement (litres/day)";
-            if (section == 46) return "Meat product";
-            if (section == 47) return "Milk product";
-            if (section == 48) return "One-off costs (USD/animal)";
-            if (section == 49) return "Operational costs (USD per animal year)";
-            if (section == 50) return "Labour one-off per animal (days/yr)";
-            if (section == 51) return "Labour (days/animal/year)";
-            if (section == 52) return "Meat price (USD/kg)";
-            if (section == 53) return "Milk price (USD/kg)";
-            if (section == 54) return "Methane emissions enteric fermentation - Tier 1";
-            if (section == 55) return "Methane emissions enteric fermentation - Tier 2";
-            if (section == 56) return "Methane emissions manure - Tier 1";
-            if (section == 57) return "Default N-excretion rates Tier 1";
+            if (section == 36) return "Energy requirement maintenance (ME, MJ/day)";
+            if (section == 37) return "Energy requirement grazing (ME, MJ/km)";
+            if (section == 38) return "Energy requirement pregnancy (ME, MJ)";
+            if (section == 39) return "Energy requirement lactation (ME, MJ/lactation)";
+            if (section == 40) return "Energy requirement lactation (ME, MJ/kg milk)";
+            if (section == 41) return "Energy requirement growth (ME, MJ/kg LWG)";
+            if (section == 42) return "Milk production (kg/year)";
+            if (section == 43) return "Live weight gain (kg/year)";
+            if (section == 44) return "Parturition interval (years)";
+            if (section == 45) return "Protein content milk (%)";
+            if (section == 46) return "Fat content milk (%)";
+            if (section == 47) return "Energy content milk";
+            if (section == 48) return "Energy content meat";
+            if (section == 49) return "Protein content meat (%)";
+            if (section == 50) return "Carcass fraction";
+            if (section == 51) return "Energy content eggs";
+            if (section == 52) return "Average N content manure";
+            if (section == 53) return "water requirement (litres/day)";
+            if (section == 54) return "Meat product";
+            if (section == 55) return "Milk product";
+            if (section == 56) return "One-off costs (USD/animal)";
+            if (section == 57) return "Operational costs (USD per animal year)";
+            if (section == 58) return "Labour one-off per animal (days/yr)";
+            if (section == 59) return "Labour (days/animal/year)";
+            if (section == 60) return "Meat price (USD/kg)";
+            if (section == 61) return "Milk price (USD/kg)";
+            if (section == 62) return "Methane emissions enteric fermentation - Tier 1";
+            if (section == 63) return "Methane emissions enteric fermentation - Tier 2";
+            if (section == 64) return "Methane emissions manure - Tier 1";
+            if (section == 65) return "Default N-excretion rates Tier 1";
         }
     }
     return QVariant();
@@ -407,28 +429,36 @@ QVariant livestockModel::data(const QModelIndex &index, int role) const
         if (index.column() == 33) return items[index.row()].cp_lactation;
         if (index.column() == 34) return items[index.row()].cp_lactmilk;
         if (index.column() == 35) return items[index.row()].cp_growth;
-        if (index.column() == 36) return items[index.row()].birth_interval;
-        if (index.column() == 37) return items[index.row()].protein_milkcontent;
-        if (index.column() == 38) return items[index.row()].fat_content;
-        if (index.column() == 39) return items[index.row()].energy_milkcontent;
-        if (index.column() == 40) return items[index.row()].energy_meatcontent;
-        if (index.column() == 41) return items[index.row()].protein_meatcontent;
-        if (index.column() == 42) return items[index.row()].carcass_fraction;
-        if (index.column() == 43) return items[index.row()].energy_eggcontent;
-        if (index.column() == 44) return items[index.row()].n_content;
-        if (index.column() == 45) return items[index.row()].water_requirement;
-        if (index.column() == 46) return items[index.row()].meat_product;
-        if (index.column() == 47) return items[index.row()].milk_product;
-        if (index.column() == 48) return items[index.row()].oneoff_cost;
-        if (index.column() == 49) return items[index.row()].operational_cost;
-        if (index.column() == 50) return items[index.row()].oneoff_labour;
-        if (index.column() == 51) return items[index.row()].operational_labour;
-        if (index.column() == 52) return items[index.row()].meat_price;
-        if (index.column() == 53) return items[index.row()].milk_price;
-        if (index.column() == 54) return items[index.row()].ipcc_meth_ef_t1;
-        if (index.column() == 55) return items[index.row()].ipcc_meth_ef_t2;
-        if (index.column() == 56) return items[index.row()].ipcc_meth_man;
-        if (index.column() == 57) return items[index.row()].ipcc_meth_exc;
+        if (index.column() == 36) return items[index.row()].me_maintenance;
+        if (index.column() == 37) return items[index.row()].me_grazing;
+        if (index.column() == 38) return items[index.row()].me_pregnancy;
+        if (index.column() == 39) return items[index.row()].me_lactation;
+        if (index.column() == 40) return items[index.row()].me_lactmilk;
+        if (index.column() == 41) return items[index.row()].me_growth;
+        if (index.column() == 42) return items[index.row()].milk_production;
+        if (index.column() == 43) return items[index.row()].live_weight_gain;
+        if (index.column() == 44) return items[index.row()].birth_interval;
+        if (index.column() == 45) return items[index.row()].protein_milkcontent;
+        if (index.column() == 46) return items[index.row()].fat_content;
+        if (index.column() == 47) return items[index.row()].energy_milkcontent;
+        if (index.column() == 48) return items[index.row()].energy_meatcontent;
+        if (index.column() == 49) return items[index.row()].protein_meatcontent;
+        if (index.column() == 50) return items[index.row()].carcass_fraction;
+        if (index.column() == 51) return items[index.row()].energy_eggcontent;
+        if (index.column() == 52) return items[index.row()].n_content;
+        if (index.column() == 53) return items[index.row()].water_requirement;
+        if (index.column() == 54) return items[index.row()].meat_product;
+        if (index.column() == 55) return items[index.row()].milk_product;
+        if (index.column() == 56) return items[index.row()].oneoff_cost;
+        if (index.column() == 57) return items[index.row()].operational_cost;
+        if (index.column() == 58) return items[index.row()].oneoff_labour;
+        if (index.column() == 59) return items[index.row()].operational_labour;
+        if (index.column() == 60) return items[index.row()].meat_price;
+        if (index.column() == 61) return items[index.row()].milk_price;
+        if (index.column() == 62) return items[index.row()].ipcc_meth_ef_t1;
+        if (index.column() == 63) return items[index.row()].ipcc_meth_ef_t2;
+        if (index.column() == 64) return items[index.row()].ipcc_meth_man;
+        if (index.column() == 65) return items[index.row()].ipcc_meth_exc;
     }
     if (role == Qt::BackgroundRole)
     {        
@@ -462,6 +492,8 @@ bool livestockModel::setData(const QModelIndex &index,const QVariant &value,int 
     {
         if (index.column() > 0)
         {
+            if (index.column() > 61)
+                return false;
             if (index.column() != 7 && index.column() != 10 && index.column() != 13 && index.column() != 15 && index.column() != 46 && index.column() != 47)
             {
                 bool ok;
@@ -474,11 +506,15 @@ bool livestockModel::setData(const QModelIndex &index,const QVariant &value,int 
                     if (index.column() == 4) items[index.row()].annual_growth = newValue;
                     if (index.column() == 5) items[index.row()].time_in_stable = newValue;
                     if (index.column() == 6) items[index.row()].manure_in_stable = newValue;
+
                     if (index.column() == 8) items[index.row()].time_in_non_roofed_enclosure = newValue;
                     if (index.column() == 9) items[index.row()].manure_in_non_roofed_enclosure = newValue;
+
                     if (index.column() == 11) items[index.row()].time_in_onfarm_grazing = newValue;
                     if (index.column() == 12) items[index.row()].manure_in_field = newValue;
+
                     if (index.column() == 14) items[index.row()].time_in_offfarm_grazing = newValue;
+
                     if (index.column() == 16) items[index.row()].distance_to_pasture = newValue;
                     if (index.column() == 17) items[index.row()].manure_onfarm_fraction = newValue;
                     if (index.column() == 18) items[index.row()].manure_sales_fraction = newValue;
@@ -499,26 +535,32 @@ bool livestockModel::setData(const QModelIndex &index,const QVariant &value,int 
                     if (index.column() == 33) items[index.row()].cp_lactation = newValue;
                     if (index.column() == 34) items[index.row()].cp_lactmilk = newValue;
                     if (index.column() == 35) items[index.row()].cp_growth = newValue;
-                    if (index.column() == 36) items[index.row()].birth_interval = newValue;
-                    if (index.column() == 37) items[index.row()].protein_milkcontent = newValue;
-                    if (index.column() == 38) items[index.row()].fat_content = newValue;
-                    if (index.column() == 39) items[index.row()].energy_milkcontent = newValue;
-                    if (index.column() == 40) items[index.row()].energy_meatcontent = newValue;
-                    if (index.column() == 41) items[index.row()].protein_meatcontent = newValue;
-                    if (index.column() == 42) items[index.row()].carcass_fraction = newValue;
-                    if (index.column() == 43) items[index.row()].energy_eggcontent = newValue;
-                    if (index.column() == 44) items[index.row()].n_content = newValue;
-                    if (index.column() == 45) items[index.row()].water_requirement = newValue;
-                    if (index.column() == 48) items[index.row()].oneoff_cost = newValue;
-                    if (index.column() == 49) items[index.row()].operational_cost = newValue;
-                    if (index.column() == 50) items[index.row()].oneoff_labour = newValue;
-                    if (index.column() == 51) items[index.row()].operational_labour = newValue;
-                    if (index.column() == 52) items[index.row()].meat_price = newValue;
-                    if (index.column() == 53) items[index.row()].milk_price = newValue;
-                    if (index.column() == 54) items[index.row()].ipcc_meth_ef_t1 = newValue;
-                    if (index.column() == 55) items[index.row()].ipcc_meth_ef_t2 = newValue;
-                    if (index.column() == 56) items[index.row()].ipcc_meth_man = newValue;
-                    if (index.column() == 57) items[index.row()].ipcc_meth_exc = newValue;
+                    if (index.column() == 36) items[index.row()].me_maintenance = newValue;
+                    if (index.column() == 37) items[index.row()].me_grazing = newValue;
+                    if (index.column() == 38) items[index.row()].me_pregnancy = newValue;
+                    if (index.column() == 39) items[index.row()].me_lactation = newValue;
+                    if (index.column() == 40) items[index.row()].me_lactmilk = newValue;
+                    if (index.column() == 41) items[index.row()].me_growth = newValue;
+                    if (index.column() == 42) items[index.row()].milk_production = newValue;
+                    if (index.column() == 43) items[index.row()].live_weight_gain = newValue;
+                    if (index.column() == 44) items[index.row()].birth_interval = newValue;
+                    if (index.column() == 45) items[index.row()].protein_milkcontent = newValue;
+                    if (index.column() == 46) items[index.row()].fat_content = newValue;
+                    if (index.column() == 47) items[index.row()].energy_milkcontent = newValue;
+                    if (index.column() == 48) items[index.row()].energy_meatcontent = newValue;
+                    if (index.column() == 49) items[index.row()].protein_meatcontent = newValue;
+                    if (index.column() == 50) items[index.row()].carcass_fraction = newValue;
+                    if (index.column() == 51) items[index.row()].energy_eggcontent = newValue;
+                    if (index.column() == 52) items[index.row()].n_content = newValue;
+                    if (index.column() == 53) items[index.row()].water_requirement = newValue;
+
+
+                    if (index.column() == 56) items[index.row()].oneoff_cost = newValue;
+                    if (index.column() == 57) items[index.row()].operational_cost = newValue;
+                    if (index.column() == 58) items[index.row()].oneoff_labour = newValue;
+                    if (index.column() == 59) items[index.row()].operational_labour = newValue;
+                    if (index.column() == 60) items[index.row()].meat_price = newValue;
+                    if (index.column() == 61) items[index.row()].milk_price = newValue;
                     emit modelChanged();
                     return true;
                 }
@@ -545,10 +587,12 @@ bool livestockModel::setData(const QModelIndex &index,const QVariant &value,int 
                     items[index.row()].manureman_offfarm_grazing = value.toString();
                     emit delegateChanged(index.column());
                 }
-                if (index.column() == 46)
-                    items[index.row()].meat_product = value.toString();
-                if (index.column() == 47)
-                    items[index.row()].milk_product = value.toString();
+                if (index.column() == 54)
+                    return false;
+                if (index.column() == 55)
+                    return false;
+                if (index.column() > 61)
+                    return false;
                 emit modelChanged();
                 return true;
             }

@@ -50,10 +50,10 @@ struct livestockType
     double operational_labour;
     double meat_price;
     double milk_price;
-    double ipcc_meth_ef_t1;
-    double ipcc_meth_ef_t2;
-    double ipcc_meth_man;
-    double ipcc_meth_exc;
+    QString ipcc_meth_ef_t1;
+    QString ipcc_meth_ef_t2;
+    QString ipcc_meth_man;
+    QString ipcc_meth_exc;
 
     QString manureman_non_roofed_enclosure;
     QString manureman_offfarm_grazing;
@@ -66,6 +66,16 @@ struct livestockType
     double adult_weight;
     double work_hour;
     double piglets_relying_on_milk;
+
+    double me_maintenance;
+    double me_grazing;
+    double me_pregnancy;
+    double me_lactation;
+    double me_lactmilk;
+    double me_growth;
+    double milk_production;
+    double live_weight_gain;
+
 
 };
 typedef livestockType Tlivestock;

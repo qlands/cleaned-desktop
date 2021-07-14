@@ -27,10 +27,13 @@ void feedsModel::setDataArray(QJsonArray data)
          aFeed.intercrop_fraction = feedObject["intercrop_fraction"].toDouble(0);
          aFeed.cut_carry_fraction = feedObject["cut_carry_fraction"].toDouble(0);
          aFeed.land_cover = feedObject["land_cover"].toString();
+         aFeed.land_cover_desc = feedObject["land_cover_desc"].toString();
          aFeed.landcover_c_factor = feedObject["landcover_c_factor"].toDouble(0);
          aFeed.slope = feedObject["slope"].toString();
+         aFeed.slope_desc = feedObject["slope_desc"].toString();
          aFeed.slope_p_factor = feedObject["slope_p_factor"].toDouble(0);
          aFeed.slope_length = feedObject["slope_length"].toDouble(0);
+         aFeed.grassman_desc = feedObject["grassman_desc"].toString();
          aFeed.grassman = feedObject["grassman"].toString();
          aFeed.grassman_change_factor = feedObject["grassman_change_factor"].toDouble(0);
          aFeed.main_product_removal = feedObject["main_product_removal"].toDouble(0);
@@ -81,6 +84,7 @@ void feedsModel::setDataArray(QJsonArray data)
          aFeed.average_dbh50 = feedObject["average_dbh50"].toDouble(0);
          aFeed.increase_dbh50 = feedObject["increase_dbh50"].toDouble(0);
          aFeed.time_horizon = feedObject["time_horizon"].toDouble(0);
+         aFeed.diameter_breast = feedObject["diameter_breast"].toDouble(0);
 
          items.append(aFeed);
     }
@@ -94,7 +98,7 @@ void feedsModel::setDatabase(QSqlDatabase cleaned_db)
 
 int feedsModel::columnCount(const QModelIndex &) const
 {
-    return 60;
+    return 61;
 }
 
 int feedsModel::rowCount(const QModelIndex &) const
@@ -152,11 +156,14 @@ QJsonArray feedsModel::getFeedsArray()
         feedObject["intercrop_fraction"] = items[i].intercrop_fraction;
         feedObject["cut_carry_fraction"] = items[i].cut_carry_fraction;
         feedObject["land_cover"] = items[i].land_cover;
+        feedObject["land_cover_desc"] = items[i].land_cover_desc;
         feedObject["landcover_c_factor"] = items[i].landcover_c_factor;
         feedObject["slope"] = items[i].slope;
+        feedObject["slope_desc"] = items[i].slope_desc;
         feedObject["slope_p_factor"] = items[i].slope_p_factor;
         feedObject["slope_length"] = items[i].slope_length;
         feedObject["grassman"] = items[i].grassman;
+        feedObject["grassman_desc"] = items[i].grassman_desc;
         feedObject["grassman_change_factor"] = items[i].grassman_change_factor;
         feedObject["main_product_removal"] = items[i].main_product_removal;
         feedObject["residue_removal"] = items[i].residue_removal;
@@ -206,6 +213,7 @@ QJsonArray feedsModel::getFeedsArray()
         feedObject["average_dbh50"] = items[i].average_dbh50;
         feedObject["increase_dbh50"] = items[i].increase_dbh50;
         feedObject["time_horizon"] = items[i].time_horizon;
+        feedObject["diameter_breast"] = items[i].diameter_breast;
 
 
         feedsArray.append(feedObject);
@@ -226,31 +234,34 @@ void feedsModel::addNewFeed(QString crop, QString feed)
     aFeed.intercrop_fraction = 0;
     aFeed.cut_carry_fraction = 0;
     aFeed.landcover_c_factor = 0;
-    if (query.exec("SELECT landcover_code,c_factor FROM lkp_landcover LIMIT 1"))
+    if (query.exec("SELECT landcover_code,landcover_desc,c_factor FROM lkp_landcover LIMIT 1"))
     {
         if (query.first())
         {
             aFeed.land_cover = query.value(0).toString();
-            aFeed.landcover_c_factor = query.value(1).toDouble(0);
+            aFeed.land_cover_desc = query.value(1).toString();
+            aFeed.landcover_c_factor = query.value(2).toDouble(0);
         }
     }
     aFeed.slope_p_factor = 0;
-    if (query.exec("SELECT slope_code,p_factor FROM lkp_slope LIMIT 1"))
+    if (query.exec("SELECT slope_code,slope_desc,p_factor FROM lkp_slope LIMIT 1"))
     {
         if (query.first())
         {
             aFeed.slope = query.value(0).toString();
-            aFeed.slope_p_factor = query.value(1).toDouble(0);
+            aFeed.slope_desc = query.value(1).toString();
+            aFeed.slope_p_factor = query.value(2).toDouble(0);
         }
     }
     aFeed.slope_length = 0;
     aFeed.grassman_change_factor = 0;
-    if (query.exec("SELECT management_code,change_factor FROM lkp_grasslandman"))
+    if (query.exec("SELECT management_code,management_desc,change_factor FROM lkp_grasslandman"))
     {
         if (query.first())
         {
             aFeed.grassman = query.value(0).toString();
-            aFeed.grassman_change_factor = query.value(1).toDouble(0);
+            aFeed.grassman_desc = query.value(1).toString();
+            aFeed.grassman_change_factor = query.value(2).toDouble(0);
         }
     }
     aFeed.main_product_removal = 0;
@@ -286,7 +297,7 @@ void feedsModel::addNewFeed(QString crop, QString feed)
             aFeed.dm_fraction = query.value("dm_fraction").toDouble(0);            
             aFeed.harvest_index = query.value("harvest_index").toDouble(0);            
             aFeed.residue_n = query.value("residue_n").toDouble(0);
-            aFeed.main_n = query.value("main_n").toDouble(0);            
+            aFeed.main_n = query.value("main_n").toDouble(0);
             aFeed.c_factor = query.value("c_factor").toDouble(0);
             aFeed.n_fixation = query.value("n_fixation").toDouble(0);
             aFeed.energy = query.value("energy").toDouble(0);
@@ -313,6 +324,7 @@ void feedsModel::addNewFeed(QString crop, QString feed)
             aFeed.average_dbh50 = query.value("average_dbh50").toDouble(0);
             aFeed.increase_dbh50 = query.value("increase_dbh50").toDouble(0);
             aFeed.time_horizon = query.value("time_horizon").toDouble(0);
+            aFeed.diameter_breast = query.value("diameter_breast").toDouble(0);;
         }
 
     }
@@ -391,6 +403,7 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
             if (section == 57) return "Average diameter at breast height of trees with a DBH more than 50cm";
             if (section == 58) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
             if (section == 59) return "Time it takes for tree to mature (years)";
+            if (section == 60) return "Tree breast diameter (cm)";
         }
     }
     return QVariant();
@@ -479,6 +492,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         if (index.column() == 57) return items[index.row()].average_dbh50;
         if (index.column() == 58) return items[index.row()].increase_dbh50;
         if (index.column() == 59) return items[index.row()].time_horizon;
+        if (index.column() == 60) return items[index.row()].diameter_breast;
     }
     if (role == Qt::BackgroundRole)
     {
@@ -589,6 +603,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     if (index.column() == 57) items[index.row()].average_dbh50 = newValue;
                     if (index.column() == 58) items[index.row()].increase_dbh50 = newValue;
                     if (index.column() == 59) items[index.row()].time_horizon = newValue;
+                    if (index.column() == 60) items[index.row()].diameter_breast = newValue;
 
                     emit modelChanged();
                     return true;
@@ -605,11 +620,12 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                 {
                     items[index.row()].land_cover = value.toString();
                     QSqlQuery query(db);
-                    if (query.exec("SELECT c_factor FROM lkp_landcover where landcover_code = '" + value.toString() + "'"))
+                    if (query.exec("SELECT landcover_desc,c_factor FROM lkp_landcover where landcover_code = '" + value.toString() + "'"))
                     {
                         if (query.first())
                         {
-                            items[index.row()].landcover_c_factor = query.value(0).toDouble(0);
+                            items[index.row()].land_cover_desc = query.value(0).toString();
+                            items[index.row()].landcover_c_factor = query.value(1).toDouble(0);
                         }
                     }
                     emit delegateChanged(index.column());
@@ -618,11 +634,12 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                 {
                     items[index.row()].slope = value.toString();
                     QSqlQuery query(db);
-                    if (query.exec("SELECT p_factor FROM lkp_slope WHERE slope_code = '" + value.toString() + "'"))
+                    if (query.exec("SELECT slope_desc,p_factor FROM lkp_slope WHERE slope_code = '" + value.toString() + "'"))
                     {
                         if (query.first())
                         {
-                            items[index.row()].slope_p_factor = query.value(0).toDouble(0);
+                            items[index.row()].slope_desc = query.value(0).toString();
+                            items[index.row()].slope_p_factor = query.value(1).toDouble(0);
                         }
                     }
                     emit delegateChanged(index.column());
@@ -631,11 +648,12 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                 {
                     items[index.row()].grassman = value.toString();
                     QSqlQuery query(db);
-                    if (query.exec("SELECT change_factor FROM lkp_grasslandman WHERE management_code = '" + value.toString() + "'"))
+                    if (query.exec("SELECT management_desc,change_factor FROM lkp_grasslandman WHERE management_code = '" + value.toString() + "'"))
                     {
                         if (query.first())
                         {
-                            items[index.row()].grassman_change_factor = query.value(0).toDouble(0);
+                            items[index.row()].grassman_desc = query.value(0).toString();
+                            items[index.row()].grassman_change_factor = query.value(1).toDouble(0);
                         }
                     }
                     emit delegateChanged(index.column());

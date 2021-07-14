@@ -16,12 +16,16 @@ void basketModel::setDataArray(QJsonArray data)
 {
     this->beginResetModel();
     items.clear();
+    bool rebuild = false;
     for (int seasonIndex = 0; seasonIndex < data.count(); ++seasonIndex)
     {
          QJsonObject seasonObject = data[seasonIndex].toObject();
 
          if (!seasonExists(seasonObject["season_name"].toString()))
-             continue;
+         {
+             rebuild = true;
+             break;
+         }
 
          TbasketSeason aSeason;
          aSeason.season_name = seasonObject["season_name"].toString();
@@ -39,7 +43,10 @@ void basketModel::setDataArray(QJsonArray data)
              QJsonObject feedObject = feedArray[feedIndex].toObject();
 
              if (!feedExists(feedObject["feed_type_code"].toString(), feedObject["feed_item_code"].toString()))
-                 continue;
+             {
+                 rebuild = true;
+                 break;
+             }
 
              TbasketFeed aFeed;
              aFeed.feed_type_code = feedObject["feed_type_code"].toString();
@@ -77,7 +84,10 @@ void basketModel::setDataArray(QJsonArray data)
              {
                  QJsonObject livestockObject = livestockArray[livestockIndex].toObject();
                  if (!livestockExists(livestockObject["livetype_code"].toString()))
-                     continue;
+                 {
+                     rebuild = true;
+                     break;
+                 }
                  if( livestock.indexOf(livestockObject["livetype_code"].toString()) == -1)
                     livestock.append(livestockObject["livetype_code"].toString());
                  TbasketLivestock aLivestock;
@@ -85,7 +95,15 @@ void basketModel::setDataArray(QJsonArray data)
                  aLivestock.allocation = livestockObject["allocation"].toDouble(0);
                  aFeed.livestock.append(aLivestock);
              }
+             if (aFeed.livestock.count() != livestock.count())
+                 rebuild = true;
+             if (rebuild)
+                 break;
              aSeason.feeds.append(aFeed);
+         }
+         if (rebuild)
+         {
+             break;
          }
 
          TbasketLine aSummaryLine;
@@ -99,13 +117,42 @@ void basketModel::setDataArray(QJsonArray data)
          aSeparationLine.season_name = seasonObject["season_name"].toString();
          aSeparationLine.lineDescription = "";
          items.append(aSeparationLine);
-
+         if (aSeason.feeds.count() != feeds.count())
+         {
+             rebuild = true;
+             break;
+         }
          basket.append(aSeason);
     }
-    qDebug() << seasons;
-    qDebug() << feeds;
-    qDebug() << livestock;
     this->endResetModel();
+    if (rebuild)
+    {
+        qDebug() << "Rebuilding";
+        this->basket.clear();
+        for (int season=0; season < seasons.count(); season++)
+        {
+            TbasketSeason aSeason;
+            aSeason.season_name = seasons[season];
+            for (int feedIndex = 0; feedIndex < feeds.count(); feedIndex++)
+            {
+                TbasketFeed aFeed;
+                QStringList parts = feeds[feedIndex].split("|");
+                aFeed.feed_type_code = parts[0];
+                aFeed.feed_item_code = parts[1];
+                for (int livestockIndex = 0; livestockIndex < livestock.count(); livestockIndex++)
+                {
+                    TbasketLivestock aLivestock;
+                    aLivestock.livetype_code = livestock[livestockIndex];
+                    aLivestock.allocation = 0;
+                    aFeed.livestock.append(aLivestock);
+                }
+                aSeason.feeds.append(aFeed);
+            }
+            basket.append(aSeason);
+        }
+
+        this->rebuildItems();
+    }
 }
 
 void basketModel::setDatabase(QSqlDatabase cleaned_db)

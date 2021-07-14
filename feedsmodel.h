@@ -15,11 +15,14 @@ struct feedType
     double intercrop_fraction;
     double cut_carry_fraction;
     QString land_cover;
+    QString land_cover_desc;
     double landcover_c_factor;
     QString slope;
+    QString slope_desc;
     double slope_p_factor;
     double slope_length;
     QString grassman;
+    QString grassman_desc;
     double grassman_change_factor;
     double main_product_removal;
     double residue_removal;
@@ -42,7 +45,7 @@ struct feedType
     double dm_fraction;
     double harvest_index;    
     double residue_n;
-    double main_n;    
+    double main_n;
     double c_factor;
     double n_fixation;
     double energy;
@@ -69,6 +72,7 @@ struct feedType
     double average_dbh50;
     double increase_dbh50;
     double time_horizon;
+    double diameter_breast;
 };
 typedef feedType Tfeed;
 

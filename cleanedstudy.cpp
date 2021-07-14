@@ -370,6 +370,7 @@ void CleanedStudy::load_models()
     comboDelegate *sourceTypeDelegate = new comboDelegate(this);
     sourceTypeDelegate->insertItem("Main","Main");
     sourceTypeDelegate->insertItem("Residue","Residue");
+    sourceTypeDelegate->insertItem("Purchased","Purchased");
     sourceTypeDelegate->setBrush(Background);
     ui->feedsView->setItemDelegateForColumn(2,sourceTypeDelegate);
 
@@ -406,7 +407,7 @@ void CleanedStudy::saveStudyObject()
     this->study_object["waste_processing_milk"] = ui->txt_waste_proc_milk->text().toDouble();
     this->study_object["waste_processing_meat"] = ui->txt_waste_proc_meat->text().toDouble();
     this->study_object["waste_consume_milk"] = ui->txt_waste_cons_milk->text().toDouble();
-    this->study_object["waste_consume_milk"] = ui->txt_waste_cons_meat->text().toDouble();
+    this->study_object["waste_consume_meat"] = ui->txt_waste_cons_meat->text().toDouble();
     // Save land
     this->study_object["annual_prec"] = ui->txt_annual_prec->text().toDouble();
     this->study_object["rain_length"] = ui->txt_rain_length->text().toDouble();
