@@ -34,6 +34,16 @@ bool seasonModel::seasonExist(QString season)
     return false;
 }
 
+int seasonModel::getTotalDays()
+{
+    int numDays = 0;
+    for (int i = 0; i < items.count(); i++)
+    {
+        numDays = numDays + items[i].num_days;
+    }
+    return numDays;
+}
+
 void seasonModel::addNewSeason(QString seasonName)
 {    
     if (seasonExist(seasonName))

@@ -51,8 +51,9 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-
+#include <QSettings>
 #include "mainwindow.h"
+#include <QDir>
 
 int main(int argc, char *argv[])
 {
@@ -68,6 +69,25 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.addPositionalArgument("file", "The scenario file to open.");
     parser.process(app);
+
+    QString runDir = QDir::QDir::currentPath();
+    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    if (settings.value("model_file","").toString() == "")
+    {
+        settings.setValue("model_file", runDir + QDir::separator() + "R" + QDir::separator() + "run_model.R");
+    }
+    if (settings.value("ghg_file","").toString() == "")
+    {
+        settings.setValue("ghg_file", runDir + QDir::separator() + "R" + QDir::separator() + "ghg_parameters.json");
+    }
+    if (settings.value("stock_file","").toString() == "")
+    {
+        settings.setValue("stock_file", runDir + QDir::separator() + "R" + QDir::separator() + "stock_change_parameters.json");
+    }
+    if (settings.value("enery_file","").toString() == "")
+    {
+        settings.setValue("enery_file", runDir + QDir::separator() + "R" + QDir::separator() + "energy_parameters.json");
+    }
 
     MainWindow mainWin;
     const QStringList posArgs = parser.positionalArguments();

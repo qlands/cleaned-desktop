@@ -20,6 +20,16 @@ public:
 private slots:
     void on_cmb_browse_model_clicked();
 
+    void on_buttonBox_accepted();
+
+    void on_buttonBox_rejected();
+
+    void on_cmd_ghg_clicked();
+
+    void on_cmd_stock_clicked();
+
+    void on_cmd_energy_clicked();
+
 private:
     Ui::settings *ui;
 };

@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QSqlQuery>
 #include <QDebug>
+#include <QFont>
 
 livestockModel::livestockModel(QObject *parent)
     :QAbstractTableModel(parent)
@@ -126,7 +127,7 @@ Qt::ItemFlags livestockModel::flags(const QModelIndex &index) const
 {
     if (index.column() > 0 && index.column() < 62)
     {
-        if (index.column() != 54 && index.column() != 55)
+        if (index.column() != 7 && index.column() != 10 && index.column() != 13 && index.column() != 15 && index.column() != 54 && index.column() != 55)
             return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
         else
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -316,7 +317,7 @@ QVariant livestockModel::headerData(int section, Qt::Orientation orientation, in
         if (orientation == Qt::Horizontal)
         {
             if (section == 0) return "Category";
-            if (section == 1) return "Herd composition (nr)";
+            if (section == 1) return "Number";
             if (section == 2) return "Average annual milk (kg)";
             if (section == 3) return "Average annual wool (kg)";
             if (section == 4) return "Average annual growth per animal (kg)";
@@ -474,6 +475,15 @@ QVariant livestockModel::data(const QModelIndex &index, int role) const
         }
 
     }
+    if (role == Qt::FontRole)
+    {
+        if (index.column() == 7 || index.column() == 10 || index.column() == 13 || index.column() == 15)
+        {
+            QFont font;
+            font.setUnderline(true);
+            return font;
+        }
+    }
     if (role == Qt::ForegroundRole)
     {
         if (index.column() > 0)
@@ -570,22 +580,22 @@ bool livestockModel::setData(const QModelIndex &index,const QVariant &value,int 
                 if (index.column() == 7)
                 {
                     items[index.row()].manureman_stable = value.toString();
-                    emit delegateChanged(index.column());
+                    //emit delegateChanged(index.column());
                 }
                 if (index.column() == 10)
                 {
                     items[index.row()].manureman_non_roofed_enclosure = value.toString();
-                    emit delegateChanged(index.column());
+                    //emit delegateChanged(index.column());
                 }
                 if (index.column() == 13)
                 {
                     items[index.row()].manureman_onfarm_grazing = value.toString();
-                    emit delegateChanged(index.column());
+                    //emit delegateChanged(index.column());
                 }
                 if (index.column() == 15)
                 {
                     items[index.row()].manureman_offfarm_grazing = value.toString();
-                    emit delegateChanged(index.column());
+                    //emit delegateChanged(index.column());
                 }
                 if (index.column() == 54)
                     return false;

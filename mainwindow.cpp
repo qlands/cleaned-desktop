@@ -53,6 +53,7 @@
 #include "mainwindow.h"
 #include "cleanedstudy.h"
 #include "settings.h"
+#include "aboutcleaned.h"
 
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
@@ -221,10 +222,10 @@ void MainWindow::saveAs()
 }
 
 
-void MainWindow::about()
+void MainWindow::show_about()
 {
-   QMessageBox::about(this, tr("Cleaned"),
-            tr("Cleaned Desktop App. A software to configure and run the Cleaned model"));
+    AboutCleaned about_screen;
+    about_screen.exec();
 }
 
 void MainWindow::updateMenus()
@@ -352,12 +353,12 @@ void MainWindow::createActions()
     QMenu *modelMenu = menuBar()->addMenu(tr("&Model"));
 
     const QIcon runIcon = QIcon(":/images/run.png");
-    runAct = new QAction(runIcon, tr("&Run"), this);
+    runAct = new QAction(runIcon, tr("&Run R the model"), this);
     QKeySequence run_sequence(Qt::CTRL + Qt::Key_R);
     QList< QKeySequence>run_shortcuts;
     run_shortcuts.append(run_sequence);
     runAct->setShortcuts(run_shortcuts);
-    runAct->setStatusTip(tr("Run Cleaned model"));
+    runAct->setStatusTip(tr("Run the Cleaned R model"));
     connect(runAct, &QAction::triggered, this, &MainWindow::runModel);
     modelMenu->addAction(runAct);
 
@@ -419,11 +420,11 @@ void MainWindow::createActions()
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
 
-    QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
+    QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::show_about);
     aboutAct->setStatusTip(tr("Show the application's About box"));
 
-    QAction *aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
-    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
+//    QAction *aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+//    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
 }
 
 void MainWindow::createStatusBar()
@@ -436,7 +437,7 @@ void MainWindow::readSettings()
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
     if (geometry.isEmpty()) {
-        const QRect availableGeometry = screen()->availableGeometry();
+        const QRect availableGeometry = QApplication::desktop()->availableGeometry();
         resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
         move((availableGeometry.width() - width()) / 2,
              (availableGeometry.height() - height()) / 2);
@@ -488,14 +489,6 @@ void MainWindow::runModel()
 
 void MainWindow::loadSettings()
 {
-    ModelSettings settingsWindow;
-
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-    if (settings.value("model_file","").toString() != "")
-        settingsWindow.setModelFile(settings.value("model_file","").toString());
-    int result = settingsWindow.exec();
-    if (result == 1)
-    {
-        settings.setValue("model_file", settingsWindow.getModelFile());
-    }
+    ModelSettings settingsWindow;    
+    settingsWindow.exec();
 }

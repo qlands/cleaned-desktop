@@ -1,7 +1,8 @@
-QT += core widgets sql 
+QT += core widgets sql webenginewidgets
 requires(qtConfig(filedialog))
 
 HEADERS       = mainwindow.h \
+                aboutcleaned.h \
                 addfeed.h \
                 addfertilizer.h \
                 addlivestock.h \
@@ -10,12 +11,14 @@ HEADERS       = mainwindow.h \
                 cleanedstudy.h \
                 combodelegate.h \
                 cropinputsmodel.h \
+                delegatordialog.h \
                 feedsmodel.h \
                 fertilizermodel.h \
                 livestockmodel.h \
                 seasonmodel.h \
                 settings.h
 SOURCES       = main.cpp \
+                aboutcleaned.cpp \
                 addfeed.cpp \
                 addfertilizer.cpp \
                 addlivestock.cpp \
@@ -24,6 +27,7 @@ SOURCES       = main.cpp \
                 cleanedstudy.cpp \
                 combodelegate.cpp \
                 cropinputsmodel.cpp \
+                delegatordialog.cpp \
                 feedsmodel.cpp \
                 fertilizermodel.cpp \
                 livestockmodel.cpp \
@@ -34,12 +38,16 @@ RESOURCES     = cleaned.qrc
 
 TARGET = cleaned
 
+QMAKE_LFLAGS += -fuse-ld=gold
+
 TEMPLATE = app
 
 FORMS += \
+    aboutcleaned.ui \
     addfeed.ui \
     addfertilizer.ui \
     addlivestock.ui \
     addseason.ui \
     cleanedstudy.ui \
+    delegatordialog.ui \
     settings.ui

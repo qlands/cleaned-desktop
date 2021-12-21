@@ -28,6 +28,7 @@ public:
     QJsonArray getSeasonArray();
     bool seasonExist(QString season);
     QString getSeason(int row);
+    int getTotalDays();
 signals:
     void modelChanged();
     void seasonChanged(QString fromSeason, QString toSeason);

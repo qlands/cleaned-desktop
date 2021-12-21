@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QSqlQuery>
 #include <QBrush>
+#include <QFont>
 
 feedsModel::feedsModel(QObject *parent)
     :QAbstractTableModel(parent)
@@ -125,7 +126,12 @@ Qt::ItemFlags feedsModel::flags(const QModelIndex &index) const
         if (index.column() != 4)
         {
             if (index.column() != 3)
-                return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+            {
+                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11)
+                    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+                else
+                    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+            }
             else
                 return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
         }
@@ -437,12 +443,42 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
             }
         }
         if (index.column() == 5) return items[index.row()].cut_carry_fraction;
-        if (index.column() == 6) return items[index.row()].land_cover;
+        if (index.column() == 6)
+        {
+            QSqlQuery query(db);
+            if (query.exec("SELECT landcover_desc FROM lkp_landcover where landcover_code = '" + items[index.row()].land_cover + "'"))
+            {
+                if (query.first())
+                {
+                    return query.value(0).toString();
+                }
+            }
+        }
         if (index.column() == 7) return items[index.row()].landcover_c_factor;
-        if (index.column() == 8) return items[index.row()].slope;
+        if (index.column() == 8)
+        {
+            QSqlQuery query(db);
+            if (query.exec("SELECT slope_desc FROM lkp_slope where slope_code = '" + items[index.row()].slope + "'"))
+            {
+                if (query.first())
+                {
+                    return query.value(0).toString();
+                }
+            }
+        }
         if (index.column() == 9) return items[index.row()].slope_p_factor;
         if (index.column() == 10) return items[index.row()].slope_length;
-        if (index.column() == 11) return items[index.row()].grassman;
+        if (index.column() == 11)
+        {
+            QSqlQuery query(db);
+            if (query.exec("SELECT management_desc FROM lkp_grasslandman where management_code = '" + items[index.row()].grassman + "'"))
+            {
+                if (query.first())
+                {
+                    return query.value(0).toString();
+                }
+            }
+        }
         if (index.column() == 12) return items[index.row()].grassman_change_factor;
         if (index.column() == 13) return items[index.row()].main_product_removal;
         if (index.column() == 14) return items[index.row()].residue_removal;
@@ -513,6 +549,16 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         }
 
     }
+    if (role == Qt::FontRole)
+    {
+        if (index.column() == 2 || index.column() == 6 || index.column() == 8 || index.column() == 11)
+        {
+            QFont font;
+            font.setUnderline(true);
+            return font;
+        }
+    }
+
     if (role == Qt::ForegroundRole)
     {
         if (index.column() >= 2)

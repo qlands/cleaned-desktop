@@ -10,6 +10,7 @@
 #include <cropinputsmodel.h>
 #include <fertilizermodel.h>
 #include "basketmodel.h"
+#include <QProcess>
 
 namespace Ui {
 class CleanedStudy;
@@ -38,7 +39,7 @@ protected:
 
 private slots:
     void documentWasModified();
-
+    void modelFinished(int exitCode);
     void on_cmd_add_season_clicked();
 
     void on_cmd_del_season_clicked();
@@ -59,9 +60,6 @@ private slots:
 
     void on_cmd_add_feed_clicked();
 
-    void feeds_delegate_changed(int column);
-    void livestock_delegate_changed(int column);
-
     void on_cmd_add_fert_clicked();
 
     void season_changed(QString fromSeason, QString toSeason);
@@ -77,6 +75,12 @@ private slots:
 
     void on_cbm_climate_currentIndexChanged(const QString &arg1);
 
+    void on_livestockView_doubleClicked(const QModelIndex &index);
+
+    void on_feedsView_doubleClicked(const QModelIndex &index);
+
+    void on_tabWidget_currentChanged(int index);
+
 signals:
     void report_error(QString error_message);
 
@@ -89,9 +93,12 @@ private:
     QString curFile;
     QString curFilePath;
     bool isUntitled;
+    bool model_running;
     void load_models();
     void saveStudyObject();
     void loadStudyObject();
+    QVector <int> livestock_colums;
+    QVector <int> feed_colums;
     QJsonObject study_object;    
     bool studyModified;
     //Models
@@ -103,6 +110,7 @@ private:
     basketModel * m_basktet;
     bool loading;
     void BrowseChildren(QWidget * parent);
+    QProcess *m_process;
 };
 
 #endif // CLEANEDSTUDY_H

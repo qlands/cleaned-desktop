@@ -1,0 +1,17 @@
+[
+{
+    "name": "ghe_001",
+    "description": "Green House Emissions 1",
+    "file": "c:\\cleaned\ghe_001.png"
+},
+{
+    "name": "ghe_002",
+    "description": "Green House Emissions Separated by region",
+    "file": "c:\\cleaned\ghe_002.png"
+},
+{
+    "name": "ghe_003",
+    "description": "Green House Emissions Separated by Source",
+    "file": "c:\\cleaned\ghe_003.png"
+},
+]

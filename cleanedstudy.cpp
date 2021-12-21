@@ -15,6 +15,10 @@
 #include <QMessageBox>
 #include "addfertilizer.h"
 #include "addseason.h"
+#include <QFileInfo>
+#include "delegatordialog.h"
+#include <QFont>
+#include <QFontMetrics>
 
 CleanedStudy::CleanedStudy(QWidget *parent) :
     QWidget(parent),
@@ -22,7 +26,7 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
 {
     ui->setupUi(this);
     static int sequenceNumber = 1;
-
+    model_running = false;
     isUntitled = true;
     curFile = tr("document%1.txt").arg(sequenceNumber++);
     setWindowTitle(curFile + "[*]");
@@ -31,9 +35,11 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
     ui->seasonsView->setModel(m_seasons);
     m_livestock = new livestockModel(this);
     ui->livestockView->setModel(m_livestock);
-
+    ui->stackedWidget->setCurrentIndex(0);
     m_feeds = new feedsModel(this);
     ui->feedsView->setModel(m_feeds);
+    m_process = new QProcess(this);
+    connect(m_process,SIGNAL(finished(int)),this,SLOT(modelFinished(int)));
 
     m_cropInputs = new cropInputsModel(this);
     ui->cropsView->setModel(m_cropInputs);
@@ -89,9 +95,20 @@ void CleanedStudy::newFile()
     ui->livestockView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
     ui->livestockView->horizontalHeader()->setMinimumHeight(150);
 
+    for (int ncol=0; ncol < m_livestock->columnCount(); ncol++)
+    {
+        livestock_colums.append(ui->livestockView->columnWidth(ncol));
+    }
+
+
     //ui->feedsView->resizeColumnsToContents();
     ui->feedsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
     ui->feedsView->horizontalHeader()->setMinimumHeight(120);
+
+    for (int ncol=0; ncol < m_feeds->columnCount(); ncol++)
+    {
+        feed_colums.append(ui->feedsView->columnWidth(ncol));
+    }
 
     //ui->cropsView->resizeColumnsToContents();
     ui->cropsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
@@ -123,6 +140,20 @@ bool CleanedStudy::loadFile(const QString &fileName)
     QGuiApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
+
+
+    QString outFile = curFile;
+    outFile = outFile.replace(".json","_result.json");
+    QFileInfo fileInfo(outFile);
+    if (fileInfo.exists())
+    {
+        ui->stackedWidget->setCurrentIndex(2);
+        QFile results_file(outFile);
+        results_file.open(QFile::ReadOnly | QFile::Text);
+        ui->json_result->setText(results_file.readAll());
+        ui->json_result->setReadOnly(true);
+    }
+
 
     // TODO: We need to find a way to notify that the file has changed
 //    connect(document(), &QTextDocument::contentsChanged,
@@ -299,81 +330,9 @@ void CleanedStudy::load_models()
 
     //Livestock
     m_livestock->setDatabase(db);
-    connect(m_livestock,SIGNAL(delegateChanged(int)),this,SLOT(livestock_delegate_changed(int)));
-
-    QBrush manureManagementBackground(QColor(169,209,142));
-    comboDelegate *manureStableDelegate = new comboDelegate(this);
-    manureStableDelegate->setBrush(manureManagementBackground);
-
-    comboDelegate *manureEnclosureDelegate = new comboDelegate(this);
-    manureEnclosureDelegate->setBrush(manureManagementBackground);
-
-    comboDelegate *manureOnFarmGrazingDelegate = new comboDelegate(this);
-    manureOnFarmGrazingDelegate->setBrush(manureManagementBackground);
-
-    comboDelegate *manureOffFarmGrazingDelegate = new comboDelegate(this);
-    manureOffFarmGrazingDelegate->setBrush(manureManagementBackground);
-
-    if (query.exec("select manureman_desc from lkp_manureman"))
-    {
-        while (query.next())
-        {
-            manureStableDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
-            manureEnclosureDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
-            manureOnFarmGrazingDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
-            manureOffFarmGrazingDelegate->insertItem(query.value(0).toString(),query.value(0).toString());
-        }
-    }
-    ui->livestockView->setItemDelegateForColumn(7,manureStableDelegate);
-    ui->livestockView->setItemDelegateForColumn(10,manureEnclosureDelegate);
-    ui->livestockView->setItemDelegateForColumn(13,manureOnFarmGrazingDelegate);
-    ui->livestockView->setItemDelegateForColumn(15,manureOffFarmGrazingDelegate);
 
     //Feeds
     m_feeds->setDatabase(db);
-    connect(m_feeds,SIGNAL(delegateChanged(int)),this,SLOT(feeds_delegate_changed(int)));
-
-    comboDelegate *landCoverDelegate = new comboDelegate(this);
-    if (query.exec("SELECT landcover_code,landcover_desc FROM lkp_landcover"))
-    {
-        while (query.next())
-        {
-            landCoverDelegate->insertItem(query.value(0).toString(),query.value(1).toString());
-        }
-    }
-    QBrush Background(QColor(169,209,142)); //We can change this to a nice color
-    landCoverDelegate->setBrush(Background);
-    ui->feedsView->setItemDelegateForColumn(6,landCoverDelegate);
-
-    comboDelegate *slopeDelegate = new comboDelegate(this);
-    if (query.exec("SELECT slope_code,slope_desc FROM lkp_slope"))
-    {
-        while (query.next())
-        {
-            slopeDelegate->insertItem(query.value(0).toString(),query.value(1).toString());
-        }
-    }
-    slopeDelegate->setBrush(Background);
-    ui->feedsView->setItemDelegateForColumn(8,slopeDelegate);
-
-    comboDelegate *grassDelegate = new comboDelegate(this);
-    if (query.exec("SELECT management_code,management_desc FROM lkp_grasslandman"))
-    {
-        while (query.next())
-        {
-            grassDelegate->insertItem(query.value(0).toString(),query.value(1).toString());
-        }
-    }
-    grassDelegate->setBrush(Background);
-    ui->feedsView->setItemDelegateForColumn(11,grassDelegate);
-
-    comboDelegate *sourceTypeDelegate = new comboDelegate(this);
-    sourceTypeDelegate->insertItem("Main","Main");
-    sourceTypeDelegate->insertItem("Residue","Residue");
-    sourceTypeDelegate->insertItem("Purchased","Purchased");
-    sourceTypeDelegate->setBrush(Background);
-    ui->feedsView->setItemDelegateForColumn(2,sourceTypeDelegate);
-
 
     //Crops
     m_cropInputs->setDatabase(db);
@@ -662,9 +621,27 @@ void CleanedStudy::loadStudyObject()
         livestockArray = study_object["livestock"].toArray();
         m_livestock->setDataArray(livestockArray);
     }
-    //ui->livestockView->resizeColumnsToContents();
+
     ui->livestockView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
     ui->livestockView->horizontalHeader()->setMinimumHeight(150);
+    for (int ncol=0; ncol < m_livestock->columnCount(); ncol++)
+    {
+        if (ncol != 7 && ncol != 10 && ncol != 13 && ncol != 15)
+            livestock_colums.append(ui->livestockView->columnWidth(ncol));
+        else
+        {
+            livestock_colums.append(ui->livestockView->columnWidth(ncol));
+            for (int nrow = 0; nrow < m_livestock->rowCount(); nrow++)
+            {
+                QModelIndex index = m_livestock->index(nrow, ncol);
+
+                int width=ui->livestockView->fontMetrics().width(m_livestock->data(index).toString());
+                width = width + 10;
+                if (width > livestock_colums[ncol])
+                    livestock_colums[ncol] = width;
+            }
+        }
+    }
 
     // Load feeds
     if (study_object.contains("feed_items") && study_object["feed_items"].isArray())
@@ -678,6 +655,25 @@ void CleanedStudy::loadStudyObject()
     //ui->feedsView->resizeColumnsToContents();
     ui->feedsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
     ui->feedsView->horizontalHeader()->setMinimumHeight(120);
+    for (int ncol=0; ncol < m_feeds->columnCount(); ncol++)
+    {
+        if (ncol != 2 && ncol != 6 && ncol != 8 && ncol != 11)
+            feed_colums.append(ui->feedsView->columnWidth(ncol));
+        else
+        {
+            feed_colums.append(ui->feedsView->columnWidth(ncol));
+            for (int nrow = 0; nrow < m_feeds->rowCount(); nrow++)
+            {
+                QModelIndex index = m_feeds->index(nrow, ncol);
+
+                int width=ui->feedsView->fontMetrics().width(m_feeds->data(index).toString());
+                width = width + 10;
+                if (width > feed_colums[ncol])
+                    feed_colums[ncol] = width;
+            }
+        }
+    }
+
 
 
     //ui->cropsView->resizeColumnsToContents();
@@ -786,26 +782,35 @@ void CleanedStudy::loadStudyObject()
 
 
 bool CleanedStudy::save()
-{
+{    
     if (isUntitled) {
         return saveAs();
     } else {
+        if (m_seasons->getTotalDays() != 365)
+        {
+            QMessageBox::warning(this,tr("Seasons"),tr("Warning: The total number of days allocated to seasons is not 365"));
+        }
         return saveFile(curFile);
     }
 }
 
 bool CleanedStudy::saveAs()
 {
+    if (m_seasons->getTotalDays() != 365)
+    {
+        QMessageBox::warning(this,tr("Seasons"),tr("Warning: The total number of days allocated to seasons is not 365"));
+    }
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
                                                     curFile);
     if (fileName.isEmpty())
         return false;
-
+    if (fileName.toLower().indexOf(".json") < 0)
+        fileName = fileName + ".json";
     return saveFile(fileName);
 }
 
 bool CleanedStudy::saveFile(const QString &fileName)
-{
+{    
     QString errorMessage;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     saveStudyObject();
@@ -1038,15 +1043,6 @@ void CleanedStudy::on_cmd_add_feed_clicked()
 
 }
 
-void CleanedStudy::feeds_delegate_changed(int column)
-{
-    ui->feedsView->resizeColumnToContents(column);
-}
-
-void CleanedStudy::livestock_delegate_changed(int column)
-{
-    ui->livestockView->resizeColumnToContents(column);
-}
 
 void CleanedStudy::on_cmd_add_fert_clicked()
 {
@@ -1069,17 +1065,102 @@ bool CleanedStudy::run()
 {
     if (!studyModified)
     {
+        bool run_model = true;
         QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-        if (settings.value("model_file","").toString() != "")
-            return true;
-        else
+        if (settings.value("model_file","").toString() == "")
         {
             QMessageBox msgBox;
             msgBox.setWindowTitle("Run model");
             msgBox.setText("You need to indicate the model file in the settings");
             msgBox.exec();
-            return false;
+            run_model = false;
         }
+        if (settings.value("ghg_file","").toString() == "")
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Run model");
+            msgBox.setText("You need to indicate the GHG parameters file in the settings");
+            msgBox.exec();
+            run_model = false;
+        }
+        if (settings.value("stock_file","").toString() == "")
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Run model");
+            msgBox.setText("You need to indicate the Stock parameters file in the settings");
+            msgBox.exec();
+            run_model = false;
+        }
+        if (settings.value("enery_file","").toString() == "")
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Run model");
+            msgBox.setText("You need to indicate the Energy parameters file in the settings");
+            msgBox.exec();
+            run_model = false;
+        }
+        QFileInfo info;
+        info.setFile(settings.value("model_file","").toString());
+        if (!info.exists())
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Run model");
+            msgBox.setText("The model file does not exists");
+            msgBox.exec();
+            run_model = false;
+        }
+        info.setFile(settings.value("ghg_file","").toString());
+        if (!info.exists())
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Run model");
+            msgBox.setText("The GHG parameters file does not exists");
+            msgBox.exec();
+            run_model = false;
+        }
+        info.setFile(settings.value("stock_file","").toString());
+        if (!info.exists())
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Run model");
+            msgBox.setText("The Stock parameters file does not exists");
+            msgBox.exec();
+            run_model = false;
+        }
+        info.setFile(settings.value("enery_file","").toString());
+        if (!info.exists())
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Run model");
+            msgBox.setText("The Energy parameters file does not exists");
+            msgBox.exec();
+            run_model = false;
+        }
+
+        if (run_model && !model_running)
+        {
+            ui->tabWidget_2->setCurrentIndex(1);
+            model_running = true;
+            ui->stackedWidget->setCurrentIndex(1);
+            QStringList params;
+            params.append("--vanilla");
+            params.append(settings.value("model_file","").toString());
+            params.append(curFile);
+            params.append(settings.value("ghg_file","").toString());
+            params.append(settings.value("stock_file","").toString());
+            params.append(settings.value("enery_file","").toString());
+            QString outFile = curFile;
+            outFile = outFile.replace(".json","_result.json");
+            params.append(outFile);
+            qDebug() << "****************444";
+            qDebug() << "Rscript " + params.join(" ");
+            qDebug() << "****************444";
+            m_process->start("Rscript",params);
+
+            return true;
+        }
+        else
+            return false;
     }
     else
     {
@@ -1222,3 +1303,134 @@ void CleanedStudy::on_cbm_climate_currentIndexChanged(const QString &arg1)
     if (ui->cbm_subclimate->count() > 0)
         ui->cbm_subclimate->setCurrentIndex(0);
 }
+
+void CleanedStudy::modelFinished(int exitCode)
+{
+    if (exitCode == 0)
+    {
+        ui->stackedWidget->setCurrentIndex(2);
+        QString outFile = curFile;
+        outFile = outFile.replace(".json","_result.json");
+        QFile file(outFile);
+        file.open(QFile::ReadOnly | QFile::Text);
+        ui->json_result->setText(file.readAll());
+        ui->json_result->setReadOnly(true);
+        model_running = false;
+    }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->txtlog->setPlainText(m_process->readAllStandardError());
+        model_running = false;
+    }
+}
+
+void CleanedStudy::on_livestockView_doubleClicked(const QModelIndex &index)
+{
+    int col = index.column();
+    if (col == 7 || col == 10 || col == 13 || col == 15)
+    {
+        delegatorDialog manure;
+        manure.setWindowTitle("Manure management");
+        manure.set_caption("Select a manure management type");
+        manure.load_manure(this->db);
+        manure.exec();
+        if (manure.selected_code != "")
+        {
+            this->m_livestock->setData(index, manure.selected_code);
+            int maxWidth = 0;
+            for (int nrow = 0; nrow < m_livestock->rowCount(); nrow++)
+            {
+                QModelIndex index = m_livestock->index(nrow, col);
+                int width = ui->livestockView->fontMetrics().width(m_livestock->data(index).toString());
+                width = width + 10;
+                if (width > maxWidth)
+                {
+                    maxWidth = width;
+                }
+            }
+            if (maxWidth > livestock_colums[col])
+                livestock_colums[col] = maxWidth;
+            else
+            {
+                if (maxWidth > 100)
+                    livestock_colums[col] = maxWidth;
+                else
+                    livestock_colums[col] = 100;
+            }
+            ui->livestockView->setColumnWidth(col, livestock_colums[col]);
+        }
+    }
+}
+
+
+void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
+{
+    int col = index.column();
+    if (col == 2 || col == 6 || col == 8 || col == 11)
+    {
+        delegatorDialog selectDialog;
+        if (col == 2)
+        {
+            selectDialog.load_sourceType();
+            selectDialog.set_caption("Select a source type");
+        }
+        if (col == 6)
+        {
+            selectDialog.load_landcover(db);
+            selectDialog.set_caption("Select a land cover");
+        }
+        if (col == 8)
+        {
+            selectDialog.load_slope(db);
+            selectDialog.set_caption("Select a slope type");
+        }
+        if (col == 11)
+        {
+            selectDialog.load_grassmanagement(db);
+            selectDialog.set_caption("Select a grassland management type");
+        }
+        selectDialog.exec();
+        if (selectDialog.selected_code != "")
+        {
+            this->m_feeds->setData(index, selectDialog.selected_code);
+
+            int maxWidth = 0;
+            for (int nrow = 0; nrow < m_feeds->rowCount(); nrow++)
+            {
+                QModelIndex index = m_feeds->index(nrow, col);
+                int width = ui->feedsView->fontMetrics().width(m_feeds->data(index).toString());
+                width = width + 10;
+                if (width > maxWidth)
+                {
+                    maxWidth = width;
+                }
+            }
+            if (maxWidth > feed_colums[col])
+                feed_colums[col] = maxWidth;
+            else
+            {
+                if (maxWidth > 100)
+                    feed_colums[col] = maxWidth;
+                else
+                    feed_colums[col] = 100;
+            }
+            ui->feedsView->setColumnWidth(col, feed_colums[col]);
+        }
+    }
+}
+
+
+void CleanedStudy::on_tabWidget_currentChanged(int index)
+{
+    if (index == 3)
+    {
+        if (m_seasons->rowCount() >0 )
+            ui->lblseasons->setVisible(false);
+        if (m_livestock->rowCount() >0 )
+            ui->lbllivestock->setVisible(false);
+        if (m_feeds->rowCount() >0 )
+            ui->lblfeeds->setVisible(false);
+    }
+}
+

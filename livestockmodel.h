@@ -98,7 +98,7 @@ public:
     QJsonArray getLivestockArray();
     QString getLivestockCode(int row);
     QString getLivestockDesc(int row);
-    void deleteLivestock(int row);
+    void deleteLivestock(int row);    
 signals:
     void delegateChanged(int column);
     void modelChanged();
