@@ -17,7 +17,8 @@ HEADERS       = mainwindow.h \
                 livestockmodel.h \
                 runmodelsdialog.h \
                 seasonmodel.h \
-                settings.h
+                settings.h \
+                versiondialog.h
 SOURCES       = main.cpp \
                 aboutcleaned.cpp \
                 addfeed.cpp \
@@ -35,7 +36,8 @@ SOURCES       = main.cpp \
                 mainwindow.cpp \
                 runmodelsdialog.cpp \
                 seasonmodel.cpp \
-                settings.cpp
+                settings.cpp \
+                versiondialog.cpp
 RESOURCES     = cleaned.qrc
 
 TARGET = cleaned
@@ -53,4 +55,5 @@ FORMS += \
     cleanedstudy.ui \
     delegatordialog.ui \
     runmodelsdialog.ui \
-    settings.ui
+    settings.ui \
+    versiondialog.ui

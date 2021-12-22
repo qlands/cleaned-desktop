@@ -55,6 +55,7 @@
 #include "settings.h"
 #include "aboutcleaned.h"
 #include "runmodelsdialog.h"
+#include "versiondialog.h"
 
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
@@ -71,7 +72,7 @@ MainWindow::MainWindow()
 
     readSettings();
 
-    setWindowTitle(tr("Cleaned"));
+    setWindowTitle(tr("CLEANED"));
     setUnifiedTitleAndToolBarOnMac(true);
     this->database_file = "./cleaned.sqlite";
 }
@@ -227,6 +228,12 @@ void MainWindow::show_about()
 {
     AboutCleaned about_screen;
     about_screen.exec();
+}
+
+void MainWindow::show_version()
+{
+    VersionDialog version_screen;
+    version_screen.exec();
 }
 
 void MainWindow::updateMenus()
@@ -423,6 +430,9 @@ void MainWindow::createActions()
 
     QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::show_about);
     aboutAct->setStatusTip(tr("Show the application's About box"));
+
+    QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindow::show_version);
+    versionAct->setStatusTip(tr("Show the application's Version box"));
 
 //    QAction *aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 //    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));

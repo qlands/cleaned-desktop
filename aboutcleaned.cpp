@@ -19,3 +19,9 @@ AboutCleaned::~AboutCleaned()
 {
     delete ui;
 }
+
+void AboutCleaned::on_cmdClose_clicked()
+{
+    this->close();
+}
+

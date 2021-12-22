@@ -83,6 +83,7 @@ private slots:
     void updateRecentFileActions();
     void openRecentFile();    
     void show_about();
+    void show_version();
     void updateMenus();
     void updateWindowMenu();
     CleanedStudy *createMdiChild();
