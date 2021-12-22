@@ -15,6 +15,7 @@ HEADERS       = mainwindow.h \
                 feedsmodel.h \
                 fertilizermodel.h \
                 livestockmodel.h \
+                runmodelsdialog.h \
                 seasonmodel.h \
                 settings.h
 SOURCES       = main.cpp \
@@ -32,6 +33,7 @@ SOURCES       = main.cpp \
                 fertilizermodel.cpp \
                 livestockmodel.cpp \
                 mainwindow.cpp \
+                runmodelsdialog.cpp \
                 seasonmodel.cpp \
                 settings.cpp
 RESOURCES     = cleaned.qrc
@@ -50,4 +52,5 @@ FORMS += \
     addseason.ui \
     cleanedstudy.ui \
     delegatordialog.ui \
+    runmodelsdialog.ui \
     settings.ui

@@ -54,6 +54,7 @@
 #include "cleanedstudy.h"
 #include "settings.h"
 #include "aboutcleaned.h"
+#include "runmodelsdialog.h"
 
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
@@ -483,8 +484,39 @@ void MainWindow::switchLayoutDirection()
 
 void MainWindow::runModel()
 {
-    if (activeMdiChild() && activeMdiChild()->run())
-        statusBar()->showMessage(tr("Model ran"), 2000);
+    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+    if (windows.size() > 1)
+    {
+        runModelsDialog modelsDialog;
+        for (int i = 0; i < windows.size(); ++i) {
+            QMdiSubWindow *mdiSubWindow = windows.at(i);
+            CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
+            if (child->studyModified == false)
+            {
+                modelsDialog.addModel(child->currentFile());
+
+            }
+        }
+        modelsDialog.exec();
+        if (modelsDialog.selectedFiles.count() > 0)
+        {
+            for (int i=0; i < modelsDialog.selectedFiles.count(); i++)
+            {
+                QString modelFile = modelsDialog.selectedFiles[i];
+                for (int i = 0; i < windows.size(); ++i) {
+                    QMdiSubWindow *mdiSubWindow = windows.at(i);
+                    CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
+                    if (child->currentFile() == modelFile)
+                    {
+                        child->run();
+                    }
+                }
+            }
+        }
+    }
+    else
+        if (activeMdiChild() && activeMdiChild()->run())
+            statusBar()->showMessage(tr("Model ran"), 2000);
 }
 
 void MainWindow::loadSettings()

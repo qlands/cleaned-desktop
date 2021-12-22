@@ -24,6 +24,7 @@ public:
     explicit CleanedStudy(QWidget *parent = nullptr);
     ~CleanedStudy();
 
+    bool studyModified;
     void newFile();
     bool loadFile(const QString &fileName);
     bool save();
@@ -38,6 +39,8 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
+    void readyReadStandardError();
+    void readyReadStandardOutput();
     void documentWasModified();
     void modelFinished(int exitCode);
     void on_cmd_add_season_clicked();
@@ -81,8 +84,11 @@ private slots:
 
     void on_tabWidget_currentChanged(int index);
 
+    void on_cmdcancelrun_clicked();
+
 signals:
     void report_error(QString error_message);
+    void runFinished(int error, QString fileName, QString resultFileName);
 
 private:
     Ui::CleanedStudy *ui;
@@ -100,7 +106,6 @@ private:
     QVector <int> livestock_colums;
     QVector <int> feed_colums;
     QJsonObject study_object;    
-    bool studyModified;
     //Models
     seasonModel *m_seasons;
     livestockModel *m_livestock;

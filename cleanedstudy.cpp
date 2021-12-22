@@ -40,6 +40,8 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
     ui->feedsView->setModel(m_feeds);
     m_process = new QProcess(this);
     connect(m_process,SIGNAL(finished(int)),this,SLOT(modelFinished(int)));
+    connect(m_process,SIGNAL(readyReadStandardError()),this,SLOT(readyReadStandardError()));
+    connect(m_process,SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
 
     m_cropInputs = new cropInputsModel(this);
     ui->cropsView->setModel(m_cropInputs);
@@ -439,6 +441,7 @@ void CleanedStudy::saveStudyObject()
 
 void CleanedStudy::loadStudyObject()
 {
+    studyModified = false;
     ui->txt_farmcode->setText(study_object["farm_code"].toString());
     ui->txt_farmname->setText(study_object["farm_name"].toString());
     int region_index = ui->cbm_region->findData(this->study_object["region"].toVariant());
@@ -638,7 +641,10 @@ void CleanedStudy::loadStudyObject()
                 int width=ui->livestockView->fontMetrics().width(m_livestock->data(index).toString());
                 width = width + 10;
                 if (width > livestock_colums[ncol])
+                {
                     livestock_colums[ncol] = width;
+                    ui->livestockView->setColumnWidth(ncol, width);
+                }
             }
         }
     }
@@ -669,7 +675,10 @@ void CleanedStudy::loadStudyObject()
                 int width=ui->feedsView->fontMetrics().width(m_feeds->data(index).toString());
                 width = width + 10;
                 if (width > feed_colums[ncol])
+                {
                     feed_colums[ncol] = width;
+                    ui->feedsView->setColumnWidth(ncol, width);
+                }
             }
         }
     }
@@ -1156,7 +1165,8 @@ bool CleanedStudy::run()
             qDebug() << "Rscript " + params.join(" ");
             qDebug() << "****************444";
             m_process->start("Rscript",params);
-
+            ui->cmdcancelrun->setEnabled(true);
+            ui->txtruninfo->setPlainText("");
             return true;
         }
         else
@@ -1316,12 +1326,14 @@ void CleanedStudy::modelFinished(int exitCode)
         ui->json_result->setText(file.readAll());
         ui->json_result->setReadOnly(true);
         model_running = false;
+        emit runFinished(exitCode, this->curFile, outFile);
+        ui->cmdcancelrun->setEnabled(false);
     }
     else
     {
-        ui->stackedWidget->setCurrentIndex(3);
-        ui->txtlog->setPlainText(m_process->readAllStandardError());
         model_running = false;
+        emit runFinished(exitCode, this->curFile, "");
+        ui->cmdcancelrun->setEnabled(false);
     }
 }
 
@@ -1432,5 +1444,25 @@ void CleanedStudy::on_tabWidget_currentChanged(int index)
         if (m_feeds->rowCount() >0 )
             ui->lblfeeds->setVisible(false);
     }
+}
+
+void CleanedStudy::readyReadStandardError()
+{
+    QString current_data = ui->txtruninfo->toPlainText();
+    current_data = current_data + "\n" + m_process->readAllStandardError();
+    ui->txtruninfo->setPlainText(current_data);
+    ui->txtruninfo->verticalScrollBar()->setValue(ui->txtruninfo->verticalScrollBar()->maximum());
+}
+void CleanedStudy::readyReadStandardOutput()
+{
+    QString current_data = ui->txtruninfo->toPlainText();
+    current_data = current_data + "\n" + m_process->readAllStandardOutput();
+    ui->txtruninfo->setPlainText(current_data);
+    ui->txtruninfo->verticalScrollBar()->setValue(ui->txtruninfo->verticalScrollBar()->maximum());
+}
+
+void CleanedStudy::on_cmdcancelrun_clicked()
+{
+    m_process->kill();
 }
 

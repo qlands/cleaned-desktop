@@ -4,6 +4,10 @@ if (length(args)!=5)
 {
   stop("You need to indicate 5 JSON files: input, ghg, stock, energy, and output.n", call.=FALSE)
 }
+
+.libPaths()
+
+
 if (!require("devtools"))
 {
   install.packages("devtools",repos="http://cran.rstudio.com/")
@@ -12,7 +16,7 @@ if (!require("devtools"))
 if (!require("cleaned"))
 {
   library("devtools")
-  devtools::install_github("ciat/cleaned")
+  devtools::install_github("ciat/cleaned@v0.2.1")
 }
 
 # library("devtools")
