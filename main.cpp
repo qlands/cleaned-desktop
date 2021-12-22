@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(cleaned);
 
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName("Cleaned");
+    QCoreApplication::setApplicationName("CLEANED_20211221");
     QCoreApplication::setOrganizationName("Alliance Bioversity-CIAT");
-    QCoreApplication::setApplicationVersion("0.1");
+    QCoreApplication::setApplicationVersion("20211221");
     QCommandLineParser parser;
     parser.setApplicationDescription("Cleaned Desktop App");
     parser.addHelpOption();
