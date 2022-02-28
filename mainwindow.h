@@ -76,6 +76,7 @@ protected:
 private slots:
     void newFile();
     void runModel();
+    void manageDatabases();
     void loadSettings();
     void open();
     void save();
@@ -111,6 +112,7 @@ private:
     QAction *runAct;
     QAction *settingsAct;
     QAction *saveAct;
+    QAction *databasesAct;
     QAction *saveAsAct;
     QAction *recentFileActs[MaxRecentFiles];
     QAction *recentFileSeparator;

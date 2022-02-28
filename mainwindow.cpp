@@ -56,6 +56,8 @@
 #include "aboutcleaned.h"
 #include "runmodelsdialog.h"
 #include "versiondialog.h"
+#include "managedatabases.h"
+#include "selectdatabase.h"
 
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
@@ -90,9 +92,20 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile()
 {
-    CleanedStudy *child = createMdiChild();
-    child->newFile();
-    child->show();
+    selectDatabase selDB;
+    selDB.exec();
+    if (selDB.selected_code != "")
+    {
+        CleanedStudy *child = createMdiChild();
+        child->setDatabaseCode(selDB.selected_code);
+        if (child->newFile())
+        {
+            mdiArea->addSubWindow(child);
+            child->show();
+        }
+        else
+            child->close();
+    }
 }
 
 void MainWindow::open()
@@ -119,10 +132,14 @@ bool MainWindow::loadFile(const QString &fileName)
     CleanedStudy *child = createMdiChild();
     const bool succeeded = child->loadFile(fileName);
     if (succeeded)
+    {
+        mdiArea->addSubWindow(child);
         child->show();
+        MainWindow::prependToRecentFiles(fileName);
+    }
     else
         child->close();
-    MainWindow::prependToRecentFiles(fileName);
+
     return succeeded;
 }
 
@@ -241,6 +258,7 @@ void MainWindow::updateMenus()
     bool hasMdiChild = (activeMdiChild() != nullptr);
     saveAct->setEnabled(hasMdiChild);
     runAct->setEnabled(hasMdiChild);
+    databasesAct->setEnabled(!hasMdiChild);
     saveAsAct->setEnabled(hasMdiChild);
     closeAct->setEnabled(hasMdiChild);
     closeAllAct->setEnabled(hasMdiChild);
@@ -289,9 +307,7 @@ void MainWindow::updateWindowMenu()
 
 CleanedStudy *MainWindow::createMdiChild()
 {
-    CleanedStudy *child = new CleanedStudy;
-    child->setDatabase(this->database_file);
-    mdiArea->addSubWindow(child);
+    CleanedStudy *child = new CleanedStudy;        
     return child;
 }
 
@@ -349,6 +365,18 @@ void MainWindow::createActions()
 
     fileMenu->addSeparator();
 
+    const QIcon dbManIcon = QIcon(":/images/db.png");
+    databasesAct = new QAction(dbManIcon, tr("&Database manager"), this);
+    QKeySequence db_sequence(Qt::CTRL + Qt::Key_D);
+    QList< QKeySequence>db_shortcuts;
+    db_shortcuts.append(db_sequence);
+    databasesAct->setShortcuts(db_shortcuts);
+    databasesAct->setStatusTip(tr("Manage databases"));
+    connect(databasesAct, &QAction::triggered, this, &MainWindow::manageDatabases);
+    fileMenu->addAction(databasesAct);
+
+    fileMenu->addSeparator();
+
 //! [0]
     const QIcon exitIcon = QIcon::fromTheme("application-exit");
     QAction *exitAct = fileMenu->addAction(exitIcon, tr("E&xit"), qApp, &QApplication::closeAllWindows);
@@ -386,6 +414,8 @@ void MainWindow::createActions()
 
     fileToolBar->addSeparator();
     fileToolBar->addAction(runAct);
+    fileToolBar->addSeparator();
+    fileToolBar->addAction(databasesAct);
 
 
     windowMenu = menuBar()->addMenu(tr("&Window"));
@@ -448,7 +478,7 @@ void MainWindow::readSettings()
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
     if (geometry.isEmpty()) {
-        const QRect availableGeometry = QApplication::desktop()->availableGeometry();
+        const QRect availableGeometry = screen()->availableGeometry();
         resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
         move((availableGeometry.width() - width()) / 2,
              (availableGeometry.height() - height()) / 2);
@@ -494,43 +524,60 @@ void MainWindow::switchLayoutDirection()
 
 void MainWindow::runModel()
 {
-    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
-    if (windows.size() > 1)
+    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QString r_file = settings.value("rscript_file","").toString();
+    if (r_file.simplified() != "" && QFile::exists(r_file))
     {
-        runModelsDialog modelsDialog;
-        for (int i = 0; i < windows.size(); ++i) {
-            QMdiSubWindow *mdiSubWindow = windows.at(i);
-            CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
-            if (child->studyModified == false)
-            {
-                modelsDialog.addModel(child->currentFile());
-
-            }
-        }
-        modelsDialog.exec();
-        if (modelsDialog.selectedFiles.count() > 0)
+        QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+        if (windows.size() > 1)
         {
-            for (int i=0; i < modelsDialog.selectedFiles.count(); i++)
+            runModelsDialog modelsDialog;
+            for (int i = 0; i < windows.size(); ++i) {
+                QMdiSubWindow *mdiSubWindow = windows.at(i);
+                CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
+                if (child->studyModified == false)
+                {
+                    modelsDialog.addModel(child->currentFile());
+
+                }
+            }
+            modelsDialog.exec();
+            if (modelsDialog.selectedFiles.count() > 0)
             {
-                QString modelFile = modelsDialog.selectedFiles[i];
-                for (int i = 0; i < windows.size(); ++i) {
-                    QMdiSubWindow *mdiSubWindow = windows.at(i);
-                    CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
-                    if (child->currentFile() == modelFile)
-                    {
-                        child->run();
+                for (int i=0; i < modelsDialog.selectedFiles.count(); i++)
+                {
+                    QString modelFile = modelsDialog.selectedFiles[i];
+                    for (int i = 0; i < windows.size(); ++i) {
+                        QMdiSubWindow *mdiSubWindow = windows.at(i);
+                        CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
+                        if (child->currentFile() == modelFile)
+                        {
+                            child->run();
+                        }
                     }
                 }
             }
         }
+        else
+            if (activeMdiChild() && activeMdiChild()->run())
+                statusBar()->showMessage(tr("Model ran"), 2000);
     }
     else
-        if (activeMdiChild() && activeMdiChild()->run())
-            statusBar()->showMessage(tr("Model ran"), 2000);
+    {
+        QMessageBox msgBox;
+        msgBox.setText("You need to setup R in the settings before running a model");
+        msgBox.exec();
+    }
 }
 
 void MainWindow::loadSettings()
 {
     ModelSettings settingsWindow;    
     settingsWindow.exec();
+}
+
+void MainWindow::manageDatabases()
+{
+    ManageDatabases databases;
+    databases.exec();
 }

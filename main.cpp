@@ -54,15 +54,18 @@
 #include <QSettings>
 #include "mainwindow.h"
 #include <QDir>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(cleaned);
 
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName("CLEANED_20211221");
+    QCoreApplication::setApplicationName("CLEANED_20220227");
     QCoreApplication::setOrganizationName("Alliance Bioversity-CIAT");
-    QCoreApplication::setApplicationVersion("20211221");
+    QCoreApplication::setApplicationVersion("20220227");
     QCommandLineParser parser;
     parser.setApplicationDescription("Cleaned Desktop App");
     parser.addHelpOption();
@@ -72,6 +75,10 @@ int main(int argc, char *argv[])
 
     QString runDir = QDir::QDir::currentPath();
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    if (settings.value("database_file","").toString() == "")
+    {
+        settings.setValue("database_file", runDir + QDir::separator() + "databases.json");
+    }
     if (settings.value("model_file","").toString() == "")
     {
         settings.setValue("model_file", runDir + QDir::separator() + "R" + QDir::separator() + "run_model.R");
@@ -87,6 +94,32 @@ int main(int argc, char *argv[])
     if (settings.value("enery_file","").toString() == "")
     {
         settings.setValue("enery_file", runDir + QDir::separator() + "R" + QDir::separator() + "energy_parameters.json");
+    }
+
+    if (!QFile::exists(runDir + QDir::separator() + "databases.json"))
+    {
+        QJsonObject databases;
+
+        QJsonObject base_database;
+        base_database["name"] = "Base database";
+        base_database["path"] = runDir + QDir::separator() + "cleaned.sqlite";
+        base_database["removeable"] = false;
+
+        QJsonObject empty_database;
+        empty_database["name"] = "Empty database";
+        empty_database["path"] = runDir + QDir::separator() + "empty.sqlite";
+        empty_database["removeable"] = false;
+
+        databases["base"] = base_database;
+        databases["empty"] = empty_database;
+
+        QFile saveFile(runDir + QDir::separator() + "databases.json");
+        if (!saveFile.open(QIODevice::WriteOnly)) {
+            qWarning("Couldn't open save file.");
+            exit(1);
+        }
+        saveFile.write(QJsonDocument(databases).toJson());
+        saveFile.close();
     }
 
     MainWindow mainWin;

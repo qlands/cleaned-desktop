@@ -19,6 +19,7 @@
 #include "delegatordialog.h"
 #include <QFont>
 #include <QFontMetrics>
+#include <QFileInfo>
 
 CleanedStudy::CleanedStudy(QWidget *parent) :
     QWidget(parent),
@@ -68,24 +69,74 @@ CleanedStudy::~CleanedStudy()
     delete ui;
 }
 
-void CleanedStudy::setDatabase(QString databaseFile)
+bool CleanedStudy::openDatabase()
 {
-    QUuid connectionUUID=QUuid::createUuid();
-    QString strconnectionUUID=connectionUUID.toString().replace("{","").replace("}","");
+    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QString database_file = settings.value("database_file").toString();
 
-    this->db = QSqlDatabase::addDatabase("QSQLITE",strconnectionUUID);
-    this->db.setDatabaseName(databaseFile);
-    if (!this->db.open())
-    {
-        emit report_error("Unable to open the Cleaned Database");
+    QFile loadFile(database_file);
+    if (!loadFile.open(QIODevice::ReadOnly)) {
+        QMessageBox msgBox;
+        msgBox.setText("Cannot open the database library file");
+        msgBox.exec();
+        return false;
     }
-    loading = true;
-    load_models();
-    loading = false;
+    QByteArray saveData = loadFile.readAll();
+    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
+    QJsonObject databases = loadDoc.object();
+    if (databases.keys().indexOf(this->database_code) >= 0)
+    {
+        QJsonObject a_database = databases[this->database_code].toObject();
+
+        QUuid connectionUUID=QUuid::createUuid();
+        QString strconnectionUUID=connectionUUID.toString().replace("{","").replace("}","");
+
+        this->db = QSqlDatabase::addDatabase("QSQLITE",strconnectionUUID);
+        QString database_file = a_database["path"].toString();
+        if (QFile::exists(database_file))
+        {
+            this->db.setDatabaseName(database_file);
+            if (!this->db.open())
+            {
+                QMessageBox msgBox;
+                msgBox.setText("Cannot open the database");
+                msgBox.exec();
+                return false;
+            }
+            loading = true;
+            load_models();
+            loading = false;
+        }
+        else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("The database file for code \'" + this->database_code + "\" does not exist");
+            msgBox.exec();
+            return false;
+        }
+    }
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("The database code \"" + this->database_code + "\" is not in the library");
+        msgBox.exec();
+        return false;
+    }
+    loadFile.close();
+    return true;
 }
 
-void CleanedStudy::newFile()
+void CleanedStudy::setDatabaseCode(QString code)
 {
+    database_code = code;
+}
+
+bool CleanedStudy::newFile()
+{
+    if (!openDatabase())
+    {
+        return false;
+    }
     static int sequenceNumber = 1;
     studyModified = true;
     loading = false;
@@ -116,9 +167,12 @@ void CleanedStudy::newFile()
     ui->cropsView->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap);
     ui->cropsView->horizontalHeader()->setMinimumHeight(120);
 
+    this->study_object["database_code"] = this->database_code;
+
     //TODO: Notify that is a new file
 //    connect(document(), &QTextDocument::contentsChanged,
 //            this, &MdiChild::documentWasModified);
+    return true;
 }
 
 bool CleanedStudy::loadFile(const QString &fileName)
@@ -131,11 +185,24 @@ bool CleanedStudy::loadFile(const QString &fileName)
                              .arg(file.errorString()));
         return false;
     }
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     QByteArray studyData = file.readAll();
     QJsonDocument loadDoc(QJsonDocument::fromJson(studyData));
     this->study_object = loadDoc.object();
+    if (this->study_object.keys().indexOf("database_code") >= 0)
+    {
+        this->database_code = this->study_object["database_code"].toString();
+        if (!openDatabase())
+            return false;
+    }
+    else
+    {
+        this->database_code = "base";
+        this->study_object["database_code"] = "base";
+        if (!openDatabase())
+            return false;
+    }
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     loading = true;
     loadStudyObject();
     loading = false;
@@ -638,7 +705,7 @@ void CleanedStudy::loadStudyObject()
             {
                 QModelIndex index = m_livestock->index(nrow, ncol);
 
-                int width=ui->livestockView->fontMetrics().width(m_livestock->data(index).toString());
+                int width=ui->livestockView->fontMetrics().horizontalAdvance(m_livestock->data(index).toString());
                 width = width + 10;
                 if (width > livestock_colums[ncol])
                 {
@@ -672,7 +739,7 @@ void CleanedStudy::loadStudyObject()
             {
                 QModelIndex index = m_feeds->index(nrow, ncol);
 
-                int width=ui->feedsView->fontMetrics().width(m_feeds->data(index).toString());
+                int width=ui->feedsView->fontMetrics().horizontalAdvance(m_feeds->data(index).toString());
                 width = width + 10;
                 if (width > feed_colums[ncol])
                 {
@@ -1164,10 +1231,33 @@ bool CleanedStudy::run()
             qDebug() << "****************444";
             qDebug() << "Rscript " + params.join(" ");
             qDebug() << "****************444";
-            m_process->start("Rscript",params);
-            ui->cmdcancelrun->setEnabled(true);
-            ui->txtruninfo->setPlainText("");
-            return true;
+
+            QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+            QString r_binay_file = settings.value("rscript_file","").toString();
+            if (r_binay_file.simplified() != "" && QFile::exists(r_binay_file))
+            {
+                QFileInfo fileInfo(settings.value("model_file","").toString());
+
+                QStringList env = QProcess::systemEnvironment();
+                QString library_path = fileInfo.absolutePath() + QDir::separator() + "library";
+                QDir dir;
+                if (!dir.exists(library_path))
+                    dir.mkdir(library_path);
+                env << "R_LIBS_USER=" + library_path;
+                m_process->setEnvironment(env);
+                m_process->start(r_binay_file,params);
+                ui->cmdcancelrun->setEnabled(true);
+                ui->txtruninfo->setPlainText("");
+                return true;
+            }
+            else
+            {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Run model");
+                msgBox.setText("You need to indicate the R program in the settings");
+                msgBox.exec();
+                return false;
+            }
         }
         else
             return false;
@@ -1354,7 +1444,7 @@ void CleanedStudy::on_livestockView_doubleClicked(const QModelIndex &index)
             for (int nrow = 0; nrow < m_livestock->rowCount(); nrow++)
             {
                 QModelIndex index = m_livestock->index(nrow, col);
-                int width = ui->livestockView->fontMetrics().width(m_livestock->data(index).toString());
+                int width = ui->livestockView->fontMetrics().horizontalAdvance(m_livestock->data(index).toString());
                 width = width + 10;
                 if (width > maxWidth)
                 {
@@ -1411,7 +1501,7 @@ void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
             for (int nrow = 0; nrow < m_feeds->rowCount(); nrow++)
             {
                 QModelIndex index = m_feeds->index(nrow, col);
-                int width = ui->feedsView->fontMetrics().width(m_feeds->data(index).toString());
+                int width = ui->feedsView->fontMetrics().horizontalAdvance(m_feeds->data(index).toString());
                 width = width + 10;
                 if (width > maxWidth)
                 {

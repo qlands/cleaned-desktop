@@ -27,6 +27,14 @@ ModelSettings::ModelSettings(QWidget *parent) :
     {
         ui->txt_energy->setText(settings.value("enery_file","").toString());
     }
+    if (settings.value("rscript_file","").toString() != "")
+    {
+        ui->txtr->setText(settings.value("rscript_file","").toString());
+    }
+    if (settings.value("dbman_file","").toString() != "")
+    {
+        ui->txtdbman->setText(settings.value("dbman_file","").toString());
+    }
 }
 
 ModelSettings::~ModelSettings()
@@ -71,6 +79,14 @@ void ModelSettings::on_buttonBox_accepted()
     if (file.exists())
         settings.setValue("model_file", ui->txt_model_file->text());
 
+    file.setFile(ui->txtr->text());
+    if (file.exists())
+        settings.setValue("rscript_file", ui->txtr->text());
+
+    file.setFile(ui->txtdbman->text());
+    if (file.exists())
+        settings.setValue("dbman_file", ui->txtdbman->text());
+
     this->close();
 }
 
@@ -99,3 +115,27 @@ void ModelSettings::on_cmd_energy_clicked()
     if (!fileName.isEmpty())
         ui->txt_energy->setText(fileName);
 }
+
+void ModelSettings::on_cmdbrowser_clicked()
+{
+#if defined(__linux__)
+    QString fileName = QFileDialog::getOpenFileName(this,tr("RScript"), QDir::homePath(), tr("Executable file (Rscript)"));
+#else
+    QString fileName = QFileDialog::getOpenFileName(this,tr("RScript"), QDir::homePath(), tr("Executable file (Rscript.exe)"));
+#endif
+    if (fileName != "")
+        ui->txtr->setText(fileName);
+}
+
+
+void ModelSettings::on_cmdbrowsedbman_clicked()
+{
+#if defined(__linux__)
+    QString fileName = QFileDialog::getOpenFileName(this,tr("DB Browser for SQLite"), QDir::homePath(), tr("Executable file (sqlitebrowser)"));
+#else
+    QString fileName = QFileDialog::getOpenFileName(this,tr("DB Browser for SQLite"), QDir::homePath(), tr("Executable file (sqlitebrowser.exe)"));
+#endif
+    if (fileName != "")
+        ui->txtdbman->setText(fileName);
+}
+

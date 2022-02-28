@@ -30,6 +30,10 @@ private slots:
 
     void on_cmd_energy_clicked();
 
+    void on_cmdbrowser_clicked();
+
+    void on_cmdbrowsedbman_clicked();
+
 private:
     Ui::settings *ui;
 };

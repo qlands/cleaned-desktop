@@ -72,4 +72,6 @@ Thumbs.db
 *.dll
 *.exe
 cleaned
+databases.json
+/library
 

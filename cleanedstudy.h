@@ -25,13 +25,14 @@ public:
     ~CleanedStudy();
 
     bool studyModified;
-    void newFile();
+    bool newFile();
     bool loadFile(const QString &fileName);
     bool save();
     bool run();
     bool saveAs();
     bool saveFile(const QString &fileName);
-    void setDatabase(QString databaseFile);
+    void setDatabaseCode(QString code);
+    bool openDatabase();
     QString userFriendlyCurrentFile();
     QString currentFile() { return curFile; }
 
@@ -96,6 +97,7 @@ private:
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
     QSqlDatabase db;
+    QString database_code;
     QString curFile;
     QString curFilePath;
     bool isUntitled;
