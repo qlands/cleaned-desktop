@@ -133,7 +133,7 @@ void ModelSettings::on_cmdbrowsedbman_clicked()
 #if defined(__linux__)
     QString fileName = QFileDialog::getOpenFileName(this,tr("DB Browser for SQLite"), QDir::homePath(), tr("Executable file (sqlitebrowser)"));
 #else
-    QString fileName = QFileDialog::getOpenFileName(this,tr("DB Browser for SQLite"), QDir::homePath(), tr("Executable file (sqlitebrowser.exe)"));
+    QString fileName = QFileDialog::getOpenFileName(this,tr("DB Browser for SQLite"), QDir::homePath(), tr("Executable file (*.exe)"));
 #endif
     if (fileName != "")
         ui->txtdbman->setText(fileName);
