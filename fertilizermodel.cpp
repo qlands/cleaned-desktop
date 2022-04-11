@@ -22,6 +22,7 @@ void fertilizerModel::setDataArray(QJsonArray data)
          aFertilizer.quantity = fertilizerObject["quantity"].toDouble(0);
          aFertilizer.cost = fertilizerObject["cost"].toDouble(0);
          aFertilizer.fraction = fertilizerObject["fraction"].toDouble(0);
+         aFertilizer.percentage_n = fertilizerObject["percentage_n"].toDouble(0);
          items.append(aFertilizer);
     }
     this->endResetModel();
@@ -34,7 +35,7 @@ void fertilizerModel::setDatabase(QSqlDatabase cleaned_db)
 
 int fertilizerModel::columnCount(const QModelIndex &) const
 {
-    return 4;
+    return 5;
 }
 
 int fertilizerModel::rowCount(const QModelIndex &) const
@@ -73,6 +74,7 @@ QJsonArray fertilizerModel::getFertilizerArray()
         fertilizerObject["quantity"] = items[i].quantity;
         fertilizerObject["cost"] = items[i].cost;
         fertilizerObject["fraction"] = items[i].fraction;
+        fertilizerObject["percentage_n"] = items[i].percentage_n;
         fertilizerArray.append(fertilizerObject);
     }
     return fertilizerArray;
@@ -94,6 +96,7 @@ void fertilizerModel::addNewFertilizer(QString code)
             aFertilizer.quantity = 0;
             aFertilizer.cost = 0;
             aFertilizer.fraction = 0;
+            aFertilizer.percentage_n = 0;
             items.append(aFertilizer);
         }
         this->endResetModel();
@@ -114,6 +117,7 @@ QVariant fertilizerModel::headerData(int section, Qt::Orientation orientation, i
             if (section == 1) return "Quantity (kg)";
             if (section == 2) return "Cost";
             if (section == 3) return "Fraction";
+            if (section == 4) return "% N";
         }
     }
     return QVariant();
@@ -130,7 +134,7 @@ QVariant fertilizerModel::data(const QModelIndex &index, int role) const
         if (index.column() == 1) return items[index.row()].quantity;
         if (index.column() == 2) return items[index.row()].cost;
         if (index.column() == 3) return items[index.row()].fraction;
-
+        if (index.column() == 4) return items[index.row()].percentage_n;
     }
     return QVariant();
 }
@@ -148,6 +152,7 @@ bool fertilizerModel::setData(const QModelIndex &index,const QVariant &value,int
                 if (index.column() == 1) items[index.row()].quantity = newValue;
                 if (index.column() == 2) items[index.row()].cost = newValue;
                 if (index.column() == 3) items[index.row()].fraction = newValue;
+                if (index.column() == 4) items[index.row()].percentage_n = newValue;
                 emit modelChanged();
                 return true;
             }

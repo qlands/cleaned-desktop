@@ -11,7 +11,7 @@ struct fertilizerType
     double quantity;
     double cost;
     double fraction;
-
+    double percentage_n;
 };
 typedef fertilizerType Tfertilizer;
 

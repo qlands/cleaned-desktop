@@ -23,6 +23,8 @@ void cloneDatabase::on_cmdbrowse_clicked()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),QDir::homePath() + "new.sqlite" + QDir::separator(),tr("Databases (*.sqlite)"));
     if (fileName != "")
     {
+        if (fileName.indexOf(".sqlite") == -1)
+            fileName = fileName + ".sqlite";
         ui->txtpath->setText(fileName);
         db_path = fileName;
     }
