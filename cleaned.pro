@@ -11,6 +11,7 @@ HEADERS       = mainwindow.h \
                 cleanedstudy.h \
                 clonedatabase.h \
                 combodelegate.h \
+                comparemodelsdialog.h \
                 cropinputsmodel.h \
                 databasemodel.h \
                 delegatordialog.h \
@@ -34,6 +35,7 @@ SOURCES       = main.cpp \
                 cleanedstudy.cpp \
                 clonedatabase.cpp \
                 combodelegate.cpp \
+                comparemodelsdialog.cpp \
                 cropinputsmodel.cpp \
                 databasemodel.cpp \
                 delegatordialog.cpp \
@@ -64,6 +66,7 @@ FORMS += \
     addseason.ui \
     cleanedstudy.ui \
     clonedatabase.ui \
+    comparemodelsdialog.ui \
     delegatordialog.ui \
     importdatabase.ui \
     managedatabases.ui \

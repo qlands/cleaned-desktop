@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>runModelsDialog</class>
- <widget class="QDialog" name="runModelsDialog">
+ <class>compareModelsDialog</class>
+ <widget class="QDialog" name="compareModelsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>726</width>
-    <height>517</height>
+    <width>613</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="font">
@@ -22,14 +22,14 @@
       </font>
      </property>
      <property name="text">
-      <string>Run several models</string>
+      <string>Compare models</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Select the models that you want to run</string>
+      <string>Select the models that you want to compare</string>
      </property>
     </widget>
    </item>
@@ -57,7 +57,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>runModelsDialog</receiver>
+   <receiver>compareModelsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -73,7 +73,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>runModelsDialog</receiver>
+   <receiver>compareModelsDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

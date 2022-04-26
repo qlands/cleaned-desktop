@@ -9,5 +9,6 @@
         <file>images/run.png</file>
         <file>images/settings.png</file>
         <file>images/db.png</file>
+        <file>images/compare.png</file>
     </qresource>
 </RCC>

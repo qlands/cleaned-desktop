@@ -58,6 +58,7 @@
 #include "versiondialog.h"
 #include "managedatabases.h"
 #include "selectdatabase.h"
+#include "comparemodelsdialog.h"
 
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
@@ -258,6 +259,11 @@ void MainWindow::updateMenus()
     bool hasMdiChild = (activeMdiChild() != nullptr);
     saveAct->setEnabled(hasMdiChild);
     runAct->setEnabled(hasMdiChild);
+    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+    if (windows.size() > 1)
+        compareAct->setEnabled(true);
+    else
+        compareAct->setEnabled(false);
     databasesAct->setEnabled(!hasMdiChild);
     saveAsAct->setEnabled(hasMdiChild);
     closeAct->setEnabled(hasMdiChild);
@@ -398,6 +404,16 @@ void MainWindow::createActions()
     connect(runAct, &QAction::triggered, this, &MainWindow::runModel);
     modelMenu->addAction(runAct);
 
+    const QIcon compareIcon = QIcon(":/images/compare.png");
+    compareAct = new QAction(compareIcon, tr("Co&mpare models"), this);
+    QKeySequence compare_sequence(Qt::CTRL + Qt::Key_R);
+    QList< QKeySequence>compare_shortcuts;
+    compare_shortcuts.append(compare_sequence);
+    compareAct->setShortcuts(compare_shortcuts);
+    compareAct->setStatusTip(tr("Run the comparison model"));
+    connect(compareAct, &QAction::triggered, this, &MainWindow::compareModels);
+    modelMenu->addAction(compareAct);
+
 
     const QIcon settingsIcon = QIcon(":/images/settings.png");
     settingsAct = new QAction(settingsIcon, tr("&Settings"), this);
@@ -414,6 +430,7 @@ void MainWindow::createActions()
 
     fileToolBar->addSeparator();
     fileToolBar->addAction(runAct);
+    fileToolBar->addAction(compareAct);
     fileToolBar->addSeparator();
     fileToolBar->addAction(databasesAct);
 
@@ -580,4 +597,52 @@ void MainWindow::manageDatabases()
 {
     ManageDatabases databases;
     databases.exec();
+}
+
+void MainWindow::compareModels()
+{
+    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+    if (windows.size() > 1)
+    {
+        compareModelsDialog compareDialog;
+        int num_models = 0;
+        for (int i = 0; i < windows.size(); ++i) {
+            QMdiSubWindow *mdiSubWindow = windows.at(i);
+            CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
+            if (child->studyModified == false)
+            {
+                QString result_file = child->currentFile();
+                result_file = result_file.replace(".json","_result.json");
+                if (QFile::exists(result_file))
+                {
+                    compareDialog.addModel(result_file);
+                    num_models++;
+                }
+            }
+        }
+        if (num_models > 1)
+        {
+            compareDialog.exec();
+            if (compareDialog.selectedFiles.count() > 0)
+            {
+                for (int i=0; i < compareDialog.selectedFiles.count(); i++)
+                {
+                    QString resultFile = compareDialog.selectedFiles[i];
+
+                }
+            }
+        }
+        else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Check if your models are saved and have results");
+            msgBox.exec();
+        }
+    }
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("You need to have two or more models opened");
+        msgBox.exec();
+    }
 }

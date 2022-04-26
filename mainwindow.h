@@ -76,6 +76,7 @@ protected:
 private slots:
     void newFile();
     void runModel();
+    void compareModels();
     void manageDatabases();
     void loadSettings();
     void open();
@@ -110,6 +111,7 @@ private:
     QMenu *windowMenu;
     QAction *newAct;
     QAction *runAct;
+    QAction *compareAct;
     QAction *settingsAct;
     QAction *saveAct;
     QAction *databasesAct;
