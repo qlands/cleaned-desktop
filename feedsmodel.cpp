@@ -24,6 +24,9 @@ void feedsModel::setDataArray(QJsonArray data)
          aFeed.feed_item_code = feedObject["feed_item_code"].toString();
          aFeed.feed_item_name = feedObject["feed_item_name"].toString();
          aFeed.source_type = feedObject["source_type"].toString();
+         aFeed.water_regime = feedObject["water_regime"].toString();
+         aFeed.ecosystem_type = feedObject["ecosystem_type"].toString();
+         aFeed.organic_amendment = feedObject["organic_amendment"].toString();
          aFeed.intercrop = feedObject["intercrop"].toInt(0);
          aFeed.intercrop_fraction = feedObject["intercrop_fraction"].toDouble(0);
          aFeed.cut_carry_fraction = feedObject["cut_carry_fraction"].toDouble(0);
@@ -53,6 +56,7 @@ void feedsModel::setDataArray(QJsonArray data)
          aFeed.operational_labour = feedObject["operational_labour"].toDouble(0);
          aFeed.wfp_green = feedObject["wfp_green"].toDouble(0);
          aFeed.wfp_blue = feedObject["wfp_blue"].toDouble(0);
+         aFeed.cultivation_period = feedObject["cultivation_period"].toInt(0);
          aFeed.wfp_grey = feedObject["wfp_grey"].toDouble(0);
          aFeed.emission_factor = feedObject["emission_factor"].toDouble(0);
          aFeed.dm_content = feedObject["dm_content"].toDouble(0);         
@@ -94,7 +98,7 @@ void feedsModel::setDatabase(QSqlDatabase cleaned_db)
 
 int feedsModel::columnCount(const QModelIndex &) const
 {
-    return 56;
+    return 60;
 }
 
 int feedsModel::rowCount(const QModelIndex &) const
@@ -122,7 +126,7 @@ Qt::ItemFlags feedsModel::flags(const QModelIndex &index) const
         {
             if (index.column() != 3)
             {
-                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11)
+                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 29 && index.column() != 30 && index.column() != 31)
                     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
                 else
                     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -153,6 +157,9 @@ QJsonArray feedsModel::getFeedsArray()
         feedObject["feed_item_code"] = items[i].feed_item_code;
         feedObject["feed_item_name"] = items[i].feed_item_name;
         feedObject["source_type"] = items[i].source_type;
+        feedObject["water_regime"] = items[i].water_regime;
+        feedObject["organic_amendment"] = items[i].organic_amendment;
+        feedObject["ecosystem_type"] = items[i].ecosystem_type;
         feedObject["intercrop"] = items[i].intercrop;
         feedObject["intercrop_fraction"] = items[i].intercrop_fraction;
         feedObject["cut_carry_fraction"] = items[i].cut_carry_fraction;
@@ -183,6 +190,7 @@ QJsonArray feedsModel::getFeedsArray()
         feedObject["operational_labour"] = items[i].operational_labour;
         feedObject["wfp_green"] = items[i].wfp_green;
         feedObject["wfp_blue"] = items[i].wfp_blue;
+        feedObject["cultivation_period"] = items[i].cultivation_period;
         feedObject["wfp_grey"] = items[i].wfp_grey;
         feedObject["emission_factor"] = items[i].emission_factor;
         feedObject["dm_content"] = items[i].dm_content;        
@@ -231,6 +239,33 @@ void feedsModel::addNewFeed(QString crop, QString feed)
     aFeed.intercrop_fraction = 0;
     aFeed.cut_carry_fraction = 0;
     aFeed.landcover_c_factor = 0;
+
+    if (query.exec("SELECT waterregime_desc,waterregime_factor FROM lkp_waterregime LIMIT 1"))
+    {
+        if (query.first())
+        {
+            aFeed.water_regime = query.value(0).toString();
+
+        }
+    }
+    if (query.exec("SELECT organic_amendment_desc,organic_amendment_factor FROM lkp_organic_amendment LIMIT 1"))
+    {
+        if (query.first())
+        {
+            aFeed.organic_amendment = query.value(0).toString();
+
+        }
+    }
+    if (query.exec("SELECT reice_ecosystem_type_desc,reice_ecosystem_type_factor FROM lkp_reice_ecosystem_type LIMIT 1"))
+    {
+        if (query.first())
+        {
+            aFeed.ecosystem_type = query.value(0).toString();
+
+        }
+    }
+
+
     if (query.exec("SELECT landcover_code,landcover_desc,c_factor FROM lkp_landcover LIMIT 1"))
     {
         if (query.first())
@@ -282,6 +317,7 @@ void feedsModel::addNewFeed(QString crop, QString feed)
             aFeed.operational_labour = query.value("operational_labour").toDouble(0);
             aFeed.wfp_green = query.value("wfp_green").toDouble(0);
             aFeed.wfp_blue = query.value("wfp_blue").toDouble(0);
+            aFeed.cultivation_period = query.value("cultivation_period").toInt(0);
             aFeed.wfp_grey = query.value("wfp_grey").toDouble(0);
             aFeed.emission_factor = query.value("emission_factor").toDouble(0);
         }
@@ -367,33 +403,38 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
             if (section == 26) return "Operational labour (days/yr/ha)";
             if (section == 27) return "WFP green (m3/kg MS)";
             if (section == 28) return "WFP blue (m3/kg MS)";
-            if (section == 29) return "WFP grey (m3/kg MS)";
-            if (section == 30) return "Emission factor (kg CO2e/kg)";
-            if (section == 31) return "Main product DM content fraction";
-            if (section == 32) return "Average Harvest index";
-            if (section == 33) return "Main product N conten (kg N/kg DM)";
-            if (section == 34) return "Energy (kcal per FW 100g)";
-            if (section == 35) return "Water content (g per 100 g)";
-            if (section == 36) return "USDA nutrition data base entry #";
-            if (section == 37) return "Kc: Initial";
-            if (section == 38) return "Kc: MidSeason";
-            if (section == 39) return "Kc: Late";
-            if (section == 40) return "Category";
-            if (section == 41) return "Trees/ha";
-            if (section == 42) return "Trees DBH";
-            if (section == 43) return "Trees annual growth (kg)";
-            if (section == 44) return "Trees annual removal (kg)";
-            if (section == 45) return "Number of trees per hectare with a diameter at breast height of less than 25cm";
-            if (section == 46) return "Average diameter at breast height of trees with a DBH of less than 25cm";
-            if (section == 47) return "Diameter at breast height increase in trees with a DBH of less than 25cm (cm/year)";
-            if (section == 48) return "Number of trees per hectare with a diameter at breast height of 25-50cm";
-            if (section == 49) return "Average diameter at breast height of trees with a DBH of 25-50cm";
-            if (section == 50) return "Diameter at breast height increase in trees with a DBH of 25-50cm (cm/year)";
-            if (section == 51) return "Number of trees per hectare with a diameter at breast height more than 50cm";
-            if (section == 52) return "Average diameter at breast height of trees with a DBH more than 50cm";
-            if (section == 53) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
-            if (section == 54) return "Time it takes for tree to mature (years)";
-            if (section == 55) return "Tree breast diameter (cm)";
+            if (section == 29) return "water regime";
+            if (section == 30) return "reice ecosystem type";
+            if (section == 31) return "reice organic amendment";
+            if (section == 32) return "WFP grey (m3/kg MS)";
+            if (section == 33) return "Emission factor (kg CO2e/kg)";
+            if (section == 34) return "Main product DM content fraction";
+            if (section == 35) return "Average Harvest index";
+            if (section == 36) return "Main product N conten (kg N/kg DM)";
+            if (section == 37) return "Energy (kcal per FW 100g)";
+            if (section == 38) return "Water content (g per 100 g)";
+            if (section == 39) return "USDA nutrition data base entry #";
+            if (section == 40) return "Kc: Initial";
+            if (section == 41) return "Kc: MidSeason";
+            if (section == 42) return "Kc: Late";
+            if (section == 43) return "Category";
+            if (section == 44) return "Trees/ha";
+            if (section == 45) return "Trees DBH";
+            if (section == 46) return "Trees annual growth (kg)";
+            if (section == 47) return "Trees annual removal (kg)";
+            if (section == 48) return "Number of trees per hectare with a diameter at breast height of less than 25cm";
+            if (section == 49) return "Average diameter at breast height of trees with a DBH of less than 25cm";
+            if (section == 50) return "Diameter at breast height increase in trees with a DBH of less than 25cm (cm/year)";
+            if (section == 51) return "Number of trees per hectare with a diameter at breast height of 25-50cm";
+            if (section == 52) return "Average diameter at breast height of trees with a DBH of 25-50cm";
+            if (section == 53) return "Diameter at breast height increase in trees with a DBH of 25-50cm (cm/year)";
+            if (section == 54) return "Number of trees per hectare with a diameter at breast height more than 50cm";
+            if (section == 55) return "Average diameter at breast height of trees with a DBH more than 50cm";
+            if (section == 56) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
+            if (section == 57) return "Time it takes for tree to mature (years)";
+            if (section == 58) return "Tree breast diameter (cm)";
+            if (section == 59) return "Cultivation period";
+
         }
     }
     return QVariant();
@@ -408,6 +449,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
     }
     if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
     {
+        //if (index.column() == 29) return items[index.row()].water_regime;
         if (index.column() == 2) return items[index.row()].source_type;
         if (index.column() == 3)
         {
@@ -427,6 +469,23 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
             }
         }
         if (index.column() == 5) return items[index.row()].cut_carry_fraction;
+
+        if (index.column() == 29)
+        {
+            QSqlQuery query(db);
+            if (query.exec("SELECT waterregime_desc, waterregime_factor FROM lkp_waterregime where waterregime_desc = '" + items[index.row()].water_regime + "'"))
+            {
+                if (query.first())
+                {
+                    return query.value(0).toString();//first Record
+                }
+            }
+        }
+        if (index.column() == 30) return items[index.row()].ecosystem_type;
+
+        if (index.column() == 31)
+         return items[index.row()].organic_amendment;
+
         if (index.column() == 6)
         {
             QSqlQuery query(db);
@@ -485,40 +544,43 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         if (index.column() == 26) return items[index.row()].operational_labour;
         if (index.column() == 27) return items[index.row()].wfp_green;
         if (index.column() == 28) return items[index.row()].wfp_blue;
-        if (index.column() == 29) return items[index.row()].wfp_grey;
-        if (index.column() == 30) return items[index.row()].emission_factor;
+        if (index.column() == 29) return items[index.row()].water_regime;
+        if (index.column() == 30) return items[index.row()].ecosystem_type;
+        if (index.column() == 31) return items[index.row()].organic_amendment;
+        if (index.column() == 32) return items[index.row()].wfp_grey;
+        if (index.column() == 33) return items[index.row()].emission_factor;
+        if (index.column() == 34) return items[index.row()].dm_content;
+        if (index.column() == 35) return items[index.row()].harvest_index;
 
-        if (index.column() == 31) return items[index.row()].dm_content;
-        if (index.column() == 32) return items[index.row()].harvest_index;
-
-        if (index.column() == 33) return items[index.row()].main_n;
+        if (index.column() == 36) return items[index.row()].main_n;
 
 
-        if (index.column() == 34) return items[index.row()].energy;
-        if (index.column() == 35) return items[index.row()].water_content;
+        if (index.column() == 37) return items[index.row()].energy;
+        if (index.column() == 38) return items[index.row()].water_content;
 
-        if (index.column() == 36) return items[index.row()].usda_value;
-        if (index.column() == 37) return items[index.row()].kc_initial;
-        if (index.column() == 38) return items[index.row()].kc_midseason;
-        if (index.column() == 39) return items[index.row()].kc_late;
+        if (index.column() == 39) return items[index.row()].usda_value;
+        if (index.column() == 40) return items[index.row()].kc_initial;
+        if (index.column() == 41) return items[index.row()].kc_midseason;
+        if (index.column() == 42) return items[index.row()].kc_late;
+        if (index.column() == 43) return items[index.row()].category;
 
-        if (index.column() == 40) return items[index.row()].category;
+        if (index.column() == 44) return items[index.row()].trees_ha;
+        if (index.column() == 45) return items[index.row()].trees_dhb;
+        if (index.column() == 46) return items[index.row()].trees_growth;
+        if (index.column() == 47) return items[index.row()].trees_removal;
+        if (index.column() == 48) return items[index.row()].trees_ha_dbh25;
+        if (index.column() == 49) return items[index.row()].average_dbh25;
+        if (index.column() == 50) return items[index.row()].increase_dbh25;
+        if (index.column() == 51) return items[index.row()].trees_ha_dbh2550;
+        if (index.column() == 52) return items[index.row()].average_dbh2550;
+        if (index.column() == 53) return items[index.row()].increase_dbh2550;
+        if (index.column() == 54) return items[index.row()].trees_ha_dbh50;
+        if (index.column() == 55) return items[index.row()].average_dbh50;
+        if (index.column() == 56) return items[index.row()].increase_dbh50;
+        if (index.column() == 57) return items[index.row()].time_horizon;
+        if (index.column() == 58) return items[index.row()].diameter_breast;
+        if (index.column() == 59) return items[index.row()].cultivation_period;
 
-        if (index.column() == 41) return items[index.row()].trees_ha;
-        if (index.column() == 42) return items[index.row()].trees_dhb;
-        if (index.column() == 43) return items[index.row()].trees_growth;
-        if (index.column() == 44) return items[index.row()].trees_removal;
-        if (index.column() == 45) return items[index.row()].trees_ha_dbh25;
-        if (index.column() == 46) return items[index.row()].average_dbh25;
-        if (index.column() == 47) return items[index.row()].increase_dbh25;
-        if (index.column() == 48) return items[index.row()].trees_ha_dbh2550;
-        if (index.column() == 49) return items[index.row()].average_dbh2550;
-        if (index.column() == 50) return items[index.row()].increase_dbh2550;
-        if (index.column() == 51) return items[index.row()].trees_ha_dbh50;
-        if (index.column() == 52) return items[index.row()].average_dbh50;
-        if (index.column() == 53) return items[index.row()].increase_dbh50;
-        if (index.column() == 54) return items[index.row()].time_horizon;
-        if (index.column() == 55) return items[index.row()].diameter_breast;
     }
     if (role == Qt::BackgroundRole)
     {
@@ -527,12 +589,12 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
             QBrush Background(QColor(169,209,142)); //We can change this to a nice color
             return Background;
         }
-        if ((index.column() >= 18) && (index.column() <= 28))
+        if ((index.column() >= 18) && (index.column() <= 31))
         {
             QBrush Background(QColor(244,177,131)); //We can change this to a nice color
             return Background;
         }
-        if (index.column() >= 29)
+        if ((index.column() >= 32) )
         {
             QBrush Background(QColor(143,170,220)); //We can change this to a nice color
             return Background;
@@ -541,7 +603,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
     }
     if (role == Qt::FontRole)
     {
-        if (index.column() == 2 || index.column() == 6 || index.column() == 8 || index.column() == 11)
+        if (index.column() == 2 || index.column() == 6 || index.column() == 8 || index.column() == 11 || index.column() == 29 || index.column() == 30 || index.column() == 31)
         {
             QFont font;
             font.setUnderline(true);
@@ -577,7 +639,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
     {
         if (index.column() > 0)
         {
-            if (index.column() != 2 && index.column() != 3 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 40)
+            if (index.column() != 2 && index.column() != 3 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 40 && index.column() != 29 && index.column() != 30 && index.column() != 31)
             {
                 bool ok;
                 double newValue = value.toDouble(&ok);
@@ -647,13 +709,42 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     if (index.column() == 53) items[index.row()].increase_dbh50 = newValue;
                     if (index.column() == 54) items[index.row()].time_horizon = newValue;
                     if (index.column() == 55) items[index.row()].diameter_breast = newValue;
+                    if (index.column() == 56) items[index.row()].diameter_breast = newValue;
+                    if (index.column() == 57) items[index.row()].cultivation_period = newValue;
+
 
                     emit modelChanged();
                     return true;
                 }
             }
             else
-            {                
+            {
+                if (index.column() == 29)
+                {
+                    items[index.row()].water_regime = value.toString();
+                    QSqlQuery query(db);
+                    if (query.exec("SELECT waterregime_desc,waterregime_factor FROM lkp_waterregime where waterregime_code = '" + value.toString() + "'"))
+                    {
+                        if (query.first())
+                        {
+                            items[index.row()].water_regime = query.value(0).toString();
+                        }
+                    }
+                    emit delegateChanged(index.column());
+                }
+                if (index.column() == 30)
+                {
+                    items[index.row()].ecosystem_type = value.toString();
+                    emit delegateChanged(index.column());
+                }
+
+                if (index.column() == 31)
+                {
+                    {
+                        items[index.row()].ecosystem_type = value.toString();
+                        emit delegateChanged(index.column());
+                    }
+                }
                 if (index.column() == 2)
                 {
                     items[index.row()].source_type = value.toString();

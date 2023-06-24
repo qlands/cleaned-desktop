@@ -1469,7 +1469,7 @@ void CleanedStudy::on_livestockView_doubleClicked(const QModelIndex &index)
 void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
 {
     int col = index.column();
-    if (col == 2 || col == 6 || col == 8 || col == 11)
+    if (col == 2 || col == 6 || col == 8 || col == 11 || col == 29|| col == 30 || col == 31 )
     {
         delegatorDialog selectDialog;
         if (col == 2)
@@ -1491,6 +1491,21 @@ void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
         {
             selectDialog.load_grassmanagement(db);
             selectDialog.set_caption("Select a grassland management type");
+        }
+        if (col == 29)
+        {
+            selectDialog.load_waterregime();
+            selectDialog.set_caption("Select a waterregime type");
+        }
+        if (col == 30)
+        {
+            selectDialog.load_reice_ecosystem_type();
+            selectDialog.set_caption("Select a reice ecosystem type");
+        }
+        if (col == 31)
+        {
+            selectDialog.load_organic_amendment();
+            selectDialog.set_caption("Select a reice organic_amendment");
         }
         selectDialog.exec();
         if (selectDialog.selected_code != "")

@@ -19,6 +19,9 @@ public:
     void load_manure(QSqlDatabase db);
     void set_caption(QString caption);
     void load_sourceType();
+    void load_waterregime();
+    void load_reice_ecosystem_type();
+    void load_organic_amendment();
     void load_landcover(QSqlDatabase db);
     void load_slope(QSqlDatabase db);
     void load_grassmanagement(QSqlDatabase db);

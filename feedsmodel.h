@@ -11,6 +11,11 @@ struct feedType
     QString feed_item_code;
     QString feed_item_name;
     QString source_type;
+    QString water_regime;
+
+    QString ecosystem_type;
+    QString organic_amendment;
+
     int intercrop;
     double intercrop_fraction;
     double cut_carry_fraction;
@@ -36,6 +41,7 @@ struct feedType
     double operational_labour;
     double wfp_green;
     double wfp_blue;
+    int    cultivation_period;
     double wfp_grey;
     double emission_factor;    
     double dm_fraction;
