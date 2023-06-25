@@ -239,31 +239,9 @@ void feedsModel::addNewFeed(QString crop, QString feed)
     aFeed.intercrop_fraction = 0;
     aFeed.cut_carry_fraction = 0;
     aFeed.landcover_c_factor = 0;
-
-    if (query.exec("SELECT waterregime_desc,waterregime_factor FROM lkp_waterregime LIMIT 1"))
-    {
-        if (query.first())
-        {
-            aFeed.water_regime = query.value(0).toString();
-
-        }
-    }
-    if (query.exec("SELECT organic_amendment_desc,organic_amendment_factor FROM lkp_organic_amendment LIMIT 1"))
-    {
-        if (query.first())
-        {
-            aFeed.organic_amendment = query.value(0).toString();
-
-        }
-    }
-    if (query.exec("SELECT reice_ecosystem_type_desc,reice_ecosystem_type_factor FROM lkp_reice_ecosystem_type LIMIT 1"))
-    {
-        if (query.first())
-        {
-            aFeed.ecosystem_type = query.value(0).toString();
-
-        }
-    }
+    aFeed.ecosystem_type ="";
+    aFeed.organic_amendment="";
+    aFeed.water_regime ="";
 
 
     if (query.exec("SELECT landcover_code,landcover_desc,c_factor FROM lkp_landcover LIMIT 1"))
@@ -741,7 +719,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                 if (index.column() == 31)
                 {
                     {
-                        items[index.row()].ecosystem_type = value.toString();
+                        items[index.row()].organic_amendment = value.toString();
                         emit delegateChanged(index.column());
                     }
                 }

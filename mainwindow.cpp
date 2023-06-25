@@ -372,12 +372,12 @@ void MainWindow::createActions()
     fileMenu->addSeparator();
 
     const QIcon dbManIcon = QIcon(":/images/db.png");
-    databasesAct = new QAction(dbManIcon, tr("&Database manager"), this);
-    QKeySequence db_sequence(Qt::CTRL + Qt::Key_D);
+    databasesAct = new QAction(dbManIcon, tr("&parameters "), this);
+    QKeySequence db_sequence(Qt::CTRL + Qt::Key_P);
     QList< QKeySequence>db_shortcuts;
     db_shortcuts.append(db_sequence);
     databasesAct->setShortcuts(db_shortcuts);
-    databasesAct->setStatusTip(tr("Manage databases"));
+    databasesAct->setStatusTip(tr("Manage parameters"));
     connect(databasesAct, &QAction::triggered, this, &MainWindow::manageDatabases);
     fileMenu->addAction(databasesAct);
 
