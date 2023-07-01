@@ -59,6 +59,7 @@
 #include "managedatabases.h"
 #include "selectdatabase.h"
 #include "comparemodelsdialog.h"
+#include "technicalmanualcleand.h"
 
 MainWindow::MainWindow()
     : mdiArea(new QMdiArea)
@@ -253,6 +254,12 @@ void MainWindow::show_version()
     VersionDialog version_screen;
     version_screen.exec();
 }
+void MainWindow::show_technicalmanual()
+{
+    TechnicalManual technicalmanual_screen;
+    technicalmanual_screen.exec();
+}
+
 
 void MainWindow::updateMenus()
 {
@@ -480,6 +487,9 @@ void MainWindow::createActions()
 
     QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindow::show_version);
     versionAct->setStatusTip(tr("Show the application's Version box"));
+
+    QAction *technicalAct = helpMenu->addAction(tr("&Manual"), this, &MainWindow::show_technicalmanual);
+    versionAct->setStatusTip(tr("Show the application's Technical box"));
 
 //    QAction *aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 //    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));

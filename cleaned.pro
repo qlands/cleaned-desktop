@@ -24,6 +24,7 @@ HEADERS       = mainwindow.h \
                 seasonmodel.h \
                 selectdatabase.h \
                 settings.h \
+                technicalmanualcleand.h \
                 versiondialog.h
 SOURCES       = main.cpp \
                 aboutcleaned.cpp \
@@ -49,6 +50,7 @@ SOURCES       = main.cpp \
                 seasonmodel.cpp \
                 selectdatabase.cpp \
                 settings.cpp \
+                technicalmanualcleand.cpp \
                 versiondialog.cpp
 RESOURCES     = cleaned.qrc
 
@@ -73,4 +75,5 @@ FORMS += \
     runmodelsdialog.ui \
     selectdatabase.ui \
     settings.ui \
+    technicalmanualcleand.ui \
     versiondialog.ui
