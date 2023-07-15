@@ -393,9 +393,6 @@ void CleanedStudy::load_models()
         ui->cbm_grassland_implevel->setCurrentIndex(0);
 
     //Economic parameters
-    ui->txt_land_oppcost->setValidator(new QDoubleValidator(0, 100, 2, this));
-    ui->txt_cba_discount_rate->setValidator(new QDoubleValidator(0, 100, 2, this));
-    ui->txt_cba_years->setValidator(new QDoubleValidator(0, 100, 2, this));
 
     //Livestock
     m_livestock->setDatabase(db);
@@ -460,9 +457,7 @@ void CleanedStudy::saveStudyObject()
     this->study_object["grassland_management"] = ui->cbm_grassland_management->currentText();
     this->study_object["grassland_implevel"] = ui->cbm_grassland_implevel->currentText();
     //Save economic params
-    this->study_object["land_oppcost"] = ui->txt_land_oppcost->text().toDouble();
-    this->study_object["cba_discount_rate"] = ui->txt_cba_discount_rate->text().toDouble();
-    this->study_object["cba_years"] = ui->txt_cba_years->text().toDouble();
+
     // Save livestock
     study_object["livestock"] = m_livestock->getLivestockArray();
     QJsonArray feeds_array = m_feeds->getFeedsArray();
@@ -675,12 +670,6 @@ void CleanedStudy::loadStudyObject()
     if (study_object.contains("arable_tograssland"))
         ui->txt_arable_tograssland->setText(QString::number(study_object["arable_tograssland"].toDouble()));
     // Load economic parameters
-    if (study_object.contains("land_oppcost"))
-        ui->txt_land_oppcost->setText(QString::number(study_object["land_oppcost"].toDouble()));
-    if (study_object.contains("cba_discount_rate"))
-        ui->txt_cba_discount_rate->setText(QString::number(study_object["cba_discount_rate"].toDouble()));
-    if (study_object.contains("cba_years"))
-        ui->txt_cba_years->setText(QString::number(study_object["cba_years"].toDouble()));
 
 
     // Load livestock
