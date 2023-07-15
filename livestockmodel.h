@@ -44,12 +44,6 @@ struct livestockType
     double water_requirement;
     QString meat_product;
     QString milk_product;
-    //double oneoff_cost;
-   // double operational_cost;
-    //double oneoff_labour;
-    //double operational_labour;
-   // double meat_price;
-    //double milk_price;
     QString ipcc_meth_ef_t1;
     QString ipcc_meth_ef_t2;
     QString ipcc_meth_man;

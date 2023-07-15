@@ -347,14 +347,6 @@ QVariant livestockModel::headerData(int section, Qt::Orientation orientation, in
             if (section == 51) return "water requirement (litres/day)";
             if (section == 52) return "Meat product";
             if (section == 53) return "Milk product";
-
-//            if (section == 54) return "One-off costs (USD/animal)";
-//            if (section == 55) return "Operational costs (USD per animal year)";
-//            if (section == 56) return "Labour one-off per animal (days/yr)";
-//            if (section == 57) return "Labour (days/animal/year)";
-//            if (section == 58) return "Meat price (USD/kg)";
-//            if (section == 59) return "Milk price (USD/kg)";
-
             if (section == 54) return "Methane emissions enteric fermentation - Tier 1";
             if (section == 55) return "Methane emissions enteric fermentation - Tier 2";
             if (section == 56) return "Methane emissions manure - Tier 1";
