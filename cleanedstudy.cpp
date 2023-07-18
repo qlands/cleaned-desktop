@@ -476,6 +476,7 @@ void CleanedStudy::saveStudyObject()
                 {
                     QJsonObject obj = feeds_array[b].toObject();
 
+                    obj["fraction_as_fertilizer"] = crops_array[i].toObject()["fraction_as_fertilizer"];
                     obj["fraction_as_manure"] = crops_array[i].toObject()["fraction_as_manure"];
                     obj["urea"] = crops_array[i].toObject()["urea"];
                     obj["npk"] = crops_array[i].toObject()["npk"];
