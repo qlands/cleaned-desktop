@@ -10,6 +10,7 @@
 #include <cropinputsmodel.h>
 #include <fertilizermodel.h>
 #include "basketmodel.h"
+#include "xlsxdocument.h"
 #include <QProcess>
 
 namespace Ui {
@@ -35,7 +36,8 @@ public:
     bool openDatabase();
     QString userFriendlyCurrentFile();
     QString currentFile() { return curFile; }
-
+    QXlsx::Document xlsx;
+    bool saveJsonArrayToExcel(const int& Row, const int& Col,const QString& title,const QJsonArray& jsonArray, const QStringList& columns, QXlsx::Document& xlsx,const QString& tabName);
 protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -94,6 +96,7 @@ signals:
 private:
     Ui::CleanedStudy *ui;
     bool maybeSave();
+    void exportResultToExcel(const QString& result, const QString& filename);
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
     QSqlDatabase db;

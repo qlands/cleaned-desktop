@@ -22,7 +22,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Manage databases</string>
+      <string>Set parameters</string>
      </property>
     </widget>
    </item>

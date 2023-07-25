@@ -16,10 +16,10 @@ if (!require("devtools"))
 if (!require("cleaned"))
 {
   library("devtools")
-  devtools::install_github("ciat/cleaned@v0.3.2")
+  devtools::install_github("ciat/cleaned@cleaned_v0.4.0")
 } else if (packageVersion("cleaned") != '0.3.2') {
   library("devtools")
-  devtools::install_github("ciat/cleaned@v0.3.2")
+  devtools::install_github("ciat/cleaned@cleaned_v0.4.0")
 }
 
 # library("devtools")
@@ -48,11 +48,10 @@ soil_erosion <- soil_health(para, land_required)
 water_required <- water_requirement(para,land_required)
 nitrogen_balance <- n_balance(para, land_required, soil_erosion)
 livestock_productivity <- land_productivity(para)
-economics <- economics_payback(para, energy_required, livestock_productivity)
 biomass <- biomass_calculation(para, land_required)
 soil_carbon <- soil_organic_carbon(para, stock_change_para, land_required, biomass)
 ghg_emissions <- ghg_emission(para, energy_required, ghg_ipcc_data, land_required, nitrogen_balance)
-cleanedOut <- combineOutputs(feed_basket_quality, energy_required, land_required, soil_erosion, water_required, nitrogen_balance,livestock_productivity,economics,biomass,soil_carbon,ghg_emissions)
+cleanedOut <- combineOutputs(feed_basket_quality, energy_required, land_required, soil_erosion, water_required, nitrogen_balance,livestock_productivity,biomass,soil_carbon,ghg_emissions)
 
 # write output
 write(cleanedOut, args[5])

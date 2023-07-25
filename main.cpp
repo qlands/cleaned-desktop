@@ -57,6 +57,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMessageBox>
 
 int main(int argc, char *argv[])
 {
@@ -126,6 +127,9 @@ int main(int argc, char *argv[])
     const QStringList posArgs = parser.positionalArguments();
     for (const QString &fileName : posArgs)
         mainWin.openFile(fileName);
+    QMessageBox msgBox;
+    msgBox.setText("Please check the user manual" );
+    msgBox.exec();
     mainWin.show();
     return app.exec();
 }

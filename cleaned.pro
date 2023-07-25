@@ -1,7 +1,14 @@
 QT += core widgets sql webenginewidgets
 requires(qtConfig(filedialog))
 
-HEADERS       = mainwindow.h \
+system("git submodule update --init")
+
+QXLSX_PARENTPATH=$$PWD/
+QXLSX_HEADERPATH=./external/QXlsx/QXlsx/header/
+QXLSX_SOURCEPATH=./external/QXlsx/QXlsx/source/
+include(./external/QXlsx/QXlsx/QXlsx.pri)
+
+HEADERS       += mainwindow.h \
                 aboutcleaned.h \
                 addfeed.h \
                 addfertilizer.h \
@@ -24,8 +31,10 @@ HEADERS       = mainwindow.h \
                 seasonmodel.h \
                 selectdatabase.h \
                 settings.h \
+                technicalmanualcleand.h \
                 versiondialog.h
-SOURCES       = main.cpp \
+
+SOURCES       += main.cpp \
                 aboutcleaned.cpp \
                 addfeed.cpp \
                 addfertilizer.cpp \
@@ -49,6 +58,7 @@ SOURCES       = main.cpp \
                 seasonmodel.cpp \
                 selectdatabase.cpp \
                 settings.cpp \
+                technicalmanualcleand.cpp \
                 versiondialog.cpp
 RESOURCES     = cleaned.qrc
 
@@ -73,4 +83,5 @@ FORMS += \
     runmodelsdialog.ui \
     selectdatabase.ui \
     settings.ui \
+    technicalmanualcleand.ui \
     versiondialog.ui
