@@ -1471,80 +1471,80 @@ void CleanedStudy::modelFinished(int exitCode)
 void CleanedStudy::exportResultToExcel(const QString& result, const QString& filename) {
 
     QXlsx::Document xlsx;
+            QJsonDocument doc = QJsonDocument::fromJson(result.toUtf8());
+            QJsonObject jso = doc.object();
 
-    QJsonDocument doc = QJsonDocument::fromJson(result.toUtf8());
-    QJsonObject jso = doc.object();
+
+            QJsonValue value1 = jso.value(QString("land_required"));
+            QJsonArray qjsArr1 = value1["TA1"].toArray();
+            int TA1count=qjsArr1.count();
+            QStringList columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
+            saveJsonArrayToExcel(3,1,"season_1",qjsArr1,columns,xlsx,"land_required_Season");
+            QJsonArray qjsArr2 = value1["TA2"].toArray();
+                        //columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
+                         columns = {"area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
+            saveJsonArrayToExcel(3,11,"season_2",qjsArr2,columns,xlsx,"-");
+
+            value1 = jso.value(QString("energy_required"));
+            qjsArr1 = value1["annual_results"].toArray();
+            int annual_resultscount=qjsArr1.count();
+            columns = {"energy_required_annually", "protein_required_annually", "dmi_energy_total", "dmi_cp_total", "limiting_total", "surplus_total", "me_intake", "dmi_tot", "de_intake", "ge_intake"};
+            saveJsonArrayToExcel(7+TA1count,1,"Annual_nutrient _& _DMI_requirements",qjsArr1,columns,xlsx,"-");
+
+            value1 = jso.value(QString("energy_required"));
+            qjsArr1 = value1["seasonal_results"].toArray();
+            columns = {"energy_required_by_season", "protein_required_by_season", "fresh_intake_required_e", "dmi_required_e", "fresh_intake_required_cp", "dmi_required_cp", "dmi_s", "limiting", "surplus_season", "me_intake_s"};
+            saveJsonArrayToExcel(10+annual_resultscount+TA1count,1,"Seasonal_nutrient_&_DMI_requirements",qjsArr1,columns,xlsx,"-");
+            //////////////////////////////////////////
+            value1 = jso.value(QString("feed_basket_quality"));
+            qjsArr1 = value1["TA1"].toArray();
+            TA1count=qjsArr1.count();
+            columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+            saveJsonArrayToExcel(2,1,"season_1",qjsArr1,columns,xlsx,"feed_basket_quality");
+            qjsArr2 = value1["TA2"].toArray();
+            //columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+            columns = {"Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+            saveJsonArrayToExcel(2,7,"season_2",qjsArr2,columns,xlsx,"-");
+            //////////////////////////////////////////
+            value1 = jso.value(QString("livestock_productivity"));
+            qjsArr1 = value1.toArray();
+            columns = {"livetype_name","tlu","total_milk","meat_production_animal","energy_kcal_year_meat","energy_kcal_year_milk","protein_kg_year_meat","protein_kg_year_milk","annual_manure_produced","daily_manure_produced"};
+            saveJsonArrayToExcel(2,1,"",qjsArr1,columns,xlsx,"livestock_productivity");
+            //////////////////////////////////////////
+            //Soil health
 
 
-    QJsonValue value1 = jso.value(QString("land_required"));
-    QJsonArray qjsArr1 = value1["TA1"].toArray();
-    int TA1count=qjsArr1.count();
-    QStringList columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
-    saveJsonArrayToExcel(2,1,"season_1",qjsArr1,columns,xlsx,"land_required_Season");
-    QJsonArray qjsArr2 = value1["TA2"].toArray();
-                 columns = {"area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
-    saveJsonArrayToExcel(2,11,"season_2",qjsArr2,columns,xlsx,"-");
+            //////////////////////////////////////////
+            value1 = jso.value(QString("water_required"));
+            qjsArr1 = value1["water_use_for_production"].toArray();;
+            TA1count=qjsArr1.count();
+            columns = {"Names","tlu","Value"};
+            saveJsonArrayToExcel(2,2,"water_use_for_production",qjsArr1,columns,xlsx,"Water use");
 
-    value1 = jso.value(QString("energy_required"));
-    qjsArr1 = value1["annual_results"].toArray();
-    int annual_resultscount=qjsArr1.count();
-    columns = {"energy_required_annually", "protein_required_annually", "dmi_energy_total", "dmi_cp_total", "limiting_total", "surplus_total", "me_intake", "dmi_tot", "de_intake", "ge_intake"};
-    saveJsonArrayToExcel(5+TA1count,1,"Annual_nutrient _& _DMI_requirements",qjsArr1,columns,xlsx,"-");
+            qjsArr2 = value1["water_use_per_feed_item"].toArray();
+            //columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+            columns = {"feed", "feed_water_use", "non_feed_water_use", "kc_water_use_of_roughages", "kc_water_use_of_concentrates", "kc_water_use_ip_concentrates", "kc_water_use_on_farm", "kc_water_use_m3_per_kg"};
+            saveJsonArrayToExcel(6+TA1count,2,"water_use_per_feed_item",qjsArr2,columns,xlsx,"-");
 
-    value1 = jso.value(QString("energy_required"));
-    qjsArr1 = value1["seasonal_results"].toArray();
-    columns = {"energy_required_by_season", "protein_required_by_season", "fresh_intake_required_e", "dmi_required_e", "fresh_intake_required_cp", "dmi_required_cp", "dmi_s", "limiting", "surplus_season", "me_intake_s"};
-    saveJsonArrayToExcel(10+annual_resultscount+TA1count,1,"Seasonal_nutrient_&_DMI_requirements",qjsArr1,columns,xlsx,"-");
-    //////////////////////////////////////////
-    value1 = jso.value(QString("feed_basket_quality"));
-    qjsArr1 = value1["TA1"].toArray();
-    TA1count=qjsArr1.count();
-    columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-    saveJsonArrayToExcel(2,1,"season_1",qjsArr1,columns,xlsx,"feed_basket_quality");
-    qjsArr2 = value1["TA2"].toArray();
-    //columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-    columns = {"Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-    saveJsonArrayToExcel(2,7,"season_2",qjsArr2,columns,xlsx,"-");
-    //////////////////////////////////////////
-    value1 = jso.value(QString("livestock_productivity"));
-    qjsArr1 = value1.toArray();
-    columns = {"livetype_name","tlu","total_milk","meat_production_animal","energy_kcal_year_meat","energy_kcal_year_milk","protein_kg_year_meat","protein_kg_year_milk","annual_manure_produced","daily_manure_produced"};
-    saveJsonArrayToExcel(2,1,"",qjsArr1,columns,xlsx,"livestock_productivity");
-    //////////////////////////////////////////
-    //Soil health
+           /////////////////////////////////////////
 
-    //////////////////////////////////////////
-    value1 = jso.value(QString("water_required"));
-    qjsArr1 = value1["water_use_for_production"].toArray();;
-    TA1count=qjsArr1.count();
-    columns = {"Names","tlu","Value"};
-    saveJsonArrayToExcel(2,2,"water_use_for_production",qjsArr1,columns,xlsx,"Water use");
+            value1 = jso.value(QString("biomass"));
+            qjsArr1 = value1["trees_non_feed_biomass"].toArray();;
+            TA1count=qjsArr1.count();
+            columns = {"feed_item_name","c_increase","co2_increase","c_increase_soc","co2_increase_soc","total_c_increase","total_co2_increase"};
+            saveJsonArrayToExcel(2,2,"trees_non_feed_biomass",qjsArr1,columns,xlsx,"Carbon sequestration");
 
-    qjsArr2 = value1["water_use_per_feed_item"].toArray();
-    //columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-    columns = {"feed", "feed_water_use", "non_feed_water_use", "kc_water_use_of_roughages", "kc_water_use_of_concentrates", "kc_water_use_ip_concentrates", "kc_water_use_on_farm", "kc_water_use_m3_per_kg"};
-    saveJsonArrayToExcel(6+TA1count,2,"water_use_per_feed_item",qjsArr2,columns,xlsx,"-");
+            value1 = jso.value(QString("soil_carbon"));
+            qjsArr1 = value1.toArray();
+            columns = {"total_annual_change_carbon_soils", "total_change_co2_soils"};
+             saveJsonArrayToExcel(5+TA1count,2,"soil_carbon",qjsArr1,columns,xlsx,"-");
 
-   /////////////////////////////////////////
-
-    value1 = jso.value(QString("biomass"));
-    qjsArr1 = value1["trees_non_feed_biomass"].toArray();;
-    TA1count=qjsArr1.count();
-    columns = {"feed_item_name","c_increase","co2_increase","c_increase_soc","co2_increase_soc","total_c_increase","total_co2_increase"};
-    saveJsonArrayToExcel(2,2,"trees_non_feed_biomass",qjsArr1,columns,xlsx,"Carbon sequestration");
-
-    value1 = jso.value(QString("soil_carbon"));
-    qjsArr1 = value1.toArray();
-    columns = {"total_annual_change_carbon_soils", "total_change_co2_soils"};
-     saveJsonArrayToExcel(5+TA1count,2,"soil_carbon",qjsArr1,columns,xlsx,"-");
-
-   /////////////////////////////////////////
-
-     value1 = jso.value(QString("soil_carbon"));
-     qjsArr1 = value1.toArray();
-     columns = {"GHG_balance", "kg_per_ha"};
-     saveJsonArrayToExcel(2,2,"GHG emissions",qjsArr1,columns,xlsx,"GHG emissions");
-
+           /////////////////////////////////////////
+             value1 = jso.value(QString("ghg_emission"));
+             qjsArr1 = value1.toArray();
+             columns = {"GHG_balance", "kg_per_ha"};
+             saveJsonArrayToExcel(2,2,"GHG emissions",qjsArr1,columns,xlsx,"GHG emissions");
+             xlsx.selectSheet(0);
     xlsx.saveAs(filename);
 }
 
