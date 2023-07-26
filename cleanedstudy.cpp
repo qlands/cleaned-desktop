@@ -909,6 +909,10 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
     int row =Row;
     int col =Col;
 
+    QXlsx::Format formatThinBorder;
+    formatThinBorder.setBorderStyle(QXlsx::Format::BorderThin);
+
+
     if (tabName !='-'){
       xlsx.addSheet(tabName);
         }
@@ -918,8 +922,15 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
 
     // Write the specified columns as column headers
     for (const QString& column : columns) {
-        xlsx.write(row, col++, column);
+        xlsx.write(row, col++, column, formatThinBorder);
     }
+
+    QXlsx::Format formatGreenAndCenter;
+    formatGreenAndCenter.setPatternBackgroundColor(QColor(Qt::green));
+    formatGreenAndCenter.setHorizontalAlignment(QXlsx::Format::AlignHCenter);
+    formatGreenAndCenter.setBorderStyle(QXlsx::Format::BorderThick);
+    QXlsx::CellRange titleRange(Row, Col, Row, col-1);
+    xlsx.mergeCells(titleRange, formatGreenAndCenter);
 
     // Write JSON array data to Excel
     for (const QJsonValue& jsonValue : jsonArray) {
@@ -933,9 +944,11 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
         row++;
 
         for (const QString& column : columns) {
-            xlsx.write(row, col++, jsonObject.value(column).toVariant());
+            xlsx.write(row, col++, jsonObject.value(column).toVariant(), formatThinBorder);
         }
     }
+    QXlsx::CellRange cr(Row, Col, Row + jsonArray.count()-1, col-1);
+    xlsx.autosizeColumnWidth(cr);
 
     return true;
 }
@@ -1469,7 +1482,6 @@ void CleanedStudy::exportResultToExcel(const QString& result, const QString& fil
     QStringList columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
     saveJsonArrayToExcel(2,1,"season_1",qjsArr1,columns,xlsx,"land_required_Season");
     QJsonArray qjsArr2 = value1["TA2"].toArray();
-                //columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
                  columns = {"area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
     saveJsonArrayToExcel(2,11,"season_2",qjsArr2,columns,xlsx,"-");
 
