@@ -19,6 +19,7 @@ HEADERS       += mainwindow.h \
                 clonedatabase.h \
                 combodelegate.h \
                 comparemodelsdialog.h \
+                comparemodelsresultdialog.h \
                 cropinputsmodel.h \
                 databasemodel.h \
                 delegatordialog.h \
@@ -45,6 +46,7 @@ SOURCES       += main.cpp \
                 clonedatabase.cpp \
                 combodelegate.cpp \
                 comparemodelsdialog.cpp \
+                comparemodelsresultdialog.cpp \
                 cropinputsmodel.cpp \
                 databasemodel.cpp \
                 delegatordialog.cpp \
@@ -77,6 +79,7 @@ FORMS += \
     cleanedstudy.ui \
     clonedatabase.ui \
     comparemodelsdialog.ui \
+    comparemodelsresultdialog.ui \
     delegatordialog.ui \
     importdatabase.ui \
     managedatabases.ui \

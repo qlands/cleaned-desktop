@@ -1,0 +1,116 @@
+#include "comparemodelsresultdialog.h"
+#include "ui_comparemodelsresultdialog.h"
+#include <QSettings>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QScrollBar>
+#include <QPixmap>
+
+compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringList& results) :
+    QDialog(parent),
+    ui(new Ui::comparemodelsresultdialog),
+    _results(results),
+    _pngsDirectory("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/pngs/"),
+    _comparisonModel("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/compare_modesl.R"),
+    _outputFile("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/out.json")
+{
+    ui->setupUi(this);
+    connect(ui->pngList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onImageSelected(QListWidgetItem*,QListWidgetItem*)));
+
+    _process = QSharedPointer<QProcess>::create(this);
+    connect(_process.get(),SIGNAL(finished(int)),this,SLOT(modelFinished(int)));
+    connect(_process.get(),SIGNAL(readyReadStandardError()),this,SLOT(readyReadStandardError()));
+    connect(_process.get(),SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
+    compare();
+}
+
+void compareModelsResultDialog::readyReadStandardError() {
+    QString current_data = ui->rScriptOutput->toPlainText();
+    current_data = current_data + "\n" + _process->readAllStandardError();
+    ui->rScriptOutput->setPlainText(current_data);
+    ui->rScriptOutput->verticalScrollBar()->setValue(ui->rScriptOutput->verticalScrollBar()->maximum());
+}
+
+void compareModelsResultDialog::readyReadStandardOutput() {
+    QString current_data = ui->rScriptOutput->toPlainText();
+    current_data = current_data + "\n" + _process->readAllStandardOutput();
+    ui->rScriptOutput->setPlainText(current_data);
+    ui->rScriptOutput->verticalScrollBar()->setValue(ui->rScriptOutput->verticalScrollBar()->maximum());
+}
+
+void compareModelsResultDialog::modelFinished(int exitCode) {
+    if (exitCode == 0)
+    {
+        QFile file(_outputFile);
+        file.open(QFile::ReadOnly | QFile::Text);
+        auto result = file.readAll();
+        QString current_data = ui->rScriptOutput->toPlainText();
+        current_data = current_data + "\n" + result;
+        ui->rScriptOutput->setText(current_data);
+        ui->rScriptOutput->setReadOnly(true);
+
+        QDir directory(_pngsDirectory);
+        QStringList filters;
+        filters << "*.png";
+
+        auto pngsFilenames = directory.entryList(filters);
+        ui->pngList->addItems(pngsFilenames);
+
+        for(auto& pngFilename : pngsFilenames) {
+            //auto &
+            _pngs.push_back(QSharedPointer<QPixmap>::create(_pngsDirectory+pngFilename));// QPixmap(_pngsDirectory+pngFilename));
+        }
+    }
+}
+
+void compareModelsResultDialog::compare() {
+    QStringList params;
+    params.append("--vanilla");
+    params.append(_comparisonModel);
+    params.append(_outputFile);
+    params.append(_pngsDirectory);
+    for(auto& inputResult : _results) {
+        params.append(inputResult);
+    }
+    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QString r_binay_file = settings.value("rscript_file","").toString();
+    if (r_binay_file.simplified() != "" && QFile::exists(r_binay_file))
+    {
+        QFileInfo fileInfo(settings.value("model_file","").toString());
+
+        QStringList env = QProcess::systemEnvironment();
+        QString library_path = fileInfo.absolutePath() + QDir::separator() + "library";
+        QDir dir;
+        if (!dir.exists(library_path))
+            dir.mkdir(library_path);
+        env << "R_LIBS_USER=" + library_path;
+        _process->setEnvironment(env);
+        _process->start(r_binay_file,params);
+    }
+}
+
+void compareModelsResultDialog::onImageSelected(QListWidgetItem *current, QListWidgetItem *previous) {
+    if(current) {
+        auto &png= _pngs[ui->pngList->currentRow()];
+        ui->label->setPixmap(QPixmap());
+        ui->label->setPixmap(png->scaled(ui->label->size(), Qt::KeepAspectRatio));
+    }
+}
+
+void compareModelsResultDialog::resizeEvent(QResizeEvent *event) {
+    QDialog::resizeEvent(event);
+    if(ui->pngList->currentItem()) {
+        auto &png= _pngs[ui->pngList->currentRow()];
+        ui->label->setPixmap(QPixmap());
+        ui->label->setPixmap(png->scaled(ui->label->size(), Qt::KeepAspectRatio));
+    }
+}
+
+compareModelsResultDialog::~compareModelsResultDialog()
+{
+    ui->label->setPixmap(QPixmap());
+    _pngs.clear();
+    _process->kill();
+    delete ui;
+}
