@@ -32,6 +32,7 @@ private:
 
 private:
     Ui::comparemodelsresultdialog *ui;
+    QWidget *_resultTab;
     QStringList _results;
     QString _pngsDirectory;
     QString _comparisonModel;

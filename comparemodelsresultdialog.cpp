@@ -9,6 +9,7 @@
 
 compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringList& results) :
     QDialog(parent),
+    _resultTab(nullptr),
     ui(new Ui::comparemodelsresultdialog),
     _results(results),
     _pngsDirectory("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/pngs/"),
@@ -16,6 +17,9 @@ compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringLis
     _outputFile("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/out.json")
 {
     ui->setupUi(this);
+    _resultTab = ui->tab_2;
+    ui->tabWidget->removeTab(1);
+
     connect(ui->pngList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onImageSelected(QListWidgetItem*,QListWidgetItem*)));
 
     _process = QSharedPointer<QProcess>::create(this);
@@ -61,6 +65,11 @@ void compareModelsResultDialog::modelFinished(int exitCode) {
             //auto &
             _pngs.push_back(QSharedPointer<QPixmap>::create(_pngsDirectory+pngFilename));// QPixmap(_pngsDirectory+pngFilename));
         }
+        ui->tabWidget->insertTab(1, _resultTab, "Comparison");
+        ui->tabWidget->setCurrentWidget(_resultTab);
+        if(ui->pngList->count()) {
+            ui->pngList->setCurrentRow(0);
+        }
     }
 }
 
@@ -93,8 +102,8 @@ void compareModelsResultDialog::compare() {
 void compareModelsResultDialog::onImageSelected(QListWidgetItem *current, QListWidgetItem *previous) {
     if(current) {
         auto &png= _pngs[ui->pngList->currentRow()];
-        ui->label->setPixmap(QPixmap());
-        ui->label->setPixmap(png->scaled(ui->label->size(), Qt::KeepAspectRatio));
+        ui->pngLabel->setPixmap(QPixmap());
+        ui->pngLabel->setPixmap(png->scaled(QSize(ui->pngLabel->size().width()-2, ui->pngLabel->size().height()-2), Qt::KeepAspectRatio));
     }
 }
 
@@ -102,14 +111,14 @@ void compareModelsResultDialog::resizeEvent(QResizeEvent *event) {
     QDialog::resizeEvent(event);
     if(ui->pngList->currentItem()) {
         auto &png= _pngs[ui->pngList->currentRow()];
-        ui->label->setPixmap(QPixmap());
-        ui->label->setPixmap(png->scaled(ui->label->size(), Qt::KeepAspectRatio));
+        ui->pngLabel->setPixmap(QPixmap());
+        ui->pngLabel->setPixmap(png->scaled(QSize(ui->pngLabel->size().width()-2, ui->pngLabel->size().height()-2), Qt::KeepAspectRatio));
     }
 }
 
 compareModelsResultDialog::~compareModelsResultDialog()
 {
-    ui->label->setPixmap(QPixmap());
+    ui->pngLabel->setPixmap(QPixmap());
     _pngs.clear();
     _process->kill();
     delete ui;

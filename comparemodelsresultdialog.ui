@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>782</width>
+    <width>869</width>
     <height>629</height>
    </rect>
   </property>
@@ -15,11 +15,17 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout_4">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -32,24 +38,33 @@
         </layout>
        </widget>
        <widget class="QWidget" name="tab_2">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <attribute name="title">
          <string>Comparison Result</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="0" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,3">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QListWidget" name="pngList">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="maximumSize">
               <size>
-               <width>250</width>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label">
+            <widget class="QLabel" name="pngLabel">
              <property name="text">
               <string/>
              </property>
