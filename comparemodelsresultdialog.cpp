@@ -9,12 +9,9 @@
 
 compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringList& results) :
     QDialog(parent),
-    _resultTab(nullptr),
     ui(new Ui::comparemodelsresultdialog),
-    _results(results),
-    _pngsDirectory("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/pngs/"),
-    _comparisonModel("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/compare_modesl.R"),
-    _outputFile("/home/rr/Desktop/ws/build-cleaned-Desktop_Qt_6_5_2_GCC_64bit-Debug/R/out.json")
+    _resultTab(nullptr),
+    _results(results)
 {
     ui->setupUi(this);
     _resultTab = ui->tab_2;
@@ -26,6 +23,18 @@ compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringLis
     connect(_process.get(),SIGNAL(finished(int)),this,SLOT(modelFinished(int)));
     connect(_process.get(),SIGNAL(readyReadStandardError()),this,SLOT(readyReadStandardError()));
     connect(_process.get(),SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
+
+
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString folderName = QCoreApplication::applicationDirPath() + "/comparisons/" + currentDateTime.toString("yyyyMMdd-hhmmss") + "/";
+    _outputFile = folderName + "comparison_output.json";
+    _pngsDirectory = folderName;
+    _comparisonModel = QCoreApplication::applicationDirPath() + "/R/compare_modesl.R";
+
+    QDir dir;
+    dir.mkpath(folderName);
+    dir.mkpath(_pngsDirectory);
+
     compare();
 }
 
