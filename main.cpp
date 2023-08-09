@@ -57,15 +57,16 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMessageBox>
 
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(cleaned);
 
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName("CLEANED_20220411");
+    QCoreApplication::setApplicationName("CLEANED_20230726");
     QCoreApplication::setOrganizationName("Alliance Bioversity-CIAT");
-    QCoreApplication::setApplicationVersion("20220411");
+    QCoreApplication::setApplicationVersion("20230726");
     QCommandLineParser parser;
     parser.setApplicationDescription("Cleaned Desktop App");
     parser.addHelpOption();
@@ -126,6 +127,9 @@ int main(int argc, char *argv[])
     const QStringList posArgs = parser.positionalArguments();
     for (const QString &fileName : posArgs)
         mainWin.openFile(fileName);
+    QMessageBox msgBox;
+    msgBox.setText("Please check the user manual" );
+    msgBox.exec();
     mainWin.show();
     return app.exec();
 }

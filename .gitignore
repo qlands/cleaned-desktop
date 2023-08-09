@@ -75,4 +75,5 @@ Thumbs.db
 cleaned
 databases.json
 /R/library
-
+/debug
+/release

@@ -1,5 +1,6 @@
 #include "comparemodelsdialog.h"
 #include "ui_comparemodelsdialog.h"
+#include "comparemodelsresultdialog.h"
 #include <QMessageBox>
 
 compareModelsDialog::compareModelsDialog(QWidget *parent) :
@@ -22,6 +23,8 @@ void compareModelsDialog::on_buttonBox_accepted()
         {
             selectedFiles.append( ui->lstmodels->selectedItems()[i]->text());
         }
+        compareModelsResultDialog resultDialog(this, selectedFiles);
+        resultDialog.exec();
         this->close();
     }
     else

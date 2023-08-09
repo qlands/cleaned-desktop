@@ -18,7 +18,7 @@ ManageDatabases::ManageDatabases(QWidget *parent) :
     m_databases->loadDatabases(settings.value("database_file").toString());
     ui->tableView->setModel(m_databases);
     ui->tableView->resizeColumnsToContents();
-    this->setWindowTitle("Database manager");
+    this->setWindowTitle("Set Parameter");
 
     QString dbman_file = settings.value("dbman_file","").toString();
     if (dbman_file.simplified() != "" && QFile::exists(dbman_file))

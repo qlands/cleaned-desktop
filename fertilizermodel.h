@@ -8,8 +8,6 @@ struct fertilizerType
 {
     QString fertilizer_code;
     QString fertilizer_desc;
-    double quantity;
-    double cost;
     double fraction;
     double percentage_n;
 };

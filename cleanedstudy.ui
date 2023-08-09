@@ -123,71 +123,10 @@
                 </layout>
                </item>
                <item>
-                <widget class="QLabel" name="label_42">
-                 <property name="font">
-                  <font>
-                   <pointsize>12</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Economic parameters</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <layout class="QGridLayout" name="gridLayout_5">
                  <property name="topMargin">
                   <number>0</number>
                  </property>
-                 <item row="3" column="1">
-                  <widget class="QLineEdit" name="txt_cba_years">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QLabel" name="label_45">
-                   <property name="text">
-                    <string>Payback period (years)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="label_44">
-                   <property name="text">
-                    <string>Discount Rate (%)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLineEdit" name="txt_land_oppcost">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QLineEdit" name="txt_cba_discount_rate">
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_43">
-                   <property name="text">
-                    <string>Opp. Costs Land ($/ha/year)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_46">
-                   <property name="text">
-                    <string>Cost-Benefit Analysis</string>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </item>
                <item>
