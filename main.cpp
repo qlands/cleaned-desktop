@@ -53,11 +53,13 @@
 #include <QCommandLineOption>
 #include <QSettings>
 #include "mainwindow.h"
+#include "technicalmanualcleand.h"
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
+
 
 int main(int argc, char *argv[])
 {
@@ -128,8 +130,20 @@ int main(int argc, char *argv[])
     for (const QString &fileName : posArgs)
         mainWin.openFile(fileName);
     QMessageBox msgBox;
-    msgBox.setText("Please check the user manual" );
-    msgBox.exec();
+    msgBox.setText("Do you want to check the user manual ?");
+    msgBox.setStandardButtons(QMessageBox::Ok |  QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    int r = msgBox.exec();
+    if (r==QMessageBox::Ok){
+        TechnicalManual technicalmanual_screen;
+        technicalmanual_screen.exec();
+        mainWin.show();
+        return app.exec();
+        }
+    else
+    {
+    //
     mainWin.show();
     return app.exec();
+        }
 }
