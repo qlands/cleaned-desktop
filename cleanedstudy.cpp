@@ -1264,9 +1264,17 @@ bool CleanedStudy::run()
             params.append(settings.value("ghg_file","").toString());
             params.append(settings.value("stock_file","").toString());
             params.append(settings.value("enery_file","").toString());
-            QString outFile = curFile;
-            outFile = outFile.replace(".json","_result.json");
-            params.append(outFile);
+
+            QFileInfo fInfo(curFile);
+            QString resultDir = fInfo.absolutePath()+QDir::separator()+fInfo.baseName();
+            params.append(resultDir+QDir::separator()+fInfo.baseName()+"_result.json");
+            QDir directory;
+            if(!directory.exists(resultDir)) {
+                directory.mkpath(resultDir);
+            }
+
+            params.append(resultDir);
+
             qDebug() << "****************444";
             qDebug() << "Rscript " + params.join(" ");
             qDebug() << "****************444";
