@@ -7,7 +7,6 @@ if (length(args)!=5)
 
 .libPaths()
 
-
 if (!require("devtools"))
 {
   install.packages("devtools",repos="http://cran.rstudio.com/")
@@ -16,24 +15,27 @@ if (!require("devtools"))
 if (!require("cleaned"))
 {
   library("devtools")
-  devtools::install_github("ciat/cleaned@cleaned_v0.4.0")
+  devtools::install_github("ciat/cleaned@cleaned_v0.5.0")
 } else if (packageVersion("cleaned") != '0.3.2') {
   library("devtools")
-  devtools::install_github("ciat/cleaned@cleaned_v0.4.0")
+  devtools::install_github("ciat/cleaned@cleaned_v0.5.0")
 }
 
-# library("devtools")
-# devtools::install_github("ciat/cleaned")
+# Check if ggplot2 is installed
+if (!require(ggplot2)) {
+  install.packages("ggplot2")
+}
+
+# Check if tidyr is installed
+if (!require(tidyr)) {
+  install.packages("tidyr")
+}
 
 # load libraries
 library(cleaned)
 library(jsonlite)
-
-#write(args[1], stdout())
-#write(args[2], stdout())
-#write(args[3], stdout())
-#write(args[4], stdout())
-#write(args[5], stdout())
+library(ggplot2)
+library(tidyr)
 
 # load data
 para <- fromJSON(args[1], flatten = TRUE)
@@ -47,11 +49,11 @@ land_required <- land_requirement(feed_basket_quality, energy_required, para)
 soil_erosion <- soil_health(para, land_required)
 water_required <- water_requirement(para,land_required)
 nitrogen_balance <- n_balance(para, land_required, soil_erosion)
-livestock_productivity <- land_productivity(para)
+livestock_productivity <- land_productivity(para, energy_required)
 biomass <- biomass_calculation(para, land_required)
 soil_carbon <- soil_organic_carbon(para, stock_change_para, land_required, biomass)
 ghg_emissions <- ghg_emission(para, energy_required, ghg_ipcc_data, land_required, nitrogen_balance)
-cleanedOut <- combineOutputs(feed_basket_quality, energy_required, land_required, soil_erosion, water_required, nitrogen_balance,livestock_productivity,biomass,soil_carbon,ghg_emissions)
+ts(para, feed_basket_quality, energy_required, land_required, soil_erosion, water_required, nitrogen_balance,livestock_productivity,biomass,soil_carbon,ghg_emissions, '/home/rr/Downloads/111')
 
 # write output
 write(cleanedOut, args[5])
