@@ -1456,8 +1456,8 @@ void CleanedStudy::modelFinished(int exitCode)
     if (exitCode == 0)
     {
         ui->stackedWidget->setCurrentIndex(2);
-        QString outFile = curFile;
-        outFile = outFile.replace(".json","_result.json");
+        QFileInfo fInfo(curFile);
+        QString outFile = fInfo.absolutePath()+QDir::separator()+fInfo.baseName() + QDir::separator()+fInfo.baseName()+"_result.json";
         QFile file(outFile);
         file.open(QFile::ReadOnly | QFile::Text);
         auto result = file.readAll();
