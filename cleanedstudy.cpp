@@ -1273,8 +1273,6 @@ bool CleanedStudy::run()
                 directory.mkpath(resultDir);
             }
 
-            params.append(resultDir);
-
             qDebug() << "****************444";
             qDebug() << "Rscript " + params.join(" ");
             qDebug() << "****************444";

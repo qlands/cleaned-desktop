@@ -1,6 +1,6 @@
 args = commandArgs(trailingOnly=TRUE)
 
-if (length(args)!=6) 
+if (length(args)!=5) 
 {
   stop("You need to indicate 5 JSON files: input, ghg, stock, energy, and output.n", call.=FALSE)
 }
@@ -53,7 +53,7 @@ livestock_productivity <- land_productivity(para, energy_required)
 biomass <- biomass_calculation(para, land_required)
 soil_carbon <- soil_organic_carbon(para, stock_change_para, land_required, biomass)
 ghg_emissions <- ghg_emission(para, energy_required, ghg_ipcc_data, land_required, nitrogen_balance)
-cleanedOut <- combineOutputs(para, feed_basket_quality, energy_required, land_required, soil_erosion, water_required, nitrogen_balance,livestock_productivity,biomass,soil_carbon,ghg_emissions, args[6])
+cleanedOut <- combineOutputs(para, feed_basket_quality, energy_required, land_required, soil_erosion, water_required, nitrogen_balance,livestock_productivity,biomass,soil_carbon,ghg_emissions, args[5])
 
 # write output
 write(cleanedOut, args[5])
