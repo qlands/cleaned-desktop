@@ -24,9 +24,12 @@
 
 CleanedStudy::CleanedStudy(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CleanedStudy)
+    ui(new Ui::CleanedStudy),
+    _resultTab(nullptr)
 {
     ui->setupUi(this);
+    _resultTab = ui->tabResult;
+    ui->tabWidget_2->removeTab(2);
     static int sequenceNumber = 1;
     model_running = false;
     isUntitled = true;
@@ -44,6 +47,7 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
     connect(m_process,SIGNAL(finished(int)),this,SLOT(modelFinished(int)));
     connect(m_process,SIGNAL(readyReadStandardError()),this,SLOT(readyReadStandardError()));
     connect(m_process,SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
+    connect(ui->pngList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onImageSelected(QListWidgetItem*,QListWidgetItem*)));
 
     m_cropInputs = new cropInputsModel(this);
     ui->cropsView->setModel(m_cropInputs);
@@ -67,6 +71,9 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
 
 CleanedStudy::~CleanedStudy()
 {
+    ui->pngLabel->setPixmap(QPixmap());
+    _pngs.clear();
+    m_process->kill();
     delete ui;
 }
 
@@ -1254,6 +1261,7 @@ bool CleanedStudy::run()
 
         if (run_model && !model_running)
         {
+            ui->tabWidget_2->removeTab(2);
             ui->tabWidget_2->setCurrentIndex(1);
             model_running = true;
             ui->stackedWidget->setCurrentIndex(1);
@@ -1266,11 +1274,12 @@ bool CleanedStudy::run()
             params.append(settings.value("enery_file","").toString());
 
             QFileInfo fInfo(curFile);
-            QString resultDir = fInfo.absolutePath()+QDir::separator()+fInfo.baseName();
-            params.append(resultDir+QDir::separator()+fInfo.baseName()+"_result.json");
+            _inputBaseName = fInfo.baseName();
+            _resultDir = fInfo.absolutePath()+QDir::separator()+fInfo.baseName();
+            params.append(_resultDir+QDir::separator()+fInfo.baseName()+"_result.json");
             QDir directory;
-            if(!directory.exists(resultDir)) {
-                directory.mkpath(resultDir);
+            if(!directory.exists(_resultDir)) {
+                directory.mkpath(_resultDir);
             }
 
             qDebug() << "****************444";
@@ -1454,6 +1463,28 @@ void CleanedStudy::modelFinished(int exitCode)
     if (exitCode == 0)
     {
         ui->stackedWidget->setCurrentIndex(2);
+
+        QDir directory(_resultDir);
+        QStringList filters;
+        filters << "*.png";
+
+        auto pngsFilenames = directory.entryList(filters);
+
+        for(auto& pngFilename : pngsFilenames) {
+            _pngs.push_back(QSharedPointer<QPixmap>::create(_resultDir+QDir::separator()+pngFilename));
+            pngFilename.replace(_inputBaseName+"_result_", "");
+            pngFilename.replace(".png", "");
+        }
+        ui->pngList->clear();
+        ui->pngList->addItems(pngsFilenames);
+
+        if(ui->pngList->count()) {
+            ui->tabWidget_2->insertTab(2, _resultTab, "Results");
+            ui->tabWidget_2->setCurrentIndex(2);
+            ui->tabWidget->setCurrentWidget(_resultTab);
+            ui->pngList->setCurrentRow(0);
+        }
+
         QFileInfo fInfo(curFile);
         QString outFile = fInfo.absolutePath()+QDir::separator()+fInfo.baseName() + QDir::separator()+fInfo.baseName()+"_result.json";
         QFile file(outFile);
@@ -1698,3 +1729,20 @@ void CleanedStudy::on_cmdcancelrun_clicked()
     m_process->kill();
 }
 
+void CleanedStudy::onImageSelected(QListWidgetItem *current, QListWidgetItem *previous) {
+    if(current) {
+        auto &png= _pngs[ui->pngList->currentRow()];
+        ui->pngLabel->setPixmap(QPixmap());
+        ui->pngLabel->setPixmap(png->scaled(QSize(ui->pngLabel->size().width()-2, ui->pngLabel->size().height()-2), Qt::KeepAspectRatio));
+    }
+}
+
+
+void CleanedStudy::resizeEvent(QResizeEvent *event) {
+    QWidget::resizeEvent(event);
+    if(ui->pngList->currentItem()) {
+        auto &png= _pngs[ui->pngList->currentRow()];
+        ui->pngLabel->setPixmap(QPixmap());
+        ui->pngLabel->setPixmap(png->scaled(QSize(ui->pngLabel->size().width()-2, ui->pngLabel->size().height()-2), Qt::KeepAspectRatio));
+    }
+}
