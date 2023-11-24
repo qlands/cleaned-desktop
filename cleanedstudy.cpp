@@ -971,6 +971,7 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
 void CleanedStudy::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
+        QMessageBox::information(this, "Information", "You can find the saved results in " + _resultDir);
         event->accept();
     } else {
         event->ignore();
