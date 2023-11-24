@@ -915,6 +915,15 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
 
     int row =Row;
     int col =Col;
+    QXlsx::Format formatYellowAndCenter;
+    formatYellowAndCenter.setPatternBackgroundColor(QColor(Qt::yellow));
+    formatYellowAndCenter.setHorizontalAlignment(QXlsx::Format::AlignHCenter);
+    formatYellowAndCenter.setBorderStyle(QXlsx::Format::BorderThin);
+
+    QXlsx::Format formatGreenAndCenter;
+    formatGreenAndCenter.setPatternBackgroundColor(QColor(Qt::green));
+    formatGreenAndCenter.setHorizontalAlignment(QXlsx::Format::AlignHCenter);
+    formatGreenAndCenter.setBorderStyle(QXlsx::Format::BorderThick);
 
     QXlsx::Format formatThinBorder;
     formatThinBorder.setBorderStyle(QXlsx::Format::BorderThin);
@@ -927,15 +936,14 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
     row++;
     //col++;
 
+    xlsx.mergeCells("A1:J1", formatYellowAndCenter);
+    xlsx.write ("A1", QString("=HYPERLINK(\"%1\",\"%2\")").arg(QCoreApplication::applicationDirPath() + "/ReadMe.pdf").arg("Ctrl-Clik here to open the README"));
+
     // Write the specified columns as column headers
     for (const QString& column : columns) {
         xlsx.write(row, col++, column, formatThinBorder);
     }
 
-    QXlsx::Format formatGreenAndCenter;
-    formatGreenAndCenter.setPatternBackgroundColor(QColor(Qt::green));
-    formatGreenAndCenter.setHorizontalAlignment(QXlsx::Format::AlignHCenter);
-    formatGreenAndCenter.setBorderStyle(QXlsx::Format::BorderThick);
     QXlsx::CellRange titleRange(Row, Col, Row, col-1);
     xlsx.mergeCells(titleRange, formatGreenAndCenter);
 

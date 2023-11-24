@@ -60,6 +60,35 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
+bool extractResourceFile(const QString &resourcePath, const QString &destinationPath) {
+    QFile file(destinationPath);
+    if (file.exists()) {
+        // The file already exists, no need to extract it again.
+        return true;
+    }
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Failed to open file for writing:" << file.errorString();
+        return false;
+    }
+
+    // Open the resource file
+    QFile resourceFile(resourcePath);
+    if (!resourceFile.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open resource file:" << resourceFile.errorString();
+        return false;
+    }
+
+    // Copy the content from the resource file to the destination file
+    QByteArray content = resourceFile.readAll();
+    file.write(content);
+
+    // Close the files
+    file.close();
+    resourceFile.close();
+
+    return true;
+}
 
 int main(int argc, char *argv[])
 {
@@ -142,8 +171,8 @@ int main(int argc, char *argv[])
         }
     else
     {
-    //
-    mainWin.show();
-    return app.exec();
-        }
+        extractResourceFile(":/docs/ReadMe.pdf", QCoreApplication::applicationDirPath() + "/ReadMe.pdf");
+        mainWin.show();
+        return app.exec();
+    }
 }

@@ -10,5 +10,6 @@
         <file>images/settings.png</file>
         <file>images/db.png</file>
         <file>images/compare.png</file>
+        <file>docs/ReadMe.pdf</file>
     </qresource>
 </RCC>
