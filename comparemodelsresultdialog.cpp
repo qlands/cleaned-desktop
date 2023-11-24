@@ -7,11 +7,12 @@
 #include <QScrollBar>
 #include <QPixmap>
 
-compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringList& results) :
+compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringList& results, QString baseName) :
     QDialog(parent),
     ui(new Ui::comparemodelsresultdialog),
     _resultTab(nullptr),
-    _results(results)
+    _results(results),
+    _baseName(baseName)
 {
     ui->setupUi(this);
     _resultTab = ui->tab_2;
@@ -29,7 +30,10 @@ compareModelsResultDialog::compareModelsResultDialog(QWidget *parent, QStringLis
     QString folderName = QCoreApplication::applicationDirPath() + "/comparisons/" + currentDateTime.toString("yyyyMMdd-hhmmss") + "/";
     _outputFile = folderName + "comparison_output.json";
     _pngsDirectory = folderName;
-    _comparisonModel = QCoreApplication::applicationDirPath() + "/R/compare_modesl.R";
+    if(baseName.isEmpty())
+        _comparisonModel = QCoreApplication::applicationDirPath() + "/R/compare_modesl.R";
+    else
+        _comparisonModel = QCoreApplication::applicationDirPath() + "/R/compare_modesl_option3.R";
 
     QDir dir;
     dir.mkpath(folderName);
@@ -86,11 +90,14 @@ void compareModelsResultDialog::compare() {
     QStringList params;
     params.append("--vanilla");
     params.append(_comparisonModel);
+    params.append(_baseName);
     params.append(_outputFile);
     params.append(_pngsDirectory);
+
     for(auto& inputResult : _results) {
         params.append(inputResult);
     }
+
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     QString r_binay_file = settings.value("rscript_file","").toString();
     if (r_binay_file.simplified() != "" && QFile::exists(r_binay_file))

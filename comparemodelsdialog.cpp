@@ -2,6 +2,7 @@
 #include "ui_comparemodelsdialog.h"
 #include "comparemodelsresultdialog.h"
 #include <QMessageBox>
+#include <QFileInfo>
 
 compareModelsDialog::compareModelsDialog(QWidget *parent) :
     QDialog(parent),
@@ -19,13 +20,20 @@ compareModelsDialog::~compareModelsDialog()
 
 void compareModelsDialog::on_buttonBox_accepted()
 {
+    QString baseName = "";
+
     if (ui->lstmodels->selectedItems().count() > 1)
     {
         for (int i=0; i < ui->lstmodels->selectedItems().count(); i++)
         {
-            selectedFiles.append( dynamic_cast<RadioListItem*>(ui->lstmodels->selectedItems()[i])->getResult());
+            auto item = dynamic_cast<RadioListItem*>(ui->lstmodels->selectedItems()[i]);
+            selectedFiles.append(item->getResult());
+            if (item->getRadioButton()->isChecked()) {
+                QFileInfo fi(item->getResult());
+                baseName = fi.baseName().remove(".json");
+            }
         }
-        compareModelsResultDialog resultDialog(this, selectedFiles);
+        compareModelsResultDialog resultDialog(this, selectedFiles, baseName);
         resultDialog.exec();
         this->close();
     }
