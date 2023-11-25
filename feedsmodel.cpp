@@ -402,9 +402,9 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         if (index.column() == 3)
         {
             if (items[index.row()].intercrop == 1)
-                return "True";
+                return "Yes";
             else
-                return "False";
+                return "No";
         }
         if (index.column() == 4)
         {
