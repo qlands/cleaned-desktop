@@ -381,7 +381,7 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
             if (section == 47) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
             if (section == 48) return "Time it takes for tree to mature (years)";
             if (section == 49) return "Tree breast diameter (cm)";
-            if (section == 50) return "Cultivation period";
+            if (section == 50) return "Time horizon (years)";
 
         }
     }
