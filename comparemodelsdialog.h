@@ -14,53 +14,46 @@ class compareModelsDialog;
 }
 
 
-class RadioListItem : public QObject, public QListWidgetItem
+class CustomListWidgetItem : public QObject, public QListWidgetItem
 {
     Q_OBJECT
 public:
-    RadioListItem(const QString &text, QListWidget *parent = nullptr)
+    CustomListWidgetItem(const QString &text, QListWidget *parent = nullptr)
         : QListWidgetItem(text, parent)
     {
         setText("");
-        // Create a widget for the item
         QWidget *widget = new QWidget(parent);
 
-        // Set up the layout for the widget
         QHBoxLayout *layout = new QHBoxLayout(widget);
         layout->setContentsMargins(0, 0, 0, 0);
-        //layout->setStretch(0, 3);
-        //layout->setStretch(1, 1);
 
-        // Add the text to the first column
-        textLabel = new QLabel(text, widget);
-        layout->addWidget(textLabel);
+        _label = new QLabel(text, widget);
+        layout->addWidget(_label);
 
-        // Add the radio button to the second column
-        radioBtn = new QRadioButton(widget);
-        connect(radioBtn, SIGNAL(toggled(bool)), this, SLOT(radioButtonToggled(bool)));
-        radioBtn->setText("Is base?");
-        layout->addWidget(radioBtn);
+        _radioButton = new QRadioButton(widget);
+        connect(_radioButton, SIGNAL(toggled(bool)), this, SLOT(radioButtonToggled(bool)));
+        _radioButton->setText("Is base?");
+        layout->addWidget(_radioButton);
 
-        // Set the widget for the item
         parent->setItemWidget(this, widget);
     }
 
     QRadioButton* getRadioButton() const {
-        return radioBtn;
+        return _radioButton;
     }
 
     QString getResult() {
-        return textLabel->text();
+        return _label->text();
     }
 
 private slots:
-    void radioButtonToggled(bool checked) {
+    void radioButtonToggled([[maybe_unused]] bool checked) {
         emit listWidget()->itemChanged(this);
     }
 private:
 
-    QLabel *textLabel = nullptr;
-    QRadioButton *radioBtn = nullptr;
+    QLabel *_label = nullptr;
+    QRadioButton *_radioButton = nullptr;
 };
 
 class compareModelsDialog : public QDialog

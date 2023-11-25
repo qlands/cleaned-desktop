@@ -26,7 +26,7 @@ void compareModelsDialog::on_buttonBox_accepted()
     {
         for (int i=0; i < ui->lstmodels->selectedItems().count(); i++)
         {
-            auto item = dynamic_cast<RadioListItem*>(ui->lstmodels->selectedItems()[i]);
+            auto item = dynamic_cast<CustomListWidgetItem*>(ui->lstmodels->selectedItems()[i]);
             selectedFiles.append(item->getResult());
             if (item->getRadioButton()->isChecked()) {
                 QFileInfo fi(item->getResult());
@@ -47,7 +47,7 @@ void compareModelsDialog::on_buttonBox_accepted()
 
 void compareModelsDialog::addModel(QString modelFile)
 {
-    RadioListItem *newItem = new RadioListItem(modelFile, ui->lstmodels);
+    CustomListWidgetItem *newItem = new CustomListWidgetItem(modelFile, ui->lstmodels);
     newItem->setData(Qt::UserRole,modelFile);
     ui->lstmodels->addItem(newItem);
 }
@@ -60,7 +60,7 @@ void compareModelsDialog::on_buttonBox_rejected()
 
 void compareModelsDialog::handleItemChanged(QListWidgetItem *item)
 {
-    auto custom = dynamic_cast<RadioListItem*>(item);
+    auto custom = dynamic_cast<CustomListWidgetItem*>(item);
 
     if (custom->getRadioButton() && custom->getRadioButton()->isChecked())
     {
@@ -69,7 +69,7 @@ void compareModelsDialog::handleItemChanged(QListWidgetItem *item)
             auto otherItem = ui->lstmodels->item(i);
             if (otherItem != item)
             {
-                dynamic_cast<RadioListItem*>(otherItem)->getRadioButton()->setChecked(false);
+                dynamic_cast<CustomListWidgetItem*>(otherItem)->getRadioButton()->setChecked(false);
             }
         }
     }
