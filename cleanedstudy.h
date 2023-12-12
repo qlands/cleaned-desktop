@@ -128,6 +128,7 @@ private:
     QString _inputBaseName;
     QWidget *_resultTab;
     QVector<QSharedPointer<QPixmap>> _pngs;
+    QWidget* _progressTab;
 
 };
 
