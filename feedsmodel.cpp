@@ -117,7 +117,7 @@ Qt::ItemFlags feedsModel::flags(const QModelIndex &index) const
         {
             if (index.column() != 3)
             {
-                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 20 && index.column() != 21 && index.column() != 29)
+                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 20 && index.column() != 21)
                     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
                 else
                     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
