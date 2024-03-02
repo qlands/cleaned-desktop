@@ -245,7 +245,7 @@ void MainWindow::saveAs()
 
 void MainWindow::show_about()
 {
-    AboutCleaned about_screen;
+    AboutCleaned about_screen(this);
     about_screen.exec();
 }
 

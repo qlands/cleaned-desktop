@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>657</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,10 +30,24 @@
      <property name="text">
       <string>About CLEANED</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="centralLayout"/>
+    <layout class="QVBoxLayout" name="centralLayout">
+     <item>
+      <widget class="QLabel" name="textLabel">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'docs-Calibri'; font-size:15px; color:#000000;&quot;&gt;CLEANED stands for Comprehensive Livestock Environmental Assessment for improved Nutrition, a secured Environment and sustainable Development along livestock value chains. It is a desktop application tool that quantifies the environmental footprints of livestock systems and value chains in straightforward ways. The tool allows users to assess how livestock production activities impact land needs, productivity, economics, soil health (e.g., erosion, N balance), water use, and greenhouse gas emissions (GHGe) and how these would change through the introduction of new technology or an altered livestock production model. It is designed to provide rapid results in a data-scarce environment and is most useful when designing and planning phases of projects, initiatives or programs that investigate farm-level interventions because it allows users to understand impacts and trade-offs, and to better design sustainable livestock systems.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'docs-Calibri'; font-size:15px; font-weight:700; color:#ff0000;&quot;/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'docs-Calibri'; font-size:15px; color:#000000;&quot;&gt;use this link: https://alliancebioversityciat.org/tools-innovations/cleaned&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QPushButton" name="cmdClose">

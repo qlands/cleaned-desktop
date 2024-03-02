@@ -1,18 +1,21 @@
 #include "aboutcleaned.h"
 #include "ui_aboutcleaned.h"
 #include <QWebEngineView>
+#include <QStyle>
+#include <QScreen>
+#include <QMainWindow>
 
 AboutCleaned::AboutCleaned(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AboutCleaned)
 {
     ui->setupUi(this);
-    QWebEngineView *view = new QWebEngineView(parent);
-    view->load(QUrl("https://ciat.cgiar.org/ciat-projects/environmental-assessments-of-livestock-systems-using/"));
-    view->show();
-    ui->centralLayout->addWidget(view);
-    this->setWindowTitle("About cleaned");
-    this->setWindowState(Qt::WindowMaximized);
+
+    auto geometry = qobject_cast<QMainWindow*>(parent)->geometry();
+
+    int top = (geometry.width() - width()) / 2;
+    int left = (geometry.height() - height()) / 2;
+    move(top, left);
 }
 
 AboutCleaned::~AboutCleaned()
