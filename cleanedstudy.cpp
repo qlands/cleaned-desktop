@@ -730,7 +730,7 @@ void CleanedStudy::loadStudyObject()
     ui->feedsView->horizontalHeader()->setMinimumHeight(120);
     for (int ncol=0; ncol < m_feeds->columnCount(); ncol++)
     {
-        if (ncol != 2 && ncol != 6 && ncol != 8 && ncol != 11)
+        if (ncol != 2 && ncol != 6 && ncol != 8 && ncol != 11 && ncol != 19 && ncol != 20 && ncol != 21)
             feed_colums.append(ui->feedsView->columnWidth(ncol));
         else
         {
@@ -1159,6 +1159,9 @@ void CleanedStudy::on_cmd_add_feed_clicked()
                 ui->feedsView->resizeColumnToContents(6);
                 ui->feedsView->resizeColumnToContents(8);
                 ui->feedsView->resizeColumnToContents(11);
+                ui->feedsView->resizeColumnToContents(19);
+                ui->feedsView->resizeColumnToContents(20);
+                ui->feedsView->resizeColumnToContents(21);
 
 
                 m_cropInputs->addNewFeed(crop, feed);
@@ -1639,7 +1642,7 @@ void CleanedStudy::on_livestockView_doubleClicked(const QModelIndex &index)
 void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
 {
     int col = index.column();
-    if (col == 2 || col == 6 || col == 8 || col == 11 || col == 29|| col == 30 || col == 31 )
+    if (col == 2 || col == 6 || col == 8 || col == 11 || col == 19|| col == 20 || col == 21 )
     {
         delegatorDialog selectDialog;
         if (col == 2)
@@ -1662,17 +1665,17 @@ void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
             selectDialog.load_grassmanagement(db);
             selectDialog.set_caption("Select a grassland management type");
         }
-        if (col == 29)
+        if (col == 19)
         {
             selectDialog.load_waterregime();
             selectDialog.set_caption("Select a waterregime type");
         }
-        if (col == 30)
+        if (col == 20)
         {
             selectDialog.load_reice_ecosystem_type();
             selectDialog.set_caption("Select a reice ecosystem type");
         }
-        if (col == 31)
+        if (col == 21)
         {
             selectDialog.load_organic_amendment();
             selectDialog.set_caption("Select a reice organic_amendment");

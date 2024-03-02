@@ -117,7 +117,7 @@ Qt::ItemFlags feedsModel::flags(const QModelIndex &index) const
         {
             if (index.column() != 3)
             {
-                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 29 && index.column() != 30 && index.column() != 31)
+                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 20 && index.column() != 21 && index.column() != 29)
                     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
                 else
                     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -557,7 +557,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
     {
         if (index.column() > 0)
         {
-            if (index.column() != 2 && index.column() != 3 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 34 && index.column() != 23 && index.column() != 24 && index.column() != 25)
+            if (index.column() != 2 && index.column() != 3 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 20 && index.column() != 21 && index.column() != 29)
             {
                 bool ok;
                 double newValue = value.toDouble(&ok);
@@ -578,49 +578,38 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
 
                     if (index.column() == 9) items[index.row()].slope_p_factor = newValue;
                     if (index.column() == 10) items[index.row()].slope_length = newValue;
-
-                    // 11 = Grass management type
-
-                    if (index.column() == 12) items[index.row()].grassman_change_factor = newValue;
+                    if (index.column() == 12) items[index.row()].grassman_change_factor  = newValue;
                     if (index.column() == 13) items[index.row()].main_product_removal = newValue;
                     if (index.column() == 14) items[index.row()].residue_removal = newValue;
                     if (index.column() == 15) items[index.row()].residue_burnt = newValue;
-                    if (index.column() == 16) items[index.row()].dry_yield = newValue;
-                    if (index.column() == 17) items[index.row()].residue_dry_yield = newValue;
-                    if (index.column() == 18) items[index.row()].n_content = newValue;
-                    if (index.column() == 19) items[index.row()].residue_n = newValue;
-                    if (index.column() == 20) items[index.row()].dm_content = newValue;
-                    if (index.column() == 21) items[index.row()].me_content = newValue;
-                    if (index.column() == 22) items[index.row()].cp_content = newValue;
-                    if (index.column() == 23) items[index.row()].dm_content = newValue;
-                    if (index.column() == 24) items[index.row()].main_n = newValue;
-                    if (index.column() == 25) items[index.row()].energy = newValue;
-                    if (index.column() == 26) items[index.row()].water_content = newValue;
-                    if (index.column() == 27) items[index.row()].usda_value = newValue;
-                    if (index.column() == 28) items[index.row()].kc_initial = newValue;
-                    if (index.column() == 29) items[index.row()].kc_midseason = newValue;
-                    if (index.column() == 30) items[index.row()].kc_late = newValue;
 
-                    //40 is category
+                    if (index.column() == 16)  items[index.row()].dm_content = newValue;
+                    if (index.column() == 17)  items[index.row()].me_content = newValue;
+                    if (index.column() == 18)  items[index.row()].cp_content = newValue;
 
-                    if (index.column() == 31) items[index.row()].trees_ha = newValue;
-                    if (index.column() == 32) items[index.row()].trees_dhb = newValue;
-                    if (index.column() == 33) items[index.row()].trees_growth = newValue;
-                    if (index.column() == 34) items[index.row()].trees_removal = newValue;
-                    if (index.column() == 35) items[index.row()].trees_ha_dbh25 = newValue;
-                    if (index.column() == 36) items[index.row()].average_dbh25 = newValue;
-                    if (index.column() == 37) items[index.row()].increase_dbh25 = newValue;
-                    if (index.column() == 38) items[index.row()].trees_ha_dbh2550 = newValue;
-                    if (index.column() == 39) items[index.row()].average_dbh2550 = newValue;
-                    if (index.column() == 40) items[index.row()].increase_dbh2550 = newValue;
-                    if (index.column() == 41) items[index.row()].trees_ha_dbh50 = newValue;
-                    if (index.column() == 42) items[index.row()].average_dbh50 = newValue;
-                    if (index.column() == 43) items[index.row()].increase_dbh50 = newValue;
-                    if (index.column() == 44) items[index.row()].time_horizon = newValue;
-                    if (index.column() == 45) items[index.row()].diameter_breast = newValue;
-                    if (index.column() == 46) items[index.row()].diameter_breast = newValue;
-                    if (index.column() == 47) items[index.row()].cultivation_period = newValue;
-
+                    if (index.column() == 22)  items[index.row()].dry_yield = newValue;
+                    if (index.column() == 23)  items[index.row()].residue_dry_yield = newValue;
+                    if (index.column() == 24)  items[index.row()].n_content = newValue;
+                    if (index.column() == 25)  items[index.row()].residue_n = newValue;
+                    if (index.column() == 26)  items[index.row()].kc_initial = newValue;
+                    if (index.column() == 27)  items[index.row()].kc_midseason = newValue;
+                    if (index.column() == 28)  items[index.row()].kc_late = newValue;
+                    if (index.column() == 30)  items[index.row()].trees_ha = newValue;
+                    if (index.column() == 31)  items[index.row()].trees_dhb = newValue;
+                    if (index.column() == 32)  items[index.row()].trees_growth = newValue;
+                    if (index.column() == 33)  items[index.row()].trees_removal = newValue;
+                    if (index.column() == 34)  items[index.row()].trees_ha_dbh25 = newValue;
+                    if (index.column() == 35)  items[index.row()].average_dbh25 = newValue;
+                    if (index.column() == 36)  items[index.row()].increase_dbh25 = newValue;
+                    if (index.column() == 37)  items[index.row()].trees_ha_dbh2550 = newValue;
+                    if (index.column() == 38)  items[index.row()].average_dbh2550 = newValue;
+                    if (index.column() == 39)  items[index.row()].increase_dbh2550 = newValue;
+                    if (index.column() == 40)  items[index.row()].trees_ha_dbh50 = newValue;
+                    if (index.column() == 41)  items[index.row()].average_dbh50 = newValue;
+                    if (index.column() == 42)  items[index.row()].increase_dbh50 = newValue;
+                    if (index.column() == 43)  items[index.row()].time_horizon = newValue;
+                    if (index.column() == 44)  items[index.row()].diameter_breast = newValue;
+                    if (index.column() == 45)  items[index.row()].cultivation_period = newValue;
 
                     emit modelChanged();
                     return true;
@@ -628,7 +617,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
             }
             else
             {
-                if (index.column() == 21)
+                if (index.column() == 19)
                 {
                     items[index.row()].water_regime = value.toString();
                     QSqlQuery query(db);
@@ -641,13 +630,13 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     }
                     emit delegateChanged(index.column());
                 }
-                if (index.column() == 22)
+                if (index.column() == 20)
                 {
                     items[index.row()].ecosystem_type = value.toString();
                     emit delegateChanged(index.column());
                 }
 
-                if (index.column() == 23)
+                if (index.column() == 21)
                 {
                     {
                         items[index.row()].organic_amendment = value.toString();
@@ -701,7 +690,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     }
                     emit delegateChanged(index.column());
                 }                
-                if (index.column() == 32)
+                if (index.column() == 29)
                     items[index.row()].category = value.toString();
                 emit modelChanged();
                 return true;
