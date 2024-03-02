@@ -343,16 +343,16 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
             if (section == 13) return "Main product removal (fraction)";
             if (section == 14) return "Crop residue removal from field (fraction)";
             if (section == 15) return "Crop residue burnt (fraction)";
-            if (section == 16) return "Main poduct dry yield (t DM/ha)";
-            if (section == 17) return "Residue dry yield (t DM/ha)";
-            if (section == 18) return "Main product N content (kg N/kg DM)";
-            if (section == 19) return "Reside N content (kg N/kg DM)";
-            if (section == 20) return "DM content (%)";
-            if (section == 21) return "ME content (MJ/kg DM)";
-            if (section == 22) return "CP content (% DM)";
-            if (section == 23) return "water regime";
-            if (section == 24) return "reice ecosystem type";
-            if (section == 25) return "reice organic amendment";
+            if (section == 16) return "DM content (%)";
+            if (section == 17) return "ME content (MJ/kg DM)";
+            if (section == 18) return "CP content (% DM)";
+            if (section == 19) return "water regime";
+            if (section == 20) return "reice ecosystem type";
+            if (section == 21) return "reice organic amendment";
+            if (section == 22) return "Main poduct dry yield (t DM/ha)";
+            if (section == 23) return "Residue dry yield (t DM/ha)";
+            if (section == 24) return "Main product N content (kg N/kg DM)";
+            if (section == 25) return "Reside N content (kg N/kg DM)";
             if (section == 26) return "Kc: Initial";
             if (section == 27) return "Kc: MidSeason";
             if (section == 28) return "Kc: Late";
@@ -409,7 +409,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         }
         if (index.column() == 5) return items[index.row()].cut_carry_fraction;
 
-        if (index.column() == 23)
+        if (index.column() == 19)
         {
             QSqlQuery query(db);
             if (query.exec("SELECT waterregime_desc, waterregime_factor FROM lkp_waterregime where waterregime_desc = '" + items[index.row()].water_regime + "'"))
@@ -420,9 +420,9 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
                 }
             }
         }
-        if (index.column() == 24) return items[index.row()].ecosystem_type;
+        if (index.column() == 20) return items[index.row()].ecosystem_type;
 
-        if (index.column() == 25)
+        if (index.column() == 21)
          return items[index.row()].organic_amendment;
 
         if (index.column() == 6)
@@ -466,20 +466,17 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         if (index.column() == 14) return items[index.row()].residue_removal;
         if (index.column() == 15) return items[index.row()].residue_burnt;
 
-        if (index.column() == 16) return items[index.row()].dry_yield;
-        if (index.column() == 17) return items[index.row()].residue_dry_yield;
-        if (index.column() == 18) return items[index.row()].n_content;
+        if (index.column() == 16) return items[index.row()].dm_content;
+        if (index.column() == 17) return items[index.row()].me_content;
+        if (index.column() == 18) return items[index.row()].cp_content;
+        if (index.column() == 19) return items[index.row()].water_regime;
+        if (index.column() == 20) return items[index.row()].ecosystem_type;
+        if (index.column() == 21) return items[index.row()].organic_amendment;
 
-        if (index.column() == 19) return items[index.row()].residue_n;
-
-        if (index.column() == 20) return items[index.row()].dm_content;
-        if (index.column() == 21) return items[index.row()].me_content;
-
-        if (index.column() == 22) return items[index.row()].cp_content;
-
-        if (index.column() == 23) return items[index.row()].water_regime;
-        if (index.column() == 24) return items[index.row()].ecosystem_type;
-        if (index.column() == 25) return items[index.row()].organic_amendment;
+        if (index.column() == 22) return items[index.row()].dry_yield;
+        if (index.column() == 23) return items[index.row()].residue_dry_yield;
+        if (index.column() == 24) return items[index.row()].n_content;
+        if (index.column() == 25) return items[index.row()].residue_n;
         if (index.column() == 26) return items[index.row()].kc_initial;
         if (index.column() == 27) return items[index.row()].kc_midseason;
         if (index.column() == 28) return items[index.row()].kc_late;
@@ -505,17 +502,17 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
     }
     if (role == Qt::BackgroundRole)
     {
-        if ((index.column() >= 2) && (index.column() <= 17))
+        if ((index.column() >= 2) && (index.column() <= 15))
         {
             QBrush Background(QColor(169,209,142)); //We can change this to a nice color
             return Background;
         }
-        if ((index.column() >= 18) && (index.column() <= 25))
+        if ((index.column() >= 16) && (index.column() <= 21))
         {
             QBrush Background(QColor(244,177,131)); //We can change this to a nice color
             return Background;
         }
-        if ((index.column() >= 26) )
+        if ((index.column() >= 22) )
         {
             QBrush Background(QColor(143,170,220)); //We can change this to a nice color
             return Background;
@@ -524,7 +521,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
     }
     if (role == Qt::FontRole)
     {
-        if (index.column() == 2 || index.column() == 6 || index.column() == 8 || index.column() == 11 || index.column() == 23 || index.column() == 24 || index.column() == 25)
+        if (index.column() == 2 || index.column() == 6 || index.column() == 8 || index.column() == 11 || index.column() == 19 || index.column() == 20 || index.column() == 21)
         {
             QFont font;
             font.setUnderline(true);
