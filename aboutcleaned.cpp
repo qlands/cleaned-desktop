@@ -11,6 +11,9 @@ AboutCleaned::AboutCleaned(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->textLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->textLabel->setOpenExternalLinks(true);
+
     auto geometry = qobject_cast<QMainWindow*>(parent)->geometry();
 
     int top = (geometry.width() - width()) / 2;
