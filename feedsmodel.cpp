@@ -89,7 +89,7 @@ void feedsModel::setDatabase(QSqlDatabase cleaned_db)
 
 int feedsModel::columnCount(const QModelIndex &) const
 {
-    return 52;
+    return 46;
 }
 
 int feedsModel::rowCount(const QModelIndex &) const
@@ -353,31 +353,26 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
             if (section == 23) return "water regime";
             if (section == 24) return "reice ecosystem type";
             if (section == 25) return "reice organic amendment";
-            if (section == 26) return "Main product DM content fraction";
-            if (section == 27) return "Main product N conten (kg N/kg DM)";
-            if (section == 28) return "Energy (kcal per FW 100g)";
-            if (section == 29) return "Water content (g per 100 g)";
-            if (section == 30) return "USDA nutrition data base entry #";
-            if (section == 31) return "Kc: Initial";
-            if (section == 32) return "Kc: MidSeason";
-            if (section == 33) return "Kc: Late";
-            if (section == 34) return "Category";
-            if (section == 35) return "Trees/ha";
-            if (section == 36) return "Trees DBH";
-            if (section == 37) return "Trees annual growth (kg)";
-            if (section == 38) return "Trees annual removal (kg)";
-            if (section == 39) return "Number of trees per hectare with a diameter at breast height of less than 25cm";
-            if (section == 40) return "Average diameter at breast height of trees with a DBH of less than 25cm";
-            if (section == 41) return "Diameter at breast height increase in trees with a DBH of less than 25cm (cm/year)";
-            if (section == 42) return "Number of trees per hectare with a diameter at breast height of 25-50cm";
-            if (section == 43) return "Average diameter at breast height of trees with a DBH of 25-50cm";
-            if (section == 44) return "Diameter at breast height increase in trees with a DBH of 25-50cm (cm/year)";
-            if (section == 45) return "Number of trees per hectare with a diameter at breast height more than 50cm";
-            if (section == 46) return "Average diameter at breast height of trees with a DBH more than 50cm";
-            if (section == 47) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
-            if (section == 48) return "Time it takes for tree to mature (years)";
-            if (section == 49) return "Tree breast diameter (cm)";
-            if (section == 50) return "Time horizon (years)";
+            if (section == 26) return "Kc: Initial";
+            if (section == 27) return "Kc: MidSeason";
+            if (section == 28) return "Kc: Late";
+            if (section == 29) return "Category";
+            if (section == 30) return "Trees/ha";
+            if (section == 31) return "Trees DBH";
+            if (section == 32) return "Trees annual growth (kg)";
+            if (section == 33) return "Trees annual removal (kg)";
+            if (section == 34) return "Number of trees per hectare with a diameter at breast height of less than 25cm";
+            if (section == 35) return "Average diameter at breast height of trees with a DBH of less than 25cm";
+            if (section == 36) return "Diameter at breast height increase in trees with a DBH of less than 25cm (cm/year)";
+            if (section == 37) return "Number of trees per hectare with a diameter at breast height of 25-50cm";
+            if (section == 38) return "Average diameter at breast height of trees with a DBH of 25-50cm";
+            if (section == 39) return "Diameter at breast height increase in trees with a DBH of 25-50cm (cm/year)";
+            if (section == 40) return "Number of trees per hectare with a diameter at breast height more than 50cm";
+            if (section == 41) return "Average diameter at breast height of trees with a DBH more than 50cm";
+            if (section == 42) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
+            if (section == 43) return "Time it takes for tree to mature (years)";
+            if (section == 44) return "Tree breast diameter (cm)";
+            if (section == 45) return "Time horizon (years)";
 
         }
     }
@@ -485,36 +480,27 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         if (index.column() == 23) return items[index.row()].water_regime;
         if (index.column() == 24) return items[index.row()].ecosystem_type;
         if (index.column() == 25) return items[index.row()].organic_amendment;
-        if (index.column() == 26) return items[index.row()].dm_content;
+        if (index.column() == 26) return items[index.row()].kc_initial;
+        if (index.column() == 27) return items[index.row()].kc_midseason;
+        if (index.column() == 28) return items[index.row()].kc_late;
+        if (index.column() == 29) return items[index.row()].category;
 
-        if (index.column() == 27) return items[index.row()].main_n;
-
-
-        if (index.column() == 28) return items[index.row()].energy;
-        if (index.column() == 29) return items[index.row()].water_content;
-
-        if (index.column() == 30) return items[index.row()].usda_value;
-        if (index.column() == 31) return items[index.row()].kc_initial;
-        if (index.column() == 32) return items[index.row()].kc_midseason;
-        if (index.column() == 33) return items[index.row()].kc_late;
-        if (index.column() == 34) return items[index.row()].category;
-
-        if (index.column() == 35) return items[index.row()].trees_ha;
-        if (index.column() == 36) return items[index.row()].trees_dhb;
-        if (index.column() == 37) return items[index.row()].trees_growth;
-        if (index.column() == 38) return items[index.row()].trees_removal;
-        if (index.column() == 39) return items[index.row()].trees_ha_dbh25;
-        if (index.column() == 40) return items[index.row()].average_dbh25;
-        if (index.column() == 41) return items[index.row()].increase_dbh25;
-        if (index.column() == 42) return items[index.row()].trees_ha_dbh2550;
-        if (index.column() == 43) return items[index.row()].average_dbh2550;
-        if (index.column() == 44) return items[index.row()].increase_dbh2550;
-        if (index.column() == 45) return items[index.row()].trees_ha_dbh50;
-        if (index.column() == 46) return items[index.row()].average_dbh50;
-        if (index.column() == 47) return items[index.row()].increase_dbh50;
-        if (index.column() == 48) return items[index.row()].time_horizon;
-        if (index.column() == 49) return items[index.row()].diameter_breast;
-        if (index.column() == 50) return items[index.row()].cultivation_period;
+        if (index.column() == 30) return items[index.row()].trees_ha;
+        if (index.column() == 31) return items[index.row()].trees_dhb;
+        if (index.column() == 32) return items[index.row()].trees_growth;
+        if (index.column() == 33) return items[index.row()].trees_removal;
+        if (index.column() == 34) return items[index.row()].trees_ha_dbh25;
+        if (index.column() == 35) return items[index.row()].average_dbh25;
+        if (index.column() == 36) return items[index.row()].increase_dbh25;
+        if (index.column() == 37) return items[index.row()].trees_ha_dbh2550;
+        if (index.column() == 38) return items[index.row()].average_dbh2550;
+        if (index.column() == 39) return items[index.row()].increase_dbh2550;
+        if (index.column() == 40) return items[index.row()].trees_ha_dbh50;
+        if (index.column() == 41) return items[index.row()].average_dbh50;
+        if (index.column() == 42) return items[index.row()].increase_dbh50;
+        if (index.column() == 43) return items[index.row()].time_horizon;
+        if (index.column() == 44) return items[index.row()].diameter_breast;
+        if (index.column() == 45) return items[index.row()].cultivation_period;
 
     }
     if (role == Qt::BackgroundRole)
