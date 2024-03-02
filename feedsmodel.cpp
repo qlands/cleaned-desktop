@@ -350,10 +350,6 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
             if (section == 20) return "DM content (%)";
             if (section == 21) return "ME content (MJ/kg DM)";
             if (section == 22) return "CP content (% DM)";
-//            if (section == 23) return "Establishment cost (USD/ha)";
-//            if (section == 24) return "Operational costs (USD/yr/ha)";
-//            if (section == 25) return "Establishment labour (days/ha)";
-//            if (section == 26) return "Operational labour (days/yr/ha)";
             if (section == 23) return "water regime";
             if (section == 24) return "reice ecosystem type";
             if (section == 25) return "reice organic amendment";
