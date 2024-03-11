@@ -23,10 +23,10 @@ if (!require("cleaned"))
 if (!require("cleaned"))
 {
   library("devtools")
-  devtools::install_github("ciat/cleaned@cleaned_v0.5.0")
-} else if (packageVersion("cleaned") != '0.3.2') {
+  devtools::install_github("ciat/cleaned@cleaned_v0.6.0")
+} else if (packageVersion("cleaned") != '0.6.0') {
   library("devtools")
-  devtools::install_github("ciat/cleaned@cleaned_v0.5.0")
+  devtools::install_github("ciat/cleaned@cleaned_v0.6.0")
 }
 
 # load libraries
