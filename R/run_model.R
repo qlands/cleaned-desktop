@@ -1,6 +1,6 @@
 args = commandArgs(trailingOnly=TRUE)
 
-if (length(args)!=5) 
+if (length(args)!=5)
 {
   stop("You need to indicate 5 JSON files: input, ghg, stock, energy, and output.n", call.=FALSE)
 }
@@ -12,13 +12,19 @@ if (!require("devtools"))
   install.packages("devtools",repos="http://cran.rstudio.com/")
 }
 
+# Check if openxlsx is installed
+if (!require(openxlsx)) {
+  install.packages("openxlsx", dependencies = TRUE, repos = "http://cran.us.r-project.org")
+}
+library(openxlsx)
+
 if (!require("cleaned"))
 {
   library("devtools")
-  devtools::install_github("ciat/cleaned@cleaned_v0.5.0")
-} else if (packageVersion("cleaned") != '0.3.2') {
+  devtools::install_github("ciat/cleaned@cleaned_v0.6.0")
+} else if (packageVersion("cleaned") != '0.6.0') {
   library("devtools")
-  devtools::install_github("ciat/cleaned@cleaned_v0.5.0")
+  devtools::install_github("ciat/cleaned@cleaned_v0.6.0")
 }
 
 # Check if ggplot2 is installed
@@ -26,16 +32,16 @@ if (!require(ggplot2)) {
   install.packages("ggplot2")
 }
 
-# Check if tidyr is installed
-if (!require(tidyr)) {
-  install.packages("tidyr")
+# Check if tidyverse is installed
+if (!require(tidyverse)) {
+  install.packages("tidyverse")
 }
 
 # load libraries
 library(cleaned)
 library(jsonlite)
 library(ggplot2)
-library(tidyr)
+library(tidyverse)
 
 # load data
 para <- fromJSON(args[1], flatten = TRUE)

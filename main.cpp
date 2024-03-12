@@ -160,10 +160,10 @@ int main(int argc, char *argv[])
         mainWin.openFile(fileName);
     QMessageBox msgBox;
     msgBox.setText("Do you want to check the user manual ?");
-    msgBox.setStandardButtons(QMessageBox::Ok |  QMessageBox::Cancel);
+    msgBox.setStandardButtons(QMessageBox::Yes |  QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::Save);
     int r = msgBox.exec();
-    if (r==QMessageBox::Ok){
+    if (r==QMessageBox::Yes){
         TechnicalManual technicalmanual_screen;
         technicalmanual_screen.exec();
         mainWin.show();
