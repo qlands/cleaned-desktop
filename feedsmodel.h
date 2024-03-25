@@ -85,6 +85,7 @@ public:
     bool feedExists(QString crop, QString feed);
     QJsonArray getFeedsArray();
     QString getCropCode(int row);
+    QString getCropDesc(int row);
     QString getFeedCode(int row);
     QString getFeedDesc(int row);
     void deleteFeed(int row);

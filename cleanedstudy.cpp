@@ -1645,7 +1645,8 @@ void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
     int col = index.column();
 
     auto code = m_feeds->getCropCode(index.row());
-    if (col == 2 || col == 6 || col == 8 || col == 11 || (( code == "30") && (col == 19|| col == 20 || col == 21 )))
+    auto cropDesc = m_feeds->getCropDesc(index.row());
+    if (col == 2 || col == 6 || col == 8 || col == 11 || (( cropDesc == "Rice") && (col == 19|| col == 20 || col == 21 )))
     {
         delegatorDialog selectDialog;
         if (col == 2)

@@ -729,6 +729,17 @@ QString feedsModel::getCropCode(int row)
     }
     return "";
 }
+
+QString feedsModel::getCropDesc(int row)
+{
+    if (row < items.count())
+    {
+        return items[row].feed_type_name;
+    }
+    return "";
+}
+
+
 QString feedsModel::getFeedCode(int row)
 {
     if (row < items.count())
