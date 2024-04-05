@@ -497,7 +497,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         if (index.column() == 42) return items[index.row()].increase_dbh50;
         if (index.column() == 43) return items[index.row()].time_horizon;
         if (index.column() == 44) return items[index.row()].diameter_breast;
-        if (index.column() == 45) return items[index.row()].cultivation_period;
+        if (index.column() == 45) return items[index.row()].time_horizon;
 
     }
     if (role == Qt::BackgroundRole)
@@ -609,7 +609,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     if (index.column() == 42)  items[index.row()].increase_dbh50 = newValue;
                     if (index.column() == 43)  items[index.row()].time_horizon = newValue;
                     if (index.column() == 44)  items[index.row()].diameter_breast = newValue;
-                    if (index.column() == 45)  items[index.row()].cultivation_period = newValue;
+                    if (index.column() == 45)  items[index.row()].time_horizon = newValue;
 
                     emit modelChanged();
                     return true;
