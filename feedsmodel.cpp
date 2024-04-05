@@ -117,7 +117,7 @@ Qt::ItemFlags feedsModel::flags(const QModelIndex &index) const
         {
             if (index.column() != 3)
             {
-                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 20 && index.column() != 21)
+                if (index.column() != 2 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 21 && index.column() != 22)
                     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
                 else
                     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -347,32 +347,33 @@ QVariant feedsModel::headerData(int section, Qt::Orientation orientation, int ro
             if (section == 17) return "ME content (MJ/kg DM)";
             if (section == 18) return "CP content (% DM)";
             if (section == 19) return "water regime";
-            if (section == 20) return "reice ecosystem type";
-            if (section == 21) return "reice organic amendment";
-            if (section == 22) return "Main poduct dry yield (t DM/ha)";
-            if (section == 23) return "Residue dry yield (t DM/ha)";
-            if (section == 24) return "Main product N content (kg N/kg DM)";
-            if (section == 25) return "Reside N content (kg N/kg DM)";
-            if (section == 26) return "Kc: Initial";
-            if (section == 27) return "Kc: MidSeason";
-            if (section == 28) return "Kc: Late";
-            if (section == 29) return "Category";
-            if (section == 30) return "Trees/ha";
-            if (section == 31) return "Trees DBH";
-            if (section == 32) return "Trees annual growth (kg)";
-            if (section == 33) return "Trees annual removal (kg)";
-            if (section == 34) return "Number of trees per hectare with a diameter at breast height of less than 25cm";
-            if (section == 35) return "Average diameter at breast height of trees with a DBH of less than 25cm";
-            if (section == 36) return "Diameter at breast height increase in trees with a DBH of less than 25cm (cm/year)";
-            if (section == 37) return "Number of trees per hectare with a diameter at breast height of 25-50cm";
-            if (section == 38) return "Average diameter at breast height of trees with a DBH of 25-50cm";
-            if (section == 39) return "Diameter at breast height increase in trees with a DBH of 25-50cm (cm/year)";
-            if (section == 40) return "Number of trees per hectare with a diameter at breast height more than 50cm";
-            if (section == 41) return "Average diameter at breast height of trees with a DBH more than 50cm";
-            if (section == 42) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
-            if (section == 43) return "Time it takes for tree to mature (years)";
-            if (section == 44) return "Tree breast diameter (cm)";
-            if (section == 45) return "Time horizon (years)";
+            if (section == 20) return "cultivation period";
+            if (section == 21) return "reice ecosystem type";
+            if (section == 22) return "reice organic amendment";
+            if (section == 23) return "Main poduct dry yield (t DM/ha)";
+            if (section == 24) return "Residue dry yield (t DM/ha)";
+            if (section == 25) return "Main product N content (kg N/kg DM)";
+            if (section == 26) return "Reside N content (kg N/kg DM)";
+            if (section == 27) return "Kc: Initial";
+            if (section == 28) return "Kc: MidSeason";
+            if (section == 29) return "Kc: Late";
+            if (section == 30) return "Category";
+            if (section == 31) return "Trees/ha";
+            if (section == 32) return "Trees DBH";
+            if (section == 33) return "Trees annual growth (kg)";
+            if (section == 34) return "Trees annual removal (kg)";
+            if (section == 35) return "Number of trees per hectare with a diameter at breast height of less than 25cm";
+            if (section == 36) return "Average diameter at breast height of trees with a DBH of less than 25cm";
+            if (section == 37) return "Diameter at breast height increase in trees with a DBH of less than 25cm (cm/year)";
+            if (section == 38) return "Number of trees per hectare with a diameter at breast height of 25-50cm";
+            if (section == 39) return "Average diameter at breast height of trees with a DBH of 25-50cm";
+            if (section == 40) return "Diameter at breast height increase in trees with a DBH of 25-50cm (cm/year)";
+            if (section == 41) return "Number of trees per hectare with a diameter at breast height more than 50cm";
+            if (section == 42) return "Average diameter at breast height of trees with a DBH more than 50cm";
+            if (section == 43) return "Diameter at breast height increase in trees with a DBH of more than 50cm (cm/year)";
+            if (section == 44) return "Time it takes for tree to mature (years)";
+            if (section == 45) return "Tree breast diameter (cm)";
+            //if (section == 46) return "Time horizon (years)";
 
         }
     }
@@ -420,9 +421,9 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
                 }
             }
         }
-        if (index.column() == 20) return items[index.row()].ecosystem_type;
+        if (index.column() == 21) return items[index.row()].ecosystem_type;
 
-        if (index.column() == 21)
+        if (index.column() == 22)
          return items[index.row()].organic_amendment;
 
         if (index.column() == 6)
@@ -470,34 +471,35 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
         if (index.column() == 17) return items[index.row()].me_content;
         if (index.column() == 18) return items[index.row()].cp_content;
         if (index.column() == 19) return items[index.row()].water_regime;
-        if (index.column() == 20) return items[index.row()].ecosystem_type;
-        if (index.column() == 21) return items[index.row()].organic_amendment;
+        if (index.column() == 20) return items[index.row()].cultivation_period;
+        if (index.column() == 21) return items[index.row()].ecosystem_type;
+        if (index.column() == 22) return items[index.row()].organic_amendment;
 
-        if (index.column() == 22) return items[index.row()].dry_yield;
-        if (index.column() == 23) return items[index.row()].residue_dry_yield;
-        if (index.column() == 24) return items[index.row()].n_content;
-        if (index.column() == 25) return items[index.row()].residue_n;
-        if (index.column() == 26) return items[index.row()].kc_initial;
-        if (index.column() == 27) return items[index.row()].kc_midseason;
-        if (index.column() == 28) return items[index.row()].kc_late;
-        if (index.column() == 29) return items[index.row()].category;
+        if (index.column() == 23) return items[index.row()].dry_yield;
+        if (index.column() == 24) return items[index.row()].residue_dry_yield;
+        if (index.column() == 25) return items[index.row()].n_content;
+        if (index.column() == 26) return items[index.row()].residue_n;
+        if (index.column() == 27) return items[index.row()].kc_initial;
+        if (index.column() == 28) return items[index.row()].kc_midseason;
+        if (index.column() == 29) return items[index.row()].kc_late;
+        if (index.column() == 30) return items[index.row()].category;
 
-        if (index.column() == 30) return items[index.row()].trees_ha;
-        if (index.column() == 31) return items[index.row()].trees_dhb;
-        if (index.column() == 32) return items[index.row()].trees_growth;
-        if (index.column() == 33) return items[index.row()].trees_removal;
-        if (index.column() == 34) return items[index.row()].trees_ha_dbh25;
-        if (index.column() == 35) return items[index.row()].average_dbh25;
-        if (index.column() == 36) return items[index.row()].increase_dbh25;
-        if (index.column() == 37) return items[index.row()].trees_ha_dbh2550;
-        if (index.column() == 38) return items[index.row()].average_dbh2550;
-        if (index.column() == 39) return items[index.row()].increase_dbh2550;
-        if (index.column() == 40) return items[index.row()].trees_ha_dbh50;
-        if (index.column() == 41) return items[index.row()].average_dbh50;
-        if (index.column() == 42) return items[index.row()].increase_dbh50;
-        if (index.column() == 43) return items[index.row()].time_horizon;
-        if (index.column() == 44) return items[index.row()].diameter_breast;
-        if (index.column() == 45) return items[index.row()].time_horizon;
+        if (index.column() == 31) return items[index.row()].trees_ha;
+        if (index.column() == 32) return items[index.row()].trees_dhb;
+        if (index.column() == 33) return items[index.row()].trees_growth;
+        if (index.column() == 34) return items[index.row()].trees_removal;
+        if (index.column() == 35) return items[index.row()].trees_ha_dbh25;
+        if (index.column() == 36) return items[index.row()].average_dbh25;
+        if (index.column() == 37) return items[index.row()].increase_dbh25;
+        if (index.column() == 38) return items[index.row()].trees_ha_dbh2550;
+        if (index.column() == 39) return items[index.row()].average_dbh2550;
+        if (index.column() == 40) return items[index.row()].increase_dbh2550;
+        if (index.column() == 41) return items[index.row()].trees_ha_dbh50;
+        if (index.column() == 42) return items[index.row()].average_dbh50;
+        if (index.column() == 43) return items[index.row()].increase_dbh50;
+        if (index.column() == 44) return items[index.row()].time_horizon;
+        if (index.column() == 45) return items[index.row()].diameter_breast;
+        //if (index.column() == 46) return items[index.row()].time_horizon;
 
     }
     if (role == Qt::BackgroundRole)
@@ -507,12 +509,12 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
             QBrush Background(QColor(169,209,142)); //We can change this to a nice color
             return Background;
         }
-        if ((index.column() >= 16) && (index.column() <= 21))
+        if ((index.column() >= 16) && (index.column() <= 22))
         {
             QBrush Background(QColor(244,177,131)); //We can change this to a nice color
             return Background;
         }
-        if ((index.column() >= 22) )
+        if ((index.column() >= 23) )
         {
             QBrush Background(QColor(143,170,220)); //We can change this to a nice color
             return Background;
@@ -521,7 +523,7 @@ QVariant feedsModel::data(const QModelIndex &index, int role) const
     }
     if (role == Qt::FontRole)
     {
-        if (index.column() == 2 || index.column() == 6 || index.column() == 8 || index.column() == 11 || index.column() == 19 || index.column() == 20 || index.column() == 21)
+        if (index.column() == 2 || index.column() == 6 || index.column() == 8 || index.column() == 11 || index.column() == 19 || index.column() == 21 || index.column() == 22)
         {
             QFont font;
             font.setUnderline(true);
@@ -557,7 +559,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
     {
         if (index.column() > 0)
         {
-            if (index.column() != 2 && index.column() != 3 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 20 && index.column() != 21 && index.column() != 29)
+            if (index.column() != 2 && index.column() != 3 && index.column() != 6 && index.column() != 8 && index.column() != 11 && index.column() != 19 && index.column() != 21 && index.column() != 22 && index.column() != 30)
             {
                 bool ok;
                 double newValue = value.toDouble(&ok);
@@ -586,30 +588,31 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     if (index.column() == 16)  items[index.row()].dm_content = newValue;
                     if (index.column() == 17)  items[index.row()].me_content = newValue;
                     if (index.column() == 18)  items[index.row()].cp_content = newValue;
+                    if (index.column() == 20)  items[index.row()].cultivation_period = newValue;
 
-                    if (index.column() == 22)  items[index.row()].dry_yield = newValue;
-                    if (index.column() == 23)  items[index.row()].residue_dry_yield = newValue;
-                    if (index.column() == 24)  items[index.row()].n_content = newValue;
-                    if (index.column() == 25)  items[index.row()].residue_n = newValue;
-                    if (index.column() == 26)  items[index.row()].kc_initial = newValue;
-                    if (index.column() == 27)  items[index.row()].kc_midseason = newValue;
-                    if (index.column() == 28)  items[index.row()].kc_late = newValue;
-                    if (index.column() == 30)  items[index.row()].trees_ha = newValue;
-                    if (index.column() == 31)  items[index.row()].trees_dhb = newValue;
-                    if (index.column() == 32)  items[index.row()].trees_growth = newValue;
-                    if (index.column() == 33)  items[index.row()].trees_removal = newValue;
-                    if (index.column() == 34)  items[index.row()].trees_ha_dbh25 = newValue;
-                    if (index.column() == 35)  items[index.row()].average_dbh25 = newValue;
-                    if (index.column() == 36)  items[index.row()].increase_dbh25 = newValue;
-                    if (index.column() == 37)  items[index.row()].trees_ha_dbh2550 = newValue;
-                    if (index.column() == 38)  items[index.row()].average_dbh2550 = newValue;
-                    if (index.column() == 39)  items[index.row()].increase_dbh2550 = newValue;
-                    if (index.column() == 40)  items[index.row()].trees_ha_dbh50 = newValue;
-                    if (index.column() == 41)  items[index.row()].average_dbh50 = newValue;
-                    if (index.column() == 42)  items[index.row()].increase_dbh50 = newValue;
-                    if (index.column() == 43)  items[index.row()].time_horizon = newValue;
-                    if (index.column() == 44)  items[index.row()].diameter_breast = newValue;
-                    if (index.column() == 45)  items[index.row()].time_horizon = newValue;
+                    if (index.column() == 23)  items[index.row()].dry_yield = newValue;
+                    if (index.column() == 24)  items[index.row()].residue_dry_yield = newValue;
+                    if (index.column() == 25)  items[index.row()].n_content = newValue;
+                    if (index.column() == 26)  items[index.row()].residue_n = newValue;
+                    if (index.column() == 27)  items[index.row()].kc_initial = newValue;
+                    if (index.column() == 28)  items[index.row()].kc_midseason = newValue;
+                    if (index.column() == 29)  items[index.row()].kc_late = newValue;
+                    if (index.column() == 31)  items[index.row()].trees_ha = newValue;
+                    if (index.column() == 32)  items[index.row()].trees_dhb = newValue;
+                    if (index.column() == 33)  items[index.row()].trees_growth = newValue;
+                    if (index.column() == 34)  items[index.row()].trees_removal = newValue;
+                    if (index.column() == 35)  items[index.row()].trees_ha_dbh25 = newValue;
+                    if (index.column() == 36)  items[index.row()].average_dbh25 = newValue;
+                    if (index.column() == 37)  items[index.row()].increase_dbh25 = newValue;
+                    if (index.column() == 38)  items[index.row()].trees_ha_dbh2550 = newValue;
+                    if (index.column() == 39)  items[index.row()].average_dbh2550 = newValue;
+                    if (index.column() == 40)  items[index.row()].increase_dbh2550 = newValue;
+                    if (index.column() == 41)  items[index.row()].trees_ha_dbh50 = newValue;
+                    if (index.column() == 42)  items[index.row()].average_dbh50 = newValue;
+                    if (index.column() == 43)  items[index.row()].increase_dbh50 = newValue;
+                    if (index.column() == 44)  items[index.row()].time_horizon = newValue;
+                    if (index.column() == 45)  items[index.row()].diameter_breast = newValue;
+                    //if (index.column() == 46)  items[index.row()].time_horizon = newValue;
 
                     emit modelChanged();
                     return true;
@@ -630,13 +633,13 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     }
                     emit delegateChanged(index.column());
                 }
-                if (index.column() == 20)
+                if (index.column() == 21)
                 {
                     items[index.row()].ecosystem_type = value.toString();
                     emit delegateChanged(index.column());
                 }
 
-                if (index.column() == 21)
+                if (index.column() == 22)
                 {
                     {
                         items[index.row()].organic_amendment = value.toString();
@@ -690,7 +693,7 @@ bool feedsModel::setData(const QModelIndex &index,const QVariant &value,int role
                     }
                     emit delegateChanged(index.column());
                 }                
-                if (index.column() == 29)
+                if (index.column() == 30)
                     items[index.row()].category = value.toString();
                 emit modelChanged();
                 return true;

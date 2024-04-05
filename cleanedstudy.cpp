@@ -1646,7 +1646,7 @@ void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
 
     auto code = m_feeds->getCropCode(index.row());
     auto cropDesc = m_feeds->getCropDesc(index.row());
-    if (col == 2 || col == 6 || col == 8 || col == 11 || (( cropDesc == "Rice") && (col == 19|| col == 20 || col == 21 )))
+    if (col == 2 || col == 6 || col == 8 || col == 11 || (( cropDesc == "Rice") && (col == 19|| col == 21 || col == 22 )))
     {
         delegatorDialog selectDialog;
         if (col == 2)
@@ -1674,12 +1674,12 @@ void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
             selectDialog.load_waterregime();
             selectDialog.set_caption("Select a waterregime type");
         }
-        if (col == 20)
+        if (col == 21)
         {
             selectDialog.load_reice_ecosystem_type();
             selectDialog.set_caption("Select a reice ecosystem type");
         }
-        if (col == 21)
+        if (col == 22)
         {
             selectDialog.load_organic_amendment();
             selectDialog.set_caption("Select a reice organic_amendment");
