@@ -15,7 +15,7 @@ class compareModelsResultDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit compareModelsResultDialog(QWidget *parent, QStringList& results);
+    explicit compareModelsResultDialog(QWidget *parent, QStringList& results, QString baseName = "");
     ~compareModelsResultDialog();
 
 protected:
@@ -39,6 +39,7 @@ private:
     QString _outputFile;
     QSharedPointer<QProcess> _process;
     QVector<QSharedPointer<QPixmap>> _pngs;
+    QString _baseName;
 };
 
 #endif // COMPAREMODELSRESULTDIALOG_H

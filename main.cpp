@@ -53,20 +53,51 @@
 #include <QCommandLineOption>
 #include <QSettings>
 #include "mainwindow.h"
+#include "technicalmanualcleand.h"
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
 
+bool extractResourceFile(const QString &resourcePath, const QString &destinationPath) {
+    QFile file(destinationPath);
+    if (file.exists()) {
+        // The file already exists, no need to extract it again.
+        return true;
+    }
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Failed to open file for writing:" << file.errorString();
+        return false;
+    }
+
+    // Open the resource file
+    QFile resourceFile(resourcePath);
+    if (!resourceFile.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open resource file:" << resourceFile.errorString();
+        return false;
+    }
+
+    // Copy the content from the resource file to the destination file
+    QByteArray content = resourceFile.readAll();
+    file.write(content);
+
+    // Close the files
+    file.close();
+    resourceFile.close();
+
+    return true;
+}
+
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(cleaned);
 
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName("CLEANED_20230809");
+    QCoreApplication::setApplicationName("CLEANED_20240312");
     QCoreApplication::setOrganizationName("Alliance Bioversity-CIAT");
-    QCoreApplication::setApplicationVersion("20230809");
+    QCoreApplication::setApplicationVersion("20240312");
     QCommandLineParser parser;
     parser.setApplicationDescription("Cleaned Desktop App");
     parser.addHelpOption();
@@ -128,8 +159,20 @@ int main(int argc, char *argv[])
     for (const QString &fileName : posArgs)
         mainWin.openFile(fileName);
     QMessageBox msgBox;
-    msgBox.setText("Please check the user manual" );
-    msgBox.exec();
-    mainWin.show();
-    return app.exec();
+    msgBox.setText("Do you want to check the user manual ?");
+    msgBox.setStandardButtons(QMessageBox::Yes |  QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    int r = msgBox.exec();
+    if (r==QMessageBox::Yes){
+        TechnicalManual technicalmanual_screen;
+        technicalmanual_screen.exec();
+        mainWin.show();
+        return app.exec();
+        }
+    else
+    {
+        extractResourceFile(":/docs/ReadMe.pdf", QCoreApplication::applicationDirPath() + "/ReadMe.pdf");
+        mainWin.show();
+        return app.exec();
+    }
 }

@@ -24,9 +24,15 @@
 
 CleanedStudy::CleanedStudy(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CleanedStudy)
+    ui(new Ui::CleanedStudy),
+    _resultTab(nullptr),
+    _progressTab(nullptr)
 {
     ui->setupUi(this);
+    _resultTab = ui->tabResult;
+    _progressTab = ui->study_results_tab;
+    ui->tabWidget_2->removeTab(2);
+    ui->tabWidget_2->removeTab(1);
     static int sequenceNumber = 1;
     model_running = false;
     isUntitled = true;
@@ -44,6 +50,7 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
     connect(m_process,SIGNAL(finished(int)),this,SLOT(modelFinished(int)));
     connect(m_process,SIGNAL(readyReadStandardError()),this,SLOT(readyReadStandardError()));
     connect(m_process,SIGNAL(readyReadStandardOutput()),this,SLOT(readyReadStandardOutput()));
+    connect(ui->pngList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onImageSelected(QListWidgetItem*,QListWidgetItem*)));
 
     m_cropInputs = new cropInputsModel(this);
     ui->cropsView->setModel(m_cropInputs);
@@ -67,6 +74,9 @@ CleanedStudy::CleanedStudy(QWidget *parent) :
 
 CleanedStudy::~CleanedStudy()
 {
+    ui->pngLabel->setPixmap(QPixmap());
+    _pngs.clear();
+    m_process->kill();
     delete ui;
 }
 
@@ -720,7 +730,7 @@ void CleanedStudy::loadStudyObject()
     ui->feedsView->horizontalHeader()->setMinimumHeight(120);
     for (int ncol=0; ncol < m_feeds->columnCount(); ncol++)
     {
-        if (ncol != 2 && ncol != 6 && ncol != 8 && ncol != 11)
+        if (ncol != 2 && ncol != 6 && ncol != 8 && ncol != 11 && ncol != 19 && ncol != 20 && ncol != 21)
             feed_colums.append(ui->feedsView->columnWidth(ncol));
         else
         {
@@ -908,6 +918,15 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
 
     int row =Row;
     int col =Col;
+    QXlsx::Format formatYellowAndCenter;
+    formatYellowAndCenter.setPatternBackgroundColor(QColor(Qt::yellow));
+    formatYellowAndCenter.setHorizontalAlignment(QXlsx::Format::AlignHCenter);
+    formatYellowAndCenter.setBorderStyle(QXlsx::Format::BorderThin);
+
+    QXlsx::Format formatGreenAndCenter;
+    formatGreenAndCenter.setPatternBackgroundColor(QColor(Qt::green));
+    formatGreenAndCenter.setHorizontalAlignment(QXlsx::Format::AlignHCenter);
+    formatGreenAndCenter.setBorderStyle(QXlsx::Format::BorderThick);
 
     QXlsx::Format formatThinBorder;
     formatThinBorder.setBorderStyle(QXlsx::Format::BorderThin);
@@ -920,18 +939,17 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
     row++;
     //col++;
 
+    xlsx.mergeCells("A1:J1", formatYellowAndCenter);
+    xlsx.write ("A1", QString("=HYPERLINK(\"%1\",\"%2\")").arg(QCoreApplication::applicationDirPath() + "/ReadMe.pdf").arg("Ctrl-Clik here to open the README"));
+
     // Write the specified columns as column headers
     for (const QString& column : columns) {
-        xlsx.write(row, col++, column, formatThinBorder);
-    }
+                    xlsx.write(row, col++, column, formatThinBorder);
+            }
 
-    QXlsx::Format formatGreenAndCenter;
-    formatGreenAndCenter.setPatternBackgroundColor(QColor(Qt::green));
-    formatGreenAndCenter.setHorizontalAlignment(QXlsx::Format::AlignHCenter);
-    formatGreenAndCenter.setBorderStyle(QXlsx::Format::BorderThick);
-    QXlsx::CellRange titleRange(Row, Col, Row, col-1);
-    xlsx.mergeCells(titleRange, formatGreenAndCenter);
-
+            QXlsx::CellRange titleRange(Row, Col, Row, col-1);
+        xlsx.mergeCells(titleRange, formatGreenAndCenter);
+    
     // Write JSON array data to Excel
     for (const QJsonValue& jsonValue : jsonArray) {
         if (!jsonValue.isObject()) {
@@ -940,22 +958,24 @@ bool CleanedStudy::saveJsonArrayToExcel(const int& Row,const int& Col, const QSt
         }
 
         QJsonObject jsonObject = jsonValue.toObject();
-        col = Col;
-        row++;
-
+                    col = Col;
+            row++;
+        
         for (const QString& column : columns) {
-            xlsx.write(row, col++, jsonObject.value(column).toVariant(), formatThinBorder);
-        }
+                            xlsx.write(row, col++, jsonObject.value(column).toVariant(), formatThinBorder);
+                    }
     }
-    QXlsx::CellRange cr(Row, Col, Row + jsonArray.count()-1, col-1);
-    xlsx.autosizeColumnWidth(cr);
-
+            QXlsx::CellRange cr(Row, Col, Row + jsonArray.count()-1, col-1);
+        xlsx.autosizeColumnWidth(cr);
+    
     return true;
 }
 
 void CleanedStudy::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
+        if (_resultDir.size())
+            QMessageBox::information(this, "Information", "You can find the saved results in " + _resultDir);
         event->accept();
     } else {
         event->ignore();
@@ -1140,6 +1160,9 @@ void CleanedStudy::on_cmd_add_feed_clicked()
                 ui->feedsView->resizeColumnToContents(6);
                 ui->feedsView->resizeColumnToContents(8);
                 ui->feedsView->resizeColumnToContents(11);
+                ui->feedsView->resizeColumnToContents(19);
+                ui->feedsView->resizeColumnToContents(20);
+                ui->feedsView->resizeColumnToContents(21);
 
 
                 m_cropInputs->addNewFeed(crop, feed);
@@ -1254,6 +1277,8 @@ bool CleanedStudy::run()
 
         if (run_model && !model_running)
         {
+            ui->tabWidget_2->insertTab(1, _progressTab, "Progress");
+            ui->tabWidget_2->removeTab(2);
             ui->tabWidget_2->setCurrentIndex(1);
             model_running = true;
             ui->stackedWidget->setCurrentIndex(1);
@@ -1264,9 +1289,16 @@ bool CleanedStudy::run()
             params.append(settings.value("ghg_file","").toString());
             params.append(settings.value("stock_file","").toString());
             params.append(settings.value("enery_file","").toString());
-            QString outFile = curFile;
-            outFile = outFile.replace(".json","_result.json");
-            params.append(outFile);
+
+            QFileInfo fInfo(curFile);
+            _inputBaseName = fInfo.baseName();
+            _resultDir = fInfo.absolutePath()+QDir::separator()+fInfo.baseName();
+            params.append(_resultDir+QDir::separator()+fInfo.baseName()+"_result.json");
+            QDir directory;
+            if(!directory.exists(_resultDir)) {
+                directory.mkpath(_resultDir);
+            }
+
             qDebug() << "****************444";
             qDebug() << "Rscript " + params.join(" ");
             qDebug() << "****************444";
@@ -1448,8 +1480,29 @@ void CleanedStudy::modelFinished(int exitCode)
     if (exitCode == 0)
     {
         ui->stackedWidget->setCurrentIndex(2);
-        QString outFile = curFile;
-        outFile = outFile.replace(".json","_result.json");
+
+        QDir directory(_resultDir);
+        QStringList filters;
+        filters << "*.png";
+
+        auto pngsFilenames = directory.entryList(filters);
+
+        for(auto& pngFilename : pngsFilenames) {
+            _pngs.push_back(QSharedPointer<QPixmap>::create(_resultDir+QDir::separator()+pngFilename));
+            pngFilename.replace(_inputBaseName+"_result_", "");
+            pngFilename.replace(".png", "");
+        }
+        ui->pngList->clear();
+        ui->pngList->addItems(pngsFilenames);
+
+        ui->tabWidget_2->removeTab(1);
+        ui->tabWidget_2->insertTab(1, _resultTab, "Results");
+        ui->tabWidget_2->setCurrentIndex(1);
+        ui->tabWidget->setCurrentWidget(_resultTab);
+        ui->pngList->setCurrentRow(0);
+
+        QFileInfo fInfo(curFile);
+        QString outFile = fInfo.absolutePath()+QDir::separator()+fInfo.baseName() + QDir::separator()+fInfo.baseName()+"_result.json";
         QFile file(outFile);
         file.open(QFile::ReadOnly | QFile::Text);
         auto result = file.readAll();
@@ -1471,80 +1524,80 @@ void CleanedStudy::modelFinished(int exitCode)
 void CleanedStudy::exportResultToExcel(const QString& result, const QString& filename) {
 
     QXlsx::Document xlsx;
-            QJsonDocument doc = QJsonDocument::fromJson(result.toUtf8());
-            QJsonObject jso = doc.object();
+    QJsonDocument doc = QJsonDocument::fromJson(result.toUtf8());
+    QJsonObject jso = doc.object();
 
 
-            QJsonValue value1 = jso.value(QString("land_required"));
-            QJsonArray qjsArr1 = value1["TA1"].toArray();
-            int TA1count=qjsArr1.count();
-            QStringList columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
-            saveJsonArrayToExcel(3,1,"season_1",qjsArr1,columns,xlsx,"land_required_Season");
-            QJsonArray qjsArr2 = value1["TA2"].toArray();
-                        //columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
-                         columns = {"area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
-            saveJsonArrayToExcel(3,11,"season_2",qjsArr2,columns,xlsx,"-");
+    QJsonValue value1 = jso.value(QString("land_required"));
+    QJsonArray qjsArr1 = value1["TA1"].toArray();
+    int TA1count=qjsArr1.count();
+    QStringList columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
+saveJsonArrayToExcel(3,1,"season_1",qjsArr1,columns,xlsx,"land_required_Season");
+QJsonArray qjsArr2 = value1["TA2"].toArray();
+//columns = {"feed", "area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
+columns = {"area_total", "area_non_feed", "area_feed", "rough_of", "conc_of", "conc_ip", "farm", "grasses", "tree_legume"};
+saveJsonArrayToExcel(3,11,"season_2",qjsArr2,columns,xlsx,"-");
 
-            value1 = jso.value(QString("energy_required"));
-            qjsArr1 = value1["annual_results"].toArray();
-            int annual_resultscount=qjsArr1.count();
-            columns = {"energy_required_annually", "protein_required_annually", "dmi_energy_total", "dmi_cp_total", "limiting_total", "surplus_total", "me_intake", "dmi_tot", "de_intake", "ge_intake"};
-            saveJsonArrayToExcel(7+TA1count,1,"Annual_nutrient _& _DMI_requirements",qjsArr1,columns,xlsx,"-");
+value1 = jso.value(QString("energy_required"));
+qjsArr1 = value1["annual_results"].toArray();
+int annual_resultscount=qjsArr1.count();
+columns = {"energy_required_annually", "protein_required_annually", "dmi_energy_total", "dmi_cp_total", "limiting_total", "surplus_total", "me_intake", "dmi_tot", "de_intake", "ge_intake"};
+saveJsonArrayToExcel(7+TA1count,1,"Annual_nutrient _& _DMI_requirements",qjsArr1,columns,xlsx,"-");
 
-            value1 = jso.value(QString("energy_required"));
-            qjsArr1 = value1["seasonal_results"].toArray();
-            columns = {"energy_required_by_season", "protein_required_by_season", "fresh_intake_required_e", "dmi_required_e", "fresh_intake_required_cp", "dmi_required_cp", "dmi_s", "limiting", "surplus_season", "me_intake_s"};
-            saveJsonArrayToExcel(10+annual_resultscount+TA1count,1,"Seasonal_nutrient_&_DMI_requirements",qjsArr1,columns,xlsx,"-");
-            //////////////////////////////////////////
-            value1 = jso.value(QString("feed_basket_quality"));
-            qjsArr1 = value1["TA1"].toArray();
-            TA1count=qjsArr1.count();
-            columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-            saveJsonArrayToExcel(2,1,"season_1",qjsArr1,columns,xlsx,"feed_basket_quality");
-            qjsArr2 = value1["TA2"].toArray();
-            //columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-            columns = {"Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-            saveJsonArrayToExcel(2,7,"season_2",qjsArr2,columns,xlsx,"-");
-            //////////////////////////////////////////
-            value1 = jso.value(QString("livestock_productivity"));
-            qjsArr1 = value1.toArray();
-            columns = {"livetype_name","tlu","total_milk","meat_production_animal","energy_kcal_year_meat","energy_kcal_year_milk","protein_kg_year_meat","protein_kg_year_milk","annual_manure_produced","daily_manure_produced"};
-            saveJsonArrayToExcel(2,1,"",qjsArr1,columns,xlsx,"livestock_productivity");
-            //////////////////////////////////////////
-            //Soil health
+value1 = jso.value(QString("energy_required"));
+qjsArr1 = value1["seasonal_results"].toArray();
+columns = {"energy_required_by_season", "protein_required_by_season", "fresh_intake_required_e", "dmi_required_e", "fresh_intake_required_cp", "dmi_required_cp", "dmi_s", "limiting", "surplus_season", "me_intake_s"};
+saveJsonArrayToExcel(10+annual_resultscount+TA1count,1,"Seasonal_nutrient_&_DMI_requirements",qjsArr1,columns,xlsx,"-");
+//////////////////////////////////////////
+value1 = jso.value(QString("feed_basket_quality"));
+qjsArr1 = value1["TA1"].toArray();
+TA1count=qjsArr1.count();
+columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+saveJsonArrayToExcel(2,1,"season_1",qjsArr1,columns,xlsx,"feed_basket_quality");
+qjsArr2 = value1["TA2"].toArray();
+//columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+columns = {"Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+saveJsonArrayToExcel(2,7,"season_2",qjsArr2,columns,xlsx,"-");
+//////////////////////////////////////////
+value1 = jso.value(QString("livestock_productivity"));
+qjsArr1 = value1.toArray();
+columns = {"livetype_name","tlu","total_milk","meat_production_animal","energy_kcal_year_meat","energy_kcal_year_milk","protein_kg_year_meat","protein_kg_year_milk","annual_manure_produced","daily_manure_produced"};
+saveJsonArrayToExcel(2,1,"",qjsArr1,columns,xlsx,"livestock_productivity");
+//////////////////////////////////////////
+//Soil health
 
 
-            //////////////////////////////////////////
-            value1 = jso.value(QString("water_required"));
-            qjsArr1 = value1["water_use_for_production"].toArray();;
-            TA1count=qjsArr1.count();
-            columns = {"Names","tlu","Value"};
-            saveJsonArrayToExcel(2,2,"water_use_for_production",qjsArr1,columns,xlsx,"Water use");
+//////////////////////////////////////////
+value1 = jso.value(QString("water_required"));
+qjsArr1 = value1["water_use_for_production"].toArray();;
+TA1count=qjsArr1.count();
+columns = {"Names","tlu","Value"};
+saveJsonArrayToExcel(2,2,"water_use_for_production",qjsArr1,columns,xlsx,"Water use");
 
-            qjsArr2 = value1["water_use_per_feed_item"].toArray();
-            //columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
-            columns = {"feed", "feed_water_use", "non_feed_water_use", "kc_water_use_of_roughages", "kc_water_use_of_concentrates", "kc_water_use_ip_concentrates", "kc_water_use_on_farm", "kc_water_use_m3_per_kg"};
-            saveJsonArrayToExcel(6+TA1count,2,"water_use_per_feed_item",qjsArr2,columns,xlsx,"-");
+qjsArr2 = value1["water_use_per_feed_item"].toArray();
+//columns = {"livestock_category_name", "Barley (grains) OFC", "Berseem clover", "Lucerne (Medicago sativa) - forage", "Naturally occuring pasture - grazing", "Oats (Avena sativa) - hay OFR", "Sorghum (Sorghum bicolor) - forage", "Soybean (Glycine max) - whole seed IP"};
+columns = {"feed", "feed_water_use", "non_feed_water_use", "kc_water_use_of_roughages", "kc_water_use_of_concentrates", "kc_water_use_ip_concentrates", "kc_water_use_on_farm", "kc_water_use_m3_per_kg"};
+saveJsonArrayToExcel(6+TA1count,2,"water_use_per_feed_item",qjsArr2,columns,xlsx,"-");
 
-           /////////////////////////////////////////
+/////////////////////////////////////////
 
-            value1 = jso.value(QString("biomass"));
-            qjsArr1 = value1["trees_non_feed_biomass"].toArray();;
-            TA1count=qjsArr1.count();
-            columns = {"feed_item_name","c_increase","co2_increase","c_increase_soc","co2_increase_soc","total_c_increase","total_co2_increase"};
-            saveJsonArrayToExcel(2,2,"trees_non_feed_biomass",qjsArr1,columns,xlsx,"Carbon sequestration");
+value1 = jso.value(QString("biomass"));
+qjsArr1 = value1["trees_non_feed_biomass"].toArray();;
+TA1count=qjsArr1.count();
+columns = {"feed_item_name","c_increase","co2_increase","c_increase_soc","co2_increase_soc","total_c_increase","total_co2_increase"};
+saveJsonArrayToExcel(2,2,"trees_non_feed_biomass",qjsArr1,columns,xlsx,"Carbon sequestration");
 
-            value1 = jso.value(QString("soil_carbon"));
-            qjsArr1 = value1.toArray();
-            columns = {"total_annual_change_carbon_soils", "total_change_co2_soils"};
-             saveJsonArrayToExcel(5+TA1count,2,"soil_carbon",qjsArr1,columns,xlsx,"-");
+value1 = jso.value(QString("soil_carbon"));
+qjsArr1 = value1.toArray();
+columns = {"total_annual_change_carbon_soils", "total_change_co2_soils"};
+saveJsonArrayToExcel(5+TA1count,2,"soil_carbon",qjsArr1,columns,xlsx,"-");
 
-           /////////////////////////////////////////
-             value1 = jso.value(QString("ghg_emission"));
-             qjsArr1 = value1.toArray();
-             columns = {"GHG_balance", "kg_per_ha"};
-             saveJsonArrayToExcel(2,2,"GHG emissions",qjsArr1,columns,xlsx,"GHG emissions");
-             xlsx.selectSheet(0);
+/////////////////////////////////////////
+value1 = jso.value(QString("ghg_emission"));
+qjsArr1 = value1.toArray();
+columns = {"GHG_balance", "kg_per_ha"};
+saveJsonArrayToExcel(2,2,"GHG emissions",qjsArr1,columns,xlsx,"GHG emissions");
+xlsx.selectSheet(0);
     xlsx.saveAs(filename);
 }
 
@@ -1590,7 +1643,10 @@ void CleanedStudy::on_livestockView_doubleClicked(const QModelIndex &index)
 void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
 {
     int col = index.column();
-    if (col == 2 || col == 6 || col == 8 || col == 11 || col == 29|| col == 30 || col == 31 )
+
+    auto code = m_feeds->getCropCode(index.row());
+    auto cropDesc = m_feeds->getCropDesc(index.row());
+    if (col == 2 || col == 6 || col == 8 || col == 11 || (( cropDesc == "Rice") && (col == 19|| col == 21 || col == 22 )))
     {
         delegatorDialog selectDialog;
         if (col == 2)
@@ -1613,17 +1669,17 @@ void CleanedStudy::on_feedsView_doubleClicked(const QModelIndex &index)
             selectDialog.load_grassmanagement(db);
             selectDialog.set_caption("Select a grassland management type");
         }
-        if (col == 29)
+        if (col == 19)
         {
             selectDialog.load_waterregime();
             selectDialog.set_caption("Select a waterregime type");
         }
-        if (col == 30)
+        if (col == 21)
         {
             selectDialog.load_reice_ecosystem_type();
             selectDialog.set_caption("Select a reice ecosystem type");
         }
-        if (col == 31)
+        if (col == 22)
         {
             selectDialog.load_organic_amendment();
             selectDialog.set_caption("Select a reice organic_amendment");
@@ -1692,3 +1748,20 @@ void CleanedStudy::on_cmdcancelrun_clicked()
     m_process->kill();
 }
 
+void CleanedStudy::onImageSelected(QListWidgetItem *current, QListWidgetItem *previous) {
+    if(current) {
+        auto &png= _pngs[ui->pngList->currentRow()];
+        ui->pngLabel->setPixmap(QPixmap());
+        ui->pngLabel->setPixmap(png->scaled(QSize(ui->pngLabel->size().width()-2, ui->pngLabel->size().height()-2), Qt::KeepAspectRatio));
+    }
+}
+
+
+void CleanedStudy::resizeEvent(QResizeEvent *event) {
+    QWidget::resizeEvent(event);
+    if(ui->pngList->currentItem()) {
+        auto &png= _pngs[ui->pngList->currentRow()];
+        ui->pngLabel->setPixmap(QPixmap());
+        ui->pngLabel->setPixmap(png->scaled(QSize(ui->pngLabel->size().width()-2, ui->pngLabel->size().height()-2), Qt::KeepAspectRatio));
+    }
+}

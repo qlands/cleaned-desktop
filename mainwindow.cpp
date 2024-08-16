@@ -245,7 +245,7 @@ void MainWindow::saveAs()
 
 void MainWindow::show_about()
 {
-    AboutCleaned about_screen;
+    AboutCleaned about_screen(this);
     about_screen.exec();
 }
 
@@ -621,8 +621,8 @@ void MainWindow::compareModels()
             CleanedStudy *child = qobject_cast<CleanedStudy *>(mdiSubWindow->widget());
             if (child->studyModified == false)
             {
-                QString result_file = child->currentFile();
-                result_file = result_file.replace(".json","_result.json");
+                QFileInfo fInfo(child->currentFile());
+                QString result_file = fInfo.absolutePath()+QDir::separator()+fInfo.baseName() + QDir::separator()+fInfo.baseName()+"_result.json";
                 if (QFile::exists(result_file))
                 {
                     compareDialog.addModel(result_file);

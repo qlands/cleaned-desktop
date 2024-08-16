@@ -12,6 +12,7 @@
 #include "basketmodel.h"
 #include "xlsxdocument.h"
 #include <QProcess>
+#include <QListWidget>
 
 namespace Ui {
 class CleanedStudy;
@@ -40,8 +41,10 @@ public:
     bool saveJsonArrayToExcel(const int& Row, const int& Col,const QString& title,const QJsonArray& jsonArray, const QStringList& columns, QXlsx::Document& xlsx,const QString& tabName);
 protected:
     void closeEvent(QCloseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
+    void onImageSelected(QListWidgetItem *current, QListWidgetItem *previous);
     void readyReadStandardError();
     void readyReadStandardOutput();
     void documentWasModified();
@@ -121,6 +124,12 @@ private:
     bool loading;
     void BrowseChildren(QWidget * parent);
     QProcess *m_process;
+    QString _resultDir;
+    QString _inputBaseName;
+    QWidget *_resultTab;
+    QVector<QSharedPointer<QPixmap>> _pngs;
+    QWidget* _progressTab;
+
 };
 
 #endif // CLEANEDSTUDY_H

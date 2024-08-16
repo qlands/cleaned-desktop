@@ -18,6 +18,7 @@ ManageDatabases::ManageDatabases(QWidget *parent) :
     m_databases->loadDatabases(settings.value("database_file").toString());
     ui->tableView->setModel(m_databases);
     ui->tableView->resizeColumnsToContents();
+    ui->tableView->hideColumn(0);
     this->setWindowTitle("Set Parameter");
 
     QString dbman_file = settings.value("dbman_file","").toString();
